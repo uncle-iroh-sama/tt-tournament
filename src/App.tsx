@@ -29,6 +29,14 @@ const ERRORS: Record<string, Key> = {
   'bad-slot': 'missing',
 }
 
+function pageKey(route: string): Key {
+  if (route.startsWith('#/public')) return 'public'
+  if (route.startsWith('#/druk/klasyfikacja')) return 'printClass'
+  if (route.startsWith('#/druk/kartki')) return 'printSheets'
+  if (route.startsWith('#/druk')) return 'printBracket'
+  return NAV.find(([hash]) => hash === route)?.[1] ?? 'app'
+}
+
 const NAV: [string, Key][] = [
   ['#/', 'navHome'],
   ['#/zawodnicy', 'navPlayers'],
@@ -58,9 +66,14 @@ export default function App() {
   useEffect(() => { saveTournament(tournament) }, [tournament])
   useEffect(() => {
     saveLang(lang)
-    document.documentElement.lang = lang
-    document.title = translate(lang, 'app')
-  }, [lang])
+    const root = document.documentElement
+    root.lang = lang
+    root.setAttribute('translate', 'no')
+    root.classList.add('notranslate')
+    const page = translate(lang, pageKey(route))
+    const name = tournament?.settings.name.trim()
+    document.title = name ? `${page} · ${name}` : page
+  }, [lang, route, tournament])
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
