@@ -44,7 +44,7 @@ export interface PlaceBand {
 }
 
 export type MatchLabel =
-  | { k: 'qual'; round: number; n: number }
+  | { k: 'qual'; round: number; n: number; draw?: number }
   | { k: 'main'; round: number; rounds: number; n: number }
   | { k: 'place'; place: number; n: number }
   | { k: 'group'; group: string; n: number; kolejka: number }

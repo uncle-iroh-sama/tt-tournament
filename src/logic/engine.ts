@@ -3,7 +3,7 @@ import { groupStandings } from './groups.ts'
 import { explainSets, matchWinner } from './score.ts'
 import { invalidateDownstream, settle } from './propagate.ts'
 import { activePlayers, compareRanking } from './ranking.ts'
-import { makeDrawCode } from './rng.ts'
+import { makeDrawCode, rngFrom, shuffle } from './rng.ts'
 import type { Match, Outcome, PlaceFlags, Player, SetScore, Settings, Tournament } from './types.ts'
 
 export type Action =
@@ -400,29 +400,62 @@ export function fillFreedTable(t: Tournament, table: number | null): Tournament 
   return t
 }
 
+const SIM_SETS: Array<[number, number]> = [
+  [11, 7], [11, 5], [11, 9], [11, 8], [11, 6], [11, 4], [12, 10], [11, 3], [13, 11], [14, 12], [11, 2],
+]
+
+function strength(t: Tournament, id: string): number {
+  const seed = t.mainSeeds[id]
+  if (seed != null) return seed
+  const p = t.players.find((x) => x.id === id)
+  if (p?.rankingPosition != null) return p.rankingPosition
+  if (p?.rankingPoints != null) return 1_000_000 - p.rankingPoints
+  return 1_000_000
+}
+
+/** Plausible set scores. The better seed wins more often, and not every time. */
+function simulatedSets(t: Tournament, m: Match): SetScore[] {
+  const rng = rngFrom(t.drawCode, `sim:${m.id}`)
+  const aIsBetter = strength(t, m.slotA!) <= strength(t, m.slotB!)
+  const aWins = rng() < 0.28 ? !aIsBetter : aIsBetter
+  const need = m.bestOf === 5 ? 3 : 2
+  const roll = rng()
+  const losses = need === 3 ? (roll < 0.35 ? 0 : roll < 0.72 ? 1 : 2) : roll < 0.55 ? 0 : 1
+  const marks: Array<'W' | 'L'> = []
+  for (let i = 0; i < losses; i++) marks.push('L')
+  for (let i = 0; i < need - 1; i++) marks.push('W')
+  const order = shuffle(marks, rng)
+  order.push('W')
+  return order.map((mark) => {
+    const pair = SIM_SETS[Math.floor(rng() * SIM_SETS.length)]!
+    const highOnA = mark === 'W' ? aWins : !aWins
+    return highOnA ? { a: pair[0], b: pair[1] } : { a: pair[1], b: pair[0] }
+  })
+}
+
+function inSimStage(m: Match, mainStage: boolean): boolean {
+  return mainStage ? m.stage === 'main' || m.stage === 'placement' : m.stage === 'qualifying' || m.stage === 'group'
+}
+
+/**
+ * Plays the stage the referee is in, and stops.
+ * Qualifying is drawn and played, then the desk waits for the main draw.
+ * After that draw, the main bracket and the place matches are played.
+ * Scores are sets, never walkovers.
+ */
 export function simulateRemaining(start: Tournament): Action {
   let t = start
-  if (t.phase === 'setup' && qualifyingRequired(t)) {
+  const hasQual = t.matches.some((m) => m.stage === 'qualifying' || m.stage === 'group')
+  if (t.phase === 'setup' && qualifyingRequired(t) && !hasQual) {
     const built = generateQualifying(t)
     if (!built.ok) return built
     t = built.tournament
   }
-  for (let i = 0; i < 800 && !qualifyingComplete(t); i++) {
-    const m = readyMatches(t)[0]
-    if (!m?.slotA) break
-    const res = enterWalkover(t, m.id, m.slotA)
-    if (!res.ok) return res
-    t = res.tournament
-  }
-  if (t.phase !== 'main') {
-    const main = generateMainDraw(t)
-    if (!main.ok) return main
-    t = main.tournament
-  }
+  const mainStage = t.phase === 'main'
   for (let i = 0; i < 800; i++) {
-    const m = readyMatches(t)[0]
-    if (!m?.slotA) break
-    const res = enterWalkover(t, m.id, m.slotA)
+    const m = readyMatches(t).find((match) => inSimStage(match, mainStage))
+    if (!m?.slotA || !m.slotB) break
+    const res = enterScore(t, m.id, simulatedSets(t, m))
     if (!res.ok) return res
     t = res.tournament
   }

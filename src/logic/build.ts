@@ -233,6 +233,7 @@ function pairToks(
   index: number,
   bestOf: 3 | 5,
   bag: Match[],
+  draw?: number,
 ): Tok {
   const as = tokSlot(a)
   const bs = tokSlot(b)
@@ -241,7 +242,7 @@ function pairToks(
     stage: 'qualifying',
     round,
     index,
-    label: { k: 'qual', round, n: index + 1 },
+    label: { k: 'qual', round, n: index + 1, draw },
     bestOf,
     slotA: as.player,
     slotB: bs.player,
@@ -337,7 +338,7 @@ export function buildQualifying(players: Player[], settings: Settings, at: strin
       const next: Tok[] = []
       for (let i = 0; i < current.length; i += 2) {
         const id = `q-r${round}-m${i / 2}`
-        next.push(pairToks(id, current[i]!, current[i + 1]!, round, i / 2, settings.bestOf, matches))
+        next.push(pairToks(id, current[i]!, current[i + 1]!, round, i / 2, settings.bestOf, matches, current.length))
       }
       current = next
       round++

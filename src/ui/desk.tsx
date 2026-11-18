@@ -30,7 +30,7 @@ import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { isDemoTournament, parsePlayerLines } from '../demo.ts'
-import { catKey, findPlayer, matchTitle, placeColumnTitle, pname, ratioText, roundHeading } from './format.ts'
+import { catKey, countForm, findPlayer, matchTitle, placeColumnTitle, pname, ratioText, roundHeading } from './format.ts'
 import { ScoreDialog } from './score.tsx'
 
 const CATS: Category[] = ['senior', 'mlodziezowiec', 'junior', 'kadet', 'mlodzik', 'zak', 'skrzat', 'masters']
@@ -46,6 +46,28 @@ function placeText(ref: { kind: string; place?: number; from?: number; to?: numb
   if (ref.kind === 'band') return `${ref.from}–${ref.to}`
   if (ref.kind === 'out') return dyskw
   return '…'
+}
+
+function demoCanSimulate(t: Tournament): boolean {
+  if (!isDemoTournament(t)) return false
+  if (t.phase === 'main') return readyMatches(t).some((m) => m.stage === 'main' || m.stage === 'placement')
+  if (readyMatches(t).some((m) => m.stage === 'qualifying' || m.stage === 'group')) return true
+  return t.phase === 'setup' && qualifyingRequired(t)
+}
+
+function matchLine(tr: (k: Key) => string, lang: Lang, key: 'playingNow' | 'playingNext', m: Match, foe: string): string {
+  const table = m.table != null ? ` · ${tr('suggest')} ${m.table}` : ''
+  return `${tr(key)}: ${matchTitle(m, lang)} · ${tr('versus')} ${foe}${table}`
+}
+
+function finishedLine(
+  tr: (k: Key) => string,
+  row: { ref: { kind: string; place?: number; from?: number; to?: number }; points: number | null },
+): string {
+  if (row.ref.kind === 'out') return tr('notClassifiedLong')
+  const pts = row.points != null ? ` · ${row.points} ${tr('pointsShort')}` : ''
+  if (row.ref.kind === 'band') return `${tr('placesWord')} ${row.ref.from}–${row.ref.to}${pts}`
+  return `${tr('place')} ${row.ref.place}${pts}`
 }
 
 export function Desk({
@@ -192,7 +214,7 @@ function Home({
           {step.kind === 'play' && <button className="btn" onClick={() => go('#/mecze')}>{tr('navMatches')}</button>}
           {step.kind === 'players' && <button className="btn" onClick={() => go('#/zawodnicy')}>{tr('navPlayers')}</button>}
           {step.kind === 'done' && <button className="btn" onClick={() => go('#/klasyfikacja')}>{tr('navClass')}</button>}
-          {isDemoTournament(t) && step.kind !== 'done' && (
+          {demoCanSimulate(t) && (
             <button className="btn secondary" data-testid="simulate" onClick={() => act(simulateRemaining(t))}>{tr('simulate')}</button>
           )}
         </div>
@@ -219,7 +241,9 @@ function Home({
           <button className="btn secondary" onClick={() => go('#/druk/drabinka')}>{tr('printBracket')}</button>
         </div>
         <div className="row" style={{ marginTop: 10 }}>
-          <button className="btn danger" onClick={() => ask({ text: tr('undoConfirm'), run: () => setT(undoAll(t)) })}>{tr('undo')}</button>
+          {t.matches.length > 0 && (
+            <button className="btn danger" onClick={() => ask({ text: tr('undoConfirm'), run: () => setT(undoAll(t)) })}>{tr('undo')}</button>
+          )}
           <button className="btn danger" onClick={onReplace}>{tr('newTournament')}</button>
         </div>
         <p className="muted">{tr('drawCode')}: <b>{t.drawCode}</b>. {tr('drawCodeHint')}</p>
@@ -283,8 +307,8 @@ function describePlan(t: Tournament, lang: Lang) {
       <ul>
         {ko?.rounds.map((r) => (
           <li key={r.index}>
-            {tr('roundLine')} {r.index + 1}: {r.matches} {tr('matchesWord')}
-            {r.byeMatches ? `, ${r.byeMatches} ${tr('byesWord')}` : ''}. {tr('remain')} {r.advancers}.
+            {tr('roundLine')} {r.index + 1}: {r.matches} {countForm(r.matches, lang, tr('matchOne'), tr('matchFew'), tr('matchMany'))}
+            {r.byeMatches ? `, ${r.byeMatches} ${countForm(r.byeMatches, lang, tr('byeOne'), tr('byeFew'), tr('byeMany'))}` : ''}. {countForm(r.advancers, lang, tr('stayOne'), tr('stayFew'), tr('stayMany'))} {r.advancers}.
           </li>
         ))}
       </ul>
@@ -776,7 +800,9 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
 
 function Slip({ t, m, lang, onOpen, onPick, picked }: { t: Tournament; m: Match; lang: Lang; onOpen?: () => void; onPick?: (slot: 'A' | 'B') => void; picked?: 'A' | 'B' | null }) {
   const cls = m.outcome === 'pending' && m.table ? 'live' : m.outcome === 'pending' && m.slotA && m.slotB ? 'ready' : m.outcome === 'pending' ? 'pending' : 'done'
-  const sets = m.sets.map((s) => `${s.a}:${s.b}`).join('  ')
+  const wonA = m.sets.filter((s) => s.a > s.b).length
+  const wonB = m.sets.filter((s) => s.b > s.a).length
+  const sets = m.sets.length > 0 ? `${wonA}:${wonB} · ${m.sets.map((s) => `${s.a}:${s.b}`).join(' ')}` : ''
   const playable = !!onOpen && !!m.slotA && !!m.slotB && m.outcome !== 'bye' && m.outcome !== 'cancelled'
   return (
     <div
@@ -894,17 +920,19 @@ function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
           const upcoming = next.find((m) => m.slotA === p.id || m.slotB === p.id)
             ?? readyMatches(t).find((m) => m.table == null && (m.slotA === p.id || m.slotB === p.id))
           const row = rows.find((r) => r.playerId === p.id)
-          const shown = current ?? upcoming
-          const foe = shown ? pname(findPlayer(t, shown.slotA === p.id ? shown.slotB : shown.slotA), lang) : ''
+          const active = current ?? upcoming
+          const foe = active ? pname(findPlayer(t, active.slotA === p.id ? active.slotB : active.slotA), lang) : ''
+          const waiting = !current && !upcoming && (!row || row.ref.kind === 'pending')
           return (
             <div key={p.id} className="hit">
               <strong>{p.name}</strong>
               <div className="muted">{p.club}</div>
-              {current && <div>{tr('playingNow')}: {tr('suggest')} {current.table} · {foe}</div>}
-              {!current && upcoming && <div>{tr('playingNext')}: {foe}{upcoming.table ? ` · ${tr('suggest')} ${upcoming.table}` : ''}</div>}
-              {!current && !upcoming && shown == null && row && (
-                <div>{tr('playingDone')}: {placeText(row.ref, tr('notClassified'))}{row.points != null ? ` · ${row.points}` : ''}</div>
+              {current && <div>{matchLine(tr, lang, 'playingNow', current, foe)}</div>}
+              {!current && upcoming && <div>{matchLine(tr, lang, 'playingNext', upcoming, foe)}</div>}
+              {!current && !upcoming && row && row.ref.kind !== 'pending' && (
+                <div>{finishedLine(tr, row)}</div>
               )}
+              {waiting && <div className="muted">{tr('inProgress')}</div>}
             </div>
           )
         })}

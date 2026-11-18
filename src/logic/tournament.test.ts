@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest'
+import { demoTournament } from '../demo.ts'
+import { countForm, matchTitle, roundHeading, roundName } from '../ui/format.ts'
 import { classification } from './classify.ts'
 import { groupPairings, groupStandings, snakeGroups } from './groups.ts'
 import {
@@ -11,6 +13,7 @@ import {
   generateMainDraw,
   generateQualifying,
   readyMatches,
+  simulateRemaining,
   swapMainSlots,
 } from './engine.ts'
 import { planKnockout, previewQualifying } from './plan.ts'
@@ -461,5 +464,109 @@ describe('walkover advances the opponent', () => {
       const slot = updated.winnerTo.slot === 'A' ? next.slotA : next.slotB
       expect(slot).toBe(m!.slotA)
     }
+  })
+})
+
+describe('round names', () => {
+  it('counts players in the round, so a 32-draw starts at 1/16', () => {
+    expect(roundName(64, 'pl')).toBe('1/32')
+    expect(roundName(32, 'pl')).toBe('1/16')
+    expect(roundName(16, 'pl')).toBe('1/8')
+    expect(roundName(8, 'pl')).toBe('Ćwierćfinał')
+    expect(roundName(4, 'pl')).toBe('Półfinał')
+    expect(roundName(2, 'pl')).toBe('Finał')
+    expect(roundName(64, 'en')).toBe('Round of 64')
+    expect(roundName(32, 'en')).toBe('Round of 32')
+    expect(roundName(16, 'en')).toBe('Round of 16')
+    expect(roundName(8, 'en')).toBe('QF')
+    expect(roundName(4, 'en')).toBe('SF')
+    expect(roundName(2, 'en')).toBe('Final')
+  })
+
+  it('uses the Polish cases after a number', () => {
+    const word = (n: number) => countForm(n, 'pl', 'mecz', 'mecze', 'meczów')
+    expect(word(1)).toBe('mecz')
+    expect(word(2)).toBe('mecze')
+    expect(word(4)).toBe('mecze')
+    expect(word(5)).toBe('meczów')
+    expect(word(12)).toBe('meczów')
+    expect(word(22)).toBe('mecze')
+    expect(word(31)).toBe('mecz')
+    expect(word(32)).toBe('mecze')
+    expect(countForm(1, 'en', 'match', 'matches', 'matches')).toBe('match')
+    expect(countForm(5, 'en', 'match', 'matches', 'matches')).toBe('matches')
+  })
+
+  it('labels a 32-player main draw and its qualifier the same way', () => {
+    const settings = { ...defaultSettings(), mainDrawSize: 32 as const, directSeeds: 32 }
+    const field = Array.from({ length: 32 }, (_, i) => player(`p${i + 1}`, 'K', 2000 - i, i + 1))
+    const drawn = generateMainDraw(withPlayers(settings, field, 'NAME32'))
+    expect(drawn.ok).toBe(true)
+    if (!drawn.ok) return
+    const first = drawn.tournament.matches.find((m) => m.stage === 'main' && m.round === 0)!
+    const last = drawn.tournament.matches.find((m) => m.stage === 'main' && m.placeWin === 1)!
+    expect(roundHeading(first, 'pl')).toBe('1/16')
+    expect(matchTitle(first, 'en')).toBe('Round of 32')
+    expect(roundHeading(last, 'pl')).toBe('Finał')
+    expect(matchTitle(last, 'en')).toBe('Final')
+    expect(roundHeading(first, 'pl')).not.toBe('1/32')
+
+    const qual = generateQualifying(demoTournament())
+    expect(qual.ok).toBe(true)
+    if (!qual.ok) return
+    const q0 = qual.tournament.matches.find((m) => m.stage === 'qualifying' && m.round === 0)!
+    const q1 = qual.tournament.matches.find((m) => m.stage === 'qualifying' && m.round === 1)!
+    expect(roundHeading(q0, 'pl')).toBe('1/32')
+    expect(matchTitle(q0, 'en')).toBe('Round of 64')
+    expect(roundHeading(q1, 'pl')).toBe('1/16')
+    expect(matchTitle(q1, 'en')).toBe('Round of 32')
+  })
+})
+
+describe('simulate remaining stays on the current stage', () => {
+  it('plays qualifying with set scores, then waits for the main draw', () => {
+    const first = simulateRemaining(demoTournament())
+    expect(first.ok).toBe(true)
+    if (!first.ok) return
+    const qual = first.tournament
+    expect(qual.phase).not.toBe('main')
+    expect(qual.matches.some((m) => m.stage === 'main')).toBe(false)
+    const played = qual.matches.filter((m) => m.stage === 'qualifying' && m.outcome !== 'bye')
+    expect(played.length).toBeGreaterThan(0)
+    expect(played.every((m) => m.outcome === 'score')).toBe(true)
+    for (const m of played) {
+      expect(m.sets.length).toBeGreaterThanOrEqual(3)
+      expect(m.sets.length).toBeLessThanOrEqual(5)
+      for (const s of m.sets) expect(isValidSet(s.a, s.b)).toBe(true)
+    }
+    const again = simulateRemaining(qual)
+    expect(again.ok).toBe(true)
+    if (!again.ok) return
+    expect(again.tournament.matches.some((m) => m.stage === 'main')).toBe(false)
+
+    let favoured = 0
+    let upsets = 0
+    for (const m of played) {
+      if (!m.slotA || !m.slotB || !m.winnerId) continue
+      const pos = (id: string) => qual.players.find((p) => p.id === id)?.rankingPosition ?? 999
+      const better = pos(m.slotA) <= pos(m.slotB) ? m.slotA : m.slotB
+      if (m.winnerId === better) favoured++
+      else upsets++
+    }
+    expect(favoured).toBeGreaterThan(upsets)
+    expect(upsets).toBeGreaterThan(0)
+
+    const drawn = generateMainDraw(qual)
+    expect(drawn.ok).toBe(true)
+    if (!drawn.ok) return
+    const rest = simulateRemaining(drawn.tournament)
+    expect(rest.ok).toBe(true)
+    if (!rest.ok) return
+    const later = rest.tournament.matches.filter((m) => (m.stage === 'main' || m.stage === 'placement') && m.outcome !== 'bye' && m.outcome !== 'cancelled')
+    expect(later.length).toBeGreaterThan(0)
+    expect(later.every((m) => m.outcome === 'score')).toBe(true)
+    expect(rest.tournament.matches.some((m) => m.outcome === 'walkover')).toBe(false)
+    expect(later.some((m) => m.sets.length > (m.bestOf === 5 ? 3 : 2))).toBe(true)
+    expect(rest.tournament.matches.some((m) => m.placeWin === 1 && m.winnerId)).toBe(true)
   })
 })
