@@ -105,6 +105,10 @@ export function demoTournament(): Tournament {
   return t
 }
 
+export function isDemoTournament(t: Tournament): boolean {
+  return t.drawCode === 'DEMO60' && t.players.some((p) => p.id.startsWith('demo-'))
+}
+
 export function parsePlayerLines(text: string): { name: string; club: string; rankingPoints: number | null; rankingPosition: number | null }[] {
   return text
     .split(/\r?\n/)
