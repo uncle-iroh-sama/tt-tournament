@@ -32,6 +32,7 @@ export function defaultSettings(): Settings {
     mainDrawSize: 32,
     directSeeds: 16,
     qualifyingMode: 'knockout',
+    seeding: 'fixed',
     groupSize: 4,
     advancePerGroup: 2,
     places: defaultPlaces(),

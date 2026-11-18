@@ -46,18 +46,18 @@ export function planKnockout(playerCount: number, advance: number): KnockoutPlan
   return { bracketSize, byes: bracketSize - playerCount, rounds }
 }
 
-export function planGroupSizes(count: number, target: 3 | 4): number[] {
+export function planGroupSizes(count: number, target: 3 | 4 | 5): number[] {
   if (count <= 0) return []
-  if (count <= 4) return [count]
+  const cap = target === 5 ? 5 : 4
+  if (count <= cap) return [count]
   let best: { sizes: number[]; score: number } | null = null
   for (let groups = 1; groups <= count; groups++) {
     const base = Math.floor(count / groups)
     const rem = count % groups
-    if (base < 3 || base > 4) continue
-    if (base === 4 && rem !== 0) continue
-    if (base === 3 && rem !== 0 && base + 1 > 4) continue
+    if (base < 3 || base > cap) continue
+    if (rem !== 0 && base + 1 > cap) continue
     const sizes = Array.from({ length: groups }, (_, i) => (i < rem ? base + 1 : base))
-    if (sizes.some((s) => s < 3 || s > 4)) continue
+    if (sizes.some((s) => s < 3 || s > cap)) continue
     const score = sizes.reduce((sum, s) => sum + Math.abs(s - target), 0)
     if (!best || score < best.score || (score === best.score && sizes.length < best.sizes.length)) {
       best = { sizes, score }

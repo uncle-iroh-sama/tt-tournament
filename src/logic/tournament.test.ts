@@ -16,7 +16,7 @@ import { planKnockout, previewQualifying } from './plan.ts'
 import { pointsFor } from './points.ts'
 import { isValidSet } from './score.ts'
 import { seedOrder } from './seeds.ts'
-import { separateFirstRoundClubs } from './separate.ts'
+import { separateFirstRoundClubs, separateTopSeeds } from './separate.ts'
 import type { AuditEvent, Match, Player, Settings, Tournament } from './types.ts'
 
 function player(id: string, club: string, points: number, position = points): Player {
@@ -120,8 +120,23 @@ describe('draw', () => {
     expect(a.ok && b.ok && c.ok).toBe(true)
     if (!a.ok || !b.ok || !c.ok) return
     expect(a.tournament.mainSlots).toEqual(b.tournament.mainSlots)
+    expect(a.tournament.mainSlots).toEqual(c.tournament.mainSlots)
     expect(a.tournament.audit.some((e) => e.code === 'main-built' && e.detail.includes('SAME01'))).toBe(true)
-    expect(a.tournament.mainSlots).not.toEqual(c.tournament.mainSlots)
+    const order = seedOrder(16)
+    expect(a.tournament.mainSlots![order.indexOf(1)]).toBe('p1')
+  })
+
+  it('draws inside a band only when that mode is on', () => {
+    const players = Array.from({ length: 16 }, (_, i) => player(`p${i + 1}`, `K${i}`, 500 - i, i + 1))
+    const fixed = { ...defaultSettings(), mainDrawSize: 16 as const, seeding: 'fixed' as const }
+    const bands = { ...fixed, seeding: 'bands' as const }
+    const same = generateMainDraw(withPlayers(bands, players, 'SAME01'))
+    const again = generateMainDraw(withPlayers(bands, players, 'SAME01'))
+    const other = generateMainDraw(withPlayers(bands, players, 'OTHER1'))
+    expect(same.ok && again.ok && other.ok).toBe(true)
+    if (!same.ok || !again.ok || !other.ok) return
+    expect(same.tournament.mainSlots).toEqual(again.tournament.mainSlots)
+    expect(same.tournament.mainSlots).not.toEqual(other.tournament.mainSlots)
   })
 
   it('separates a same-club first-round pair', () => {
@@ -135,6 +150,17 @@ describe('draw', () => {
       const y = slots[i + 1]
       if (x && y) expect(clubs[x]).not.toBe(clubs[y])
     }
+    expect(audit.some((e) => e.code === 'club-swap')).toBe(true)
+  })
+
+  it('puts same-club seeds 1 and 5 in opposite halves', () => {
+    const seeds = seedOrder(8)
+    const slots = seeds.map((seed) => `p${seed}`)
+    const clubs: Record<string, string> = { p1: 'AZS', p5: 'AZS', p2: 'B', p3: 'C', p4: 'D', p6: 'E', p7: 'F', p8: 'G' }
+    const audit: AuditEvent[] = []
+    separateTopSeeds(slots, seeds, (id) => clubs[id] ?? '', audit, 't')
+    const half = (id: string) => (slots.indexOf(id) < 4 ? 0 : 1)
+    expect(half('p1')).not.toBe(half('p5'))
     expect(audit.some((e) => e.code === 'club-swap')).toBe(true)
   })
 
@@ -159,18 +185,19 @@ describe('groups', () => {
     const groups = snakeGroups(['1', '2', '3', '4', '5', '6', '7', '8'], 2)
     expect(groups[0]).toEqual(['1', '4', '5', '8'])
     expect(groups[1]).toEqual(['2', '3', '6', '7'])
-    expect(groupPairings(4).map((p) => [p.a, p.b, p.kolejka])).toEqual([
-      [0, 3, 0],
-      [1, 2, 0],
-      [0, 2, 1],
-      [1, 3, 1],
-      [0, 1, 2],
-      [2, 3, 2],
+    expect(groupPairings(4, 2).map((p) => [p.a, p.b, p.kolejka])).toEqual([
+      [0, 2, 0],
+      [1, 3, 0],
+      [0, 1, 1],
+      [2, 3, 1],
+      [0, 3, 2],
+      [1, 2, 2],
     ])
-    expect(groupPairings(3).map((p) => [p.a, p.b])).toEqual([
-      [1, 2],
+    expect(groupPairings(4, 1)[0]).toEqual({ a: 0, b: 3, kolejka: 0 })
+    expect(groupPairings(3, 2).map((p) => [p.a, p.b])).toEqual([
       [0, 2],
       [0, 1],
+      [1, 2],
     ])
   })
 
@@ -293,13 +320,52 @@ describe('scores, places, points', () => {
     expect(pointsFor('senior', 1)).toBe(90)
     expect(pointsFor('senior', { from: 3, to: 4 })).toBe(79)
     expect(pointsFor('senior', { from: 5, to: 8 })).toBe(71)
+    expect(pointsFor('senior', { from: 9, to: 10 })).toBe(64)
     expect(pointsFor('senior', { from: 9, to: 12 })).toBe(62)
+    expect(pointsFor('senior', { from: 9, to: 16 })).toBe(57)
+    expect(pointsFor('senior', { from: 17, to: 20 })).toBe(44)
+    expect(pointsFor('senior', { from: 33, to: 40 })).toBe(18)
+    expect(pointsFor('senior', { from: 41, to: 48 })).toBe(16)
+    expect(pointsFor('senior', { from: 49, to: 64 })).toBe(14)
     expect(pointsFor('junior', 1)).toBe(70)
     expect(pointsFor('kadet', 1)).toBe(60)
     expect(pointsFor('mlodzik', 1)).toBe(50)
+    expect(pointsFor('mlodzik', { from: 9, to: 12 })).toBe(33)
     expect(pointsFor('zak', 1)).toBe(40)
-    expect(pointsFor('skrzat', 1)).toBe(30)
+    expect(pointsFor('custom', 1)).toBeNull()
+    expect(pointsFor('senior', 18)).toBeNull()
     expect(pointsFor('senior', 1, { '1': 100 })).toBe(100)
+  })
+
+  it('bands qualifier losers by the round they lose', () => {
+    const settings = { ...defaultSettings(), mainDrawSize: 32 as const, directSeeds: 16 }
+    const players = Array.from({ length: 60 }, (_, i) => player(`p${i + 1}`, `K${i % 7}`, 2000 - i, i + 1))
+    const built = generateQualifying(withPlayers(settings, players, 'BANDS'))
+    expect(built.ok).toBe(true)
+    if (!built.ok) return
+    const bandOf = (round: number) =>
+      built.tournament.matches
+        .filter((m) => m.stage === 'qualifying' && m.round === round && m.outcome !== 'bye')
+        .map((m) => `${m.placeBand?.from}-${m.placeBand?.to}`)
+    expect(bandOf(1).filter((b) => b === '33-40')).toHaveLength(8)
+    expect(bandOf(1).filter((b) => b === '41-48')).toHaveLength(8)
+    expect(bandOf(0).filter((b) => b === '49-56')).toHaveLength(8)
+    expect(bandOf(0).filter((b) => b === '57-64')).toHaveLength(4)
+  })
+
+  it('keeps 9–16 as one band and splits 17–32 into the official rows', () => {
+    const settings = { ...defaultSettings(), mainDrawSize: 32 as const, directSeeds: 16 }
+    const players = Array.from({ length: 32 }, (_, i) => player(`p${i + 1}`, `K${i}`, 900 - i, i + 1))
+    const drawn = generateMainDraw(withPlayers(settings, players, 'ROWS'))
+    expect(drawn.ok).toBe(true)
+    if (!drawn.ok) return
+    const ofRound = (round: number) =>
+      drawn.tournament.matches
+        .filter((m) => m.stage === 'main' && m.round === round)
+        .map((m) => `${m.placeBand?.from}-${m.placeBand?.to}`)
+    expect(new Set(ofRound(1))).toEqual(new Set(['9-16']))
+    expect(ofRound(0).filter((b) => b === '17-20')).toHaveLength(4)
+    expect(ofRound(0).filter((b) => b === '29-32')).toHaveLength(4)
   })
 })
 

@@ -8,6 +8,11 @@ export type Category =
   | 'skrzat'
   | 'masters'
 
+/** PZTS 18.4 KWGPP columns, plus a blank table for Skrzat and anything else. */
+export type PointsCategory = 'senior' | 'junior' | 'kadet' | 'mlodzik' | 'zak' | 'custom'
+
+export type SeedingMode = 'fixed' | 'bands'
+
 export type Stage = 'qualifying' | 'group' | 'main' | 'placement'
 
 export type Outcome = 'pending' | 'score' | 'walkover' | 'retirement' | 'bye' | 'cancelled'
@@ -109,11 +114,13 @@ export interface Settings {
   mainDrawSize: 16 | 32 | 64
   directSeeds: number
   qualifyingMode: QualifyingMode
-  groupSize: 3 | 4
+  /** Fixed ranking seeds, or a draw inside each PZTS band. */
+  seeding: SeedingMode
+  groupSize: 3 | 4 | 5
   advancePerGroup: number
   places: PlaceFlags
-  pointsCategory: Category
-  pointsOverride: Partial<Record<Category, Record<string, number>>>
+  pointsCategory: PointsCategory
+  pointsOverride: Partial<Record<PointsCategory, Record<string, number>>>
 }
 
 export interface Award {

@@ -76,6 +76,12 @@ a { color: var(--green); }
 }
 .card h2, .card h3 { font-family: var(--serif); font-weight: 600; margin: 0 0 8px; letter-spacing: -0.02em; }
 .lead { font-size: 1.05rem; max-width: 42rem; }
+.keep { white-space: nowrap; }
+.steps { list-style: none; margin: 12px 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.steps li { background: var(--paper); border-radius: 12px; padding: 12px; }
+.steps b { display: block; font-family: var(--serif); font-size: 1.4rem; line-height: 1; margin-bottom: 6px; }
+.sheet-two { display: flex; flex-direction: column; }
+.sheet-two .championship { order: -1; }
 .muted { color: var(--muted); }
 .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 .grid { display: grid; gap: 12px; }
@@ -138,8 +144,8 @@ table.list tr.out td.keep { text-decoration: none; }
 .side.lose { color: var(--muted); }
 .side .club { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
 
-.bracket { display: flex; gap: 18px; overflow-x: auto; padding-bottom: 12px; align-items: flex-start; }
-.round { min-width: 230px; }
+.bracket { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; align-items: flex-start; }
+.round { min-width: 196px; flex: 1; }
 .round h3 { font-size: 0.95rem; margin: 0 0 8px; }
 .rounds-switch { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
 .rounds-switch button { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 5px 10px; }
@@ -188,7 +194,8 @@ details.audit summary { cursor: pointer; font-weight: 600; }
 @media (max-width: 800px) {
   .bracket .round { display: none; }
   .bracket .round.on { display: block; min-width: 0; width: 100%; }
-  .grid-2, .grid-3, .stats { grid-template-columns: 1fr 1fr; }
+  .grid-2, .steps { grid-template-columns: 1fr; }
+  .grid-3, .stats { grid-template-columns: 1fr 1fr; }
   .wrap { width: min(100% - 16px, 1120px); }
   .top { padding: 12px; }
   .brand p { display: none; }
@@ -204,6 +211,9 @@ details.audit summary { cursor: pointer; font-weight: 600; }
   .print-only { display: block; }
   .slip { break-inside: avoid; }
   .bracket { display: flex !important; }
-  .bracket .round { display: block !important; }
+  .bracket .round { display: block !important; min-width: 150px; }
   .rounds-switch { display: none !important; }
+  .sheet-two { flex-direction: row; align-items: flex-start; gap: 16px; }
+  .sheet-two .championship { order: 0; flex: 1; min-width: 0; }
+  .sheet-two .consolation { order: 0; flex: 0 0 220px; }
 }

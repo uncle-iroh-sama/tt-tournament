@@ -31,6 +31,11 @@ export function tournamentFromJson(raw: string): Tournament | null {
     data.qualifierSlots ??= []
     data.directIds ??= []
     data.mainSeeds ??= {}
+    const points = data.settings.pointsCategory as string
+    if (points !== 'senior' && points !== 'junior' && points !== 'kadet' && points !== 'mlodzik' && points !== 'zak' && points !== 'custom') {
+      data.settings.pointsCategory = 'custom'
+    }
+    data.settings.seeding ??= 'fixed'
     return data
   } catch {
     return null

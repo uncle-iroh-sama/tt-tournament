@@ -12,27 +12,72 @@ export function snakeGroups(ids: string[], groupCount: number): string[][] {
   return groups
 }
 
-/** Official order used when the referee does not set another one. 1-based seeds inside the group. */
-export function groupPairings(size: number): { a: number; b: number; kolejka: number }[] {
+/**
+ * PZTS 5.2.1 order. For 4 players and 2 advancers the rounds are 1–3/2–4, 1–2/3–4, 1–4/2–3.
+ * One or three advancers use 1–4/2–3, 1–3/2–4, 1–2/3–4. A group of 3 drops every pairing with player 4.
+ */
+export function groupPairings(size: number, advance = 2): { a: number; b: number; kolejka: number }[] {
+  const twoAdvance = advance === 2
   if (size === 4) {
-    return [
-      { a: 0, b: 3, kolejka: 0 },
-      { a: 1, b: 2, kolejka: 0 },
-      { a: 0, b: 2, kolejka: 1 },
-      { a: 1, b: 3, kolejka: 1 },
-      { a: 0, b: 1, kolejka: 2 },
-      { a: 2, b: 3, kolejka: 2 },
-    ]
+    return twoAdvance
+      ? [
+          { a: 0, b: 2, kolejka: 0 },
+          { a: 1, b: 3, kolejka: 0 },
+          { a: 0, b: 1, kolejka: 1 },
+          { a: 2, b: 3, kolejka: 1 },
+          { a: 0, b: 3, kolejka: 2 },
+          { a: 1, b: 2, kolejka: 2 },
+        ]
+      : [
+          { a: 0, b: 3, kolejka: 0 },
+          { a: 1, b: 2, kolejka: 0 },
+          { a: 0, b: 2, kolejka: 1 },
+          { a: 1, b: 3, kolejka: 1 },
+          { a: 0, b: 1, kolejka: 2 },
+          { a: 2, b: 3, kolejka: 2 },
+        ]
   }
   if (size === 3) {
-    return [
-      { a: 1, b: 2, kolejka: 0 },
-      { a: 0, b: 2, kolejka: 1 },
-      { a: 0, b: 1, kolejka: 2 },
-    ]
+    return twoAdvance
+      ? [
+          { a: 0, b: 2, kolejka: 0 },
+          { a: 0, b: 1, kolejka: 1 },
+          { a: 1, b: 2, kolejka: 2 },
+        ]
+      : [
+          { a: 1, b: 2, kolejka: 0 },
+          { a: 0, b: 2, kolejka: 1 },
+          { a: 0, b: 1, kolejka: 2 },
+        ]
   }
+  if (size === 5 || size === 6) return sizedPairings(size, twoAdvance ? 'two' : 'one')
   if (size === 2) return [{ a: 0, b: 1, kolejka: 0 }]
   return circlePairings(size)
+}
+
+function sizedPairings(size: number, kind: 'two' | 'one'): { a: number; b: number; kolejka: number }[] {
+  const rounds = kind === 'two'
+    ? [
+        [[1, 4], [2, 5], [3, 6]],
+        [[1, 6], [2, 4], [3, 5]],
+        [[1, 3], [2, 6], [4, 5]],
+        [[1, 5], [2, 3], [4, 6]],
+        [[1, 2], [3, 4], [5, 6]],
+      ]
+    : [
+        [[1, 6], [2, 5], [3, 4]],
+        [[1, 5], [2, 3], [4, 6]],
+        [[1, 4], [2, 6], [3, 5]],
+        [[1, 3], [2, 4], [5, 6]],
+        [[1, 2], [3, 6], [4, 5]],
+      ]
+  const out: { a: number; b: number; kolejka: number }[] = []
+  rounds.forEach((round, kolejka) => {
+    for (const [a, b] of round) {
+      if (a <= size && b <= size) out.push({ a: a - 1, b: b - 1, kolejka })
+    }
+  })
+  return out
 }
 
 function circlePairings(n: number): { a: number; b: number; kolejka: number }[] {

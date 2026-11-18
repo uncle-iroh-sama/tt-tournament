@@ -1,11 +1,12 @@
 import { groupPairings, separateGroupClubs, shuffleTies, snakeGroups } from './groups.ts'
+import { tilePlaceBands } from './points.ts'
 import { planGroupSizes, planKnockout } from './plan.ts'
 import { settle } from './propagate.ts'
 import { activePlayers } from './ranking.ts'
 import { rngFrom, shuffle } from './rng.ts'
 import { seedOrder } from './seeds.ts'
 import { bandName } from './seeds.ts'
-import { separateFirstRoundClubs } from './separate.ts'
+import { separateFirstRoundClubs, separateTopSeeds } from './separate.ts'
 import type {
   AuditEvent,
   Award,
@@ -176,19 +177,31 @@ function playBand(
   bag: Match[],
   awards: Award[],
   knownLosers?: Match[],
-) {
+): number {
   const play = bandEnabled(band, flags, source)
   if (entries.length === 1) {
     awardEntry(entries[0]!, band.from, bag, awards, source)
-    return
+    return band.from + 1
   }
   if (!play) {
+    const parts = tilePlaceBands(band.from, entries.length)
+    let end = band.from - 1
     if (knownLosers) {
-      for (const m of knownLosers) m.placeBand = band
+      let at = 0
+      for (const part of parts) {
+        for (const match of knownLosers.slice(at, at + part.take)) {
+          match.placeBand = { from: part.from, to: part.to }
+        }
+        at += part.take
+        end = Math.max(end, part.to)
+      }
+    } else {
+      for (const part of parts) end = Math.max(end, part.to)
     }
-    return
+    return end + 1
   }
   buildPlaceOut(entries, band.from, prefix, bestOf, source, bag, awards)
+  return band.from + entries.length
 }
 
 export function bandEnabled(band: PlaceBand, flags: PlaceFlags, source: Award['source']): boolean {
@@ -373,9 +386,8 @@ function attachQualPlaces(matches: Match[], mainCount: number, settings: Setting
     const producers = matches.filter((m) => m.stage === 'qualifying' && m.round === r && m.outcome !== 'bye')
     if (producers.length === 0) continue
     const band = { from: next, to: next + producers.length - 1 }
-    next = band.to + 1
     const entries: Entry[] = producers.map((m) => ({ playerId: null, fromLoserOf: m.id }))
-    playBand(entries, band, settings.places, settings.placeMatchBestOf, 'qualifying', `nq${band.from}`, matches, awards, producers)
+    next = playBand(entries, band, settings.places, settings.placeMatchBestOf, 'qualifying', `nq${band.from}`, matches, awards, producers)
   }
 }
 
@@ -399,7 +411,7 @@ function buildGroupStage(
     playerIds: ids.slice(),
   }))
   groupModels.forEach((group) => {
-    const pairs = groupPairings(group.playerIds.length)
+    const pairs = groupPairings(group.playerIds.length, settings.advancePerGroup)
     pairs.forEach((pair, mi) => {
       const label: MatchLabel = { k: 'group', group: group.name, n: mi + 1, kolejka: pair.kolejka + 1 }
       matches.push(
@@ -459,7 +471,7 @@ export function layMainDraw(
   for (const [band, seeds] of bands) {
     const playing = seeds.filter((s) => s <= capped.length)
     const ids = playing.map((s) => capped[s - 1]!.id)
-    const shuffled = ids.length > 1 ? shuffle(ids, bandRng) : ids.slice()
+    const shuffled = settings.seeding === 'bands' && ids.length > 1 ? shuffle(ids, bandRng) : ids.slice()
     if (ids.length > 1 && shuffled.join(',') !== ids.join(',')) {
       audit.push(stamp('band-shuffle', `${band}:${shuffled.join(',')}`, at))
     }
@@ -468,6 +480,7 @@ export function layMainDraw(
     })
   }
   const clubOf = (id: string) => field.find((p) => p.id === id)?.club ?? ''
+  separateTopSeeds(slots, seedAtSlot, clubOf, audit, at)
   separateFirstRoundClubs(slots, seedAtSlot, clubOf, groupOf, audit, at)
   const built = bracketFromSlots(slots, settings)
   const byeCount = slots.filter((id) => !id).length
@@ -563,9 +576,9 @@ export function groupLeftoverBands(
       if (id && !fieldIds.has(id)) ids.push(id)
     }
     if (ids.length === 0) continue
-    const band = { from: place, to: place + ids.length - 1 }
     if (ids.length === 1) {
       awards.push({ playerId: ids[0]!, place, source: 'group' })
+      place += 1
     } else if (flags.nonQualifiers) {
       buildPlaceOut(
         ids.map((playerId) => ({ playerId })),
@@ -576,10 +589,18 @@ export function groupLeftoverBands(
         matches,
         awards,
       )
+      place += ids.length
     } else {
-      shared.push({ playerIds: ids, from: band.from, to: band.to })
+      const parts = tilePlaceBands(place, ids.length)
+      let at = 0
+      let end = place - 1
+      for (const part of parts) {
+        shared.push({ playerIds: ids.slice(at, at + part.take), from: part.from, to: part.to })
+        at += part.take
+        end = Math.max(end, part.to)
+      }
+      place = end + 1
     }
-    place = band.to + 1
   }
   return { matches: settle(matches, withdrawn), awards, shared }
 }
@@ -596,7 +617,7 @@ export function placeCohort(
   const awards: Award[] = []
   const shared: { playerIds: string[]; from: number; to: number }[] = []
   if (ids.length === 0) return { matches, awards, shared, next: place }
-  const to = place + ids.length - 1
+  let next = place + ids.length
   if (ids.length === 1) awards.push({ playerId: ids[0]!, place, source })
   else if (enabled) {
     buildPlaceOut(
@@ -608,6 +629,16 @@ export function placeCohort(
       matches,
       awards,
     )
-  } else shared.push({ playerIds: ids.slice(), from: place, to })
-  return { matches: settle(matches, new Set()), awards, shared, next: to + 1 }
+  } else {
+    const parts = tilePlaceBands(place, ids.length)
+    let at = 0
+    let end = place - 1
+    for (const part of parts) {
+      shared.push({ playerIds: ids.slice(at, at + part.take), from: part.from, to: part.to })
+      at += part.take
+      end = Math.max(end, part.to)
+    }
+    next = end + 1
+  }
+  return { matches: settle(matches, new Set()), awards, shared, next }
 }

@@ -53,11 +53,11 @@ export function ratioText(won: number, lost: number): string {
   return `${won}:${lost} (${v.toFixed(2)})`
 }
 
-export function catKey(cat: string): 'cat_senior' | 'cat_mlodziezowiec' | 'cat_junior' | 'cat_kadet' | 'cat_mlodzik' | 'cat_zak' | 'cat_skrzat' | 'cat_masters' {
+export function catKey(cat: string): 'cat_senior' | 'cat_mlodziezowiec' | 'cat_junior' | 'cat_kadet' | 'cat_mlodzik' | 'cat_zak' | 'cat_skrzat' | 'cat_masters' | 'cat_custom' {
   const key = `cat_${cat}` as const
   if (
     key === 'cat_senior' || key === 'cat_mlodziezowiec' || key === 'cat_junior' || key === 'cat_kadet' ||
-    key === 'cat_mlodzik' || key === 'cat_zak' || key === 'cat_skrzat' || key === 'cat_masters'
+    key === 'cat_mlodzik' || key === 'cat_zak' || key === 'cat_skrzat' || key === 'cat_masters' || key === 'cat_custom'
   ) return key
   return 'cat_senior'
 }

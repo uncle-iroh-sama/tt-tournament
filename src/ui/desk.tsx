@@ -26,12 +26,25 @@ import { groupPairings, groupStandings } from '../logic/groups.ts'
 import { planGroupSizes, previewQualifying } from '../logic/plan.ts'
 import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { compareRanking } from '../logic/ranking.ts'
-import type { Category, Match, PlaceFlags, Settings, Tournament } from '../logic/types.ts'
+import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { parsePlayerLines } from '../demo.ts'
 import { catKey, findPlayer, matchTitle, pname, ratioText, roundHeading } from './format.ts'
 import { ScoreDialog } from './score.tsx'
 
 const CATS: Category[] = ['senior', 'mlodziezowiec', 'junior', 'kadet', 'mlodzik', 'zak', 'skrzat', 'masters']
+const POINT_CATS: PointsCategory[] = ['senior', 'junior', 'kadet', 'mlodzik', 'zak', 'custom']
+
+function pointsCategoryFor(category: Category): PointsCategory {
+  if (category === 'senior' || category === 'junior' || category === 'kadet' || category === 'mlodzik' || category === 'zak') return category
+  return 'custom'
+}
+
+function placeText(ref: { kind: string; place?: number; from?: number; to?: number }, dyskw: string): string {
+  if (ref.kind === 'place') return String(ref.place)
+  if (ref.kind === 'band') return `${ref.from}–${ref.to}`
+  if (ref.kind === 'out') return dyskw
+  return '…'
+}
 
 export function Desk({
   tournament: t,
@@ -150,6 +163,13 @@ function Home({
     <>
       <div className="banner">
         <strong>{step.title}</strong>
+        <p className="muted">
+          {t.settings.qualifyingMode === 'groups' ? tr('modeGroups') : tr('modeKo')}
+          {' · '}<span className="keep">{tr('directSeeds')} {t.settings.directSeeds}</span>
+          {' · '}<span className="keep">{tr('drawSize')} {t.settings.mainDrawSize}</span>
+          {' · '}<span className="keep">{t.settings.bestOf === 5 ? tr('bestOf5') : tr('bestOf3')}</span>
+          {' · '}<span className="keep">{tr('placeBestOf')}: {t.settings.placeMatchBestOf === 3 ? tr('bestOf3') : tr('bestOf5')}</span>
+        </p>
         <div className="row" style={{ marginTop: 8 }}>
           {step.kind === 'qual' && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr('generateQual')}</button>}
           {step.kind === 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
@@ -216,8 +236,8 @@ function describePlan(t: Tournament, lang: Lang) {
   if (s.qualifyingMode === 'groups') {
     const direct = Math.min(s.directSeeds, n)
     const sizes = planGroupSizes(n - direct, s.groupSize)
-    const matches = sizes.reduce((sum, size) => sum + groupPairings(size).length, 0)
-    const kolejki = sizes.reduce((max, size) => Math.max(max, groupPairings(size).reduce((m, p) => Math.max(m, p.kolejka + 1), 0)), 0)
+    const matches = sizes.reduce((sum, size) => sum + groupPairings(size, s.advancePerGroup).length, 0)
+    const kolejki = sizes.reduce((max, size) => Math.max(max, groupPairings(size, s.advancePerGroup).reduce((m, p) => Math.max(m, p.kolejka + 1), 0)), 0)
     const adv = direct + sizes.length * s.advancePerGroup
     return (
       <div className="stats">
@@ -396,7 +416,7 @@ function Qualifying({ t, lang, tr, act, go, quiet = false }: { t: Tournament; la
           })}
         </div>
       )}
-      {qual.length > 0 && <BracketColumns t={t} lang={lang} matches={qual} title={tr('qual')} />}
+      {qual.length > 0 && <BracketColumns t={t} lang={lang} matches={qual} title={tr('qualBracket')} />}
     </>
   )
 }
@@ -416,7 +436,7 @@ function Bracket({
   setT: (t: Tournament) => void
 }) {
   const main = t.matches.filter((m) => m.stage === 'main')
-  const places = t.matches.filter((m) => m.stage === 'placement')
+  const places = t.matches.filter((m) => m.stage === 'placement' && (m.outcome !== 'pending' || m.slotA != null || m.slotB != null))
   return (
     <>
       <div className="card no-print">
@@ -436,21 +456,31 @@ function Bracket({
         {swapFrom != null && <p>{tr('swapHint')} {swapFrom >= 0 ? tr('swapNeed') : ''}</p>}
       </div>
       {main.length === 0 && <div className="card"><p>{tr('bracketEmpty')}</p></div>}
-      {main.length > 0 && (
-        <BracketColumns
-          t={t} lang={lang} matches={main} title={tr('main')} roundOn={roundOn} setRoundOn={setRoundOn}
-          onSlot={(index) => {
-            if (swapFrom == null) return
-            if (swapFrom < 0) setSwapFrom(index)
-            else {
-              act(swapMainSlots(t, swapFrom, index))
-              setSwapFrom(null)
-            }
-          }}
-          highlight={swapFrom != null && swapFrom >= 0 ? swapFrom : null}
-        />
+      {(main.length > 0 || places.length > 0) && (
+        <div className="sheet-two">
+          {places.length > 0 && (
+            <div className="consolation">
+              <BracketColumns t={t} lang={lang} matches={places} title={tr('placement')} />
+            </div>
+          )}
+          {main.length > 0 && (
+            <div className="championship">
+              <BracketColumns
+                t={t} lang={lang} matches={main} title={tr('main')} roundOn={roundOn} setRoundOn={setRoundOn}
+                onSlot={(index) => {
+                  if (swapFrom == null) return
+                  if (swapFrom < 0) setSwapFrom(index)
+                  else {
+                    act(swapMainSlots(t, swapFrom, index))
+                    setSwapFrom(null)
+                  }
+                }}
+                highlight={swapFrom != null && swapFrom >= 0 ? swapFrom : null}
+              />
+            </div>
+          )}
+        </div>
       )}
-      {places.length > 0 && <BracketColumns t={t} lang={lang} matches={places} title={tr('placement')} />}
       <details className="audit card">
         <summary>{tr('audit')}</summary>
         <ul>
@@ -589,8 +619,8 @@ function ClassView({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; set
           <button className="btn secondary" onClick={() => { window.location.hash = '#/druk/klasyfikacja'; window.setTimeout(() => window.print(), 50) }}>{tr('printClass')}</button>
         </div>
         <label className="field" style={{ maxWidth: 280 }}>{tr('pointsCat')}
-          <select value={cat} onChange={(e) => setT(updateSettings(t, { ...t.settings, pointsCategory: e.target.value as Category }))}>
-            {CATS.map((c) => <option key={c} value={c}>{tr(catKey(c))}</option>)}
+          <select value={cat} onChange={(e) => setT(updateSettings(t, { ...t.settings, pointsCategory: e.target.value as PointsCategory }))}>
+            {POINT_CATS.map((c) => <option key={c} value={c}>{tr(catKey(c))}</option>)}
           </select>
         </label>
         {rows.length === 0 && <p>{tr('classEmpty')}</p>}
@@ -599,10 +629,10 @@ function ClassView({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; set
           <tbody>
             {rows.map((r) => {
               const p = findPlayer(t, r.playerId)
-              const place = r.ref.kind === 'place' ? String(r.ref.place) : r.ref.kind === 'band' ? `${r.ref.from}–${r.ref.to}` : r.ref.kind === 'out' ? 'NK' : '…'
+              const place = placeText(r.ref, tr('notClassified'))
               return (
                 <tr key={r.playerId}>
-                  <td>{place}</td>
+                  <td title={r.ref.kind === 'out' ? tr('notClassifiedLong') : undefined}>{place}</td>
                   <td>{p?.name}</td>
                   <td>{p?.club}</td>
                   <td>{r.points ?? '—'}</td>
@@ -619,11 +649,13 @@ function ClassView({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; set
           {EDITABLE_POINT_KEYS.map((key) => (
             <label className="field" key={key}>{key}
               <input
-                value={override[key] ?? pointsFor(cat, key.includes('-') ? { from: Number(key.split('-')[0]), to: Number(key.split('-')[1]) } : Number(key))}
+                value={override[key] ?? pointsFor(cat, key.includes('-') ? { from: Number(key.split('-')[0]), to: Number(key.split('-')[1]) } : Number(key)) ?? ''}
                 onChange={(e) => {
-                  const n = Number(e.target.value)
-                  const next = { ...t.settings.pointsOverride, [cat]: { ...override, [key]: n } }
-                  setT(updateSettings(t, { ...t.settings, pointsOverride: next }))
+                  const raw = e.target.value.trim()
+                  const column = { ...override }
+                  if (raw === '' || Number.isNaN(Number(raw))) delete column[key]
+                  else column[key] = Number(raw)
+                  setT(updateSettings(t, { ...t.settings, pointsOverride: { ...t.settings.pointsOverride, [cat]: column } }))
                 }}
               />
             </label>
@@ -658,7 +690,10 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
       <label className="field">{tr('date')}<input type="date" value={settings.date} onChange={(e) => set({ date: e.target.value })} /></label>
       <label className="field">{tr('venue')}<input value={settings.venue} onChange={(e) => set({ venue: e.target.value })} /></label>
       <label className="field">{tr('category')}
-        <select value={settings.category} onChange={(e) => set({ category: e.target.value as Category, pointsCategory: e.target.value as Category })}>
+        <select value={settings.category} onChange={(e) => {
+          const category = e.target.value as Category
+          set({ category, pointsCategory: pointsCategoryFor(category) })
+        }}>
           {CATS.map((c) => <option key={c} value={c}>{tr(catKey(c))}</option>)}
         </select>
       </label>
@@ -683,6 +718,12 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
         </select>
       </label>
       <label className="field">{tr('directSeeds')}<input type="number" min={0} max={64} value={settings.directSeeds} onChange={(e) => set({ directSeeds: Number(e.target.value) })} /></label>
+      <label className="field">{tr('seeding')}
+        <select value={settings.seeding} onChange={(e) => set({ seeding: e.target.value as Settings['seeding'] })}>
+          <option value="fixed">{tr('seedingFixed')}</option>
+          <option value="bands">{tr('seedingBands')}</option>
+        </select>
+      </label>
       <label className="field">{tr('mode')}
         <select value={settings.qualifyingMode} onChange={(e) => set({ qualifyingMode: e.target.value as Settings['qualifyingMode'], directSeeds: e.target.value === 'groups' ? 0 : settings.directSeeds || 16 })}>
           <option value="knockout">{tr('modeKo')}</option>
@@ -690,9 +731,10 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
         </select>
       </label>
       <label className="field">{tr('groupSize')}
-        <select value={settings.groupSize} onChange={(e) => set({ groupSize: Number(e.target.value) as 3 | 4 })}>
+        <select value={settings.groupSize} onChange={(e) => set({ groupSize: Number(e.target.value) as 3 | 4 | 5 })}>
           <option value={4}>4</option>
           <option value={3}>3</option>
+          <option value={5}>5</option>
         </select>
       </label>
       <label className="field">{tr('advance')}<input type="number" min={1} max={3} value={settings.advancePerGroup} onChange={(e) => set({ advancePerGroup: Number(e.target.value) })} /></label>
@@ -703,6 +745,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
         <label className="check"><input type="checkbox" checked={settings.places.nineToSixteen} onChange={(e) => places({ nineToSixteen: e.target.checked })} />{tr('place916')}</label>
         <label className="check"><input type="checkbox" checked={settings.places.seventeenToThirtyTwo} onChange={(e) => places({ seventeenToThirtyTwo: e.target.checked })} />{tr('place1732')}</label>
         <label className="check"><input type="checkbox" checked={settings.places.nonQualifiers} onChange={(e) => places({ nonQualifiers: e.target.checked })} />{tr('placeNq')}</label>
+        <p className="muted">{tr('placesHint')}</p>
       </div>
     </div>
   )
@@ -806,7 +849,7 @@ function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
           <tbody>
             {rows.map((r) => {
               const p = findPlayer(t, r.playerId)
-              const place = r.ref.kind === 'place' ? r.ref.place : r.ref.kind === 'band' ? `${r.ref.from}–${r.ref.to}` : r.ref.kind === 'out' ? 'NK' : '…'
+              const place = placeText(r.ref, tr('notClassified'))
               return <tr key={r.playerId}><td>{place}</td><td>{p?.name}<div className="muted">{p?.club}</div></td><td>{r.points ?? ''}</td></tr>
             })}
           </tbody>
@@ -834,7 +877,7 @@ function PrintView({ t, lang, kind }: { t: Tournament; lang: Lang; kind: string 
           <tbody>
             {rows.map((r) => {
               const p = findPlayer(t, r.playerId)
-              const place = r.ref.kind === 'place' ? r.ref.place : r.ref.kind === 'band' ? `${r.ref.from}–${r.ref.to}` : r.ref.kind === 'out' ? 'NK' : '…'
+              const place = placeText(r.ref, tr('notClassified'))
               return <tr key={r.playerId}><td>{place}</td><td>{p?.name}</td><td>{p?.club}</td><td>{r.points ?? ''}</td></tr>
             })}
           </tbody>
@@ -894,6 +937,12 @@ export function Welcome({
     <div className="card">
       <h2 style={{ fontSize: '2rem' }}>{tr('welcomeTitle')}</h2>
       <p className="lead">{tr('welcomeLead')}</p>
+      <ol className="steps">
+        <li><b>1</b>{tr('stepList')}</li>
+        <li><b>2</b>{tr('stepDraw')}</li>
+        <li><b>3</b>{tr('stepScore')}</li>
+      </ol>
+      <p className="muted">{tr('stepNote')}</p>
       <div className="row">
         <button className="btn" onClick={onCreate}>{tr('newTournament')}</button>
         <button className="btn secondary" data-testid="demo-button" onClick={onDemo}>{tr('demo')}</button>
