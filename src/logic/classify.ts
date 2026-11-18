@@ -1,0 +1,92 @@
+import { pointsFor } from './points.ts'
+import type { Match, Tournament } from './types.ts'
+
+export interface PlaceRef {
+  kind: 'place' | 'band' | 'pending' | 'out'
+  place?: number
+  from?: number
+  to?: number
+}
+
+export interface ClassRow {
+  playerId: string
+  ref: PlaceRef
+  points: number | null
+}
+
+function loserOf(m: Match): string | null {
+  if (!m.winnerId || !m.slotA || !m.slotB) return null
+  return m.winnerId === m.slotA ? m.slotB : m.slotA
+}
+
+export function classification(t: Tournament): ClassRow[] {
+  const exact = new Map<string, number>()
+  const bands = new Map<string, { from: number; to: number }>()
+  for (const a of t.awards) exact.set(a.playerId, a.place)
+  for (const m of t.matches) {
+    if (m.outcome === 'pending' || m.outcome === 'cancelled') continue
+    if (m.winnerId && m.placeWin != null) exact.set(m.winnerId, m.placeWin)
+    const loser = loserOf(m)
+    if (loser && m.placeLose != null) exact.set(loser, m.placeLose)
+    if (loser && m.placeBand && !m.loserTo && m.placeLose == null) {
+      bands.set(loser, m.placeBand)
+    }
+  }
+  for (const band of t.shared) {
+    for (const id of band.playerIds) {
+      if (!exact.has(id)) bands.set(id, { from: band.from, to: band.to })
+    }
+  }
+  const competing = new Set<string>()
+  for (const m of t.matches) {
+    if (m.outcome !== 'pending') continue
+    if (m.slotA && !m.waitA) competing.add(m.slotA)
+    if (m.slotB && !m.waitB) competing.add(m.slotB)
+  }
+  const rows: ClassRow[] = []
+  const category = t.settings.pointsCategory
+  const override = t.settings.pointsOverride[category]
+  for (const p of t.players) {
+    if (p.withdrawn) {
+      rows.push({ playerId: p.id, ref: { kind: 'out' }, points: null })
+      continue
+    }
+    if (exact.has(p.id)) {
+      const place = exact.get(p.id)!
+      rows.push({
+        playerId: p.id,
+        ref: { kind: 'place', place },
+        points: pointsFor(category, place, override),
+      })
+      continue
+    }
+    const band = bands.get(p.id)
+    if (band) {
+      rows.push({
+        playerId: p.id,
+        ref: { kind: 'band', from: band.from, to: band.to },
+        points: pointsFor(category, band, override),
+      })
+      continue
+    }
+    if (competing.has(p.id) || t.phase !== 'setup') {
+      rows.push({ playerId: p.id, ref: { kind: 'pending' }, points: null })
+    }
+  }
+  const rank = (row: ClassRow) => {
+    if (row.ref.kind === 'place') return row.ref.place ?? 0
+    if (row.ref.kind === 'band') return row.ref.from ?? 0
+    if (row.ref.kind === 'pending') return 10000
+    return 20000
+  }
+  rows.sort((a, b) => rank(a) - rank(b) || a.playerId.localeCompare(b.playerId))
+  return rows
+}
+
+export function countFinished(t: Tournament): { done: number; total: number } {
+  const real = t.matches.filter((m) => m.outcome !== 'bye')
+  return {
+    total: real.length,
+    done: real.filter((m) => m.outcome !== 'pending').length,
+  }
+}
