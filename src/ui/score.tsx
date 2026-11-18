@@ -1,13 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent as KeyEvt } from 'react'
 import type { Lang } from '../i18n.ts'
 import { translate, type Key } from '../i18n.ts'
 import type { Match, SetScore } from '../logic/types.ts'
-import { isValidSet, setsNeeded } from '../logic/score.ts'
+import { isValidSet, matchWinner } from '../logic/score.ts'
 import { findPlayer, pname } from './format.ts'
 import type { Tournament } from '../logic/types.ts'
 
-const QUICK = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-const DEUCE: [number, number][] = [[12, 10], [13, 11], [14, 12], [15, 13]]
+type Row = { a: string; b: string }
+type Side = 'a' | 'b'
+
+function read(rows: Row[], bestOf: 3 | 5): { sets: SetScore[]; bad: number | null; winner: 'A' | 'B' | null } {
+  const sets: SetScore[] = []
+  for (let i = 0; i < rows.length; i++) {
+    const a = rows[i]!.a.trim()
+    const b = rows[i]!.b.trim()
+    if (a === '' && b === '') continue
+    if (a === '' || b === '') return { sets, bad: null, winner: null }
+    const sa = Number(a)
+    const sb = Number(b)
+    if (!isValidSet(sa, sb)) return { sets, bad: i, winner: null }
+    sets.push({ a: sa, b: sb })
+    const winner = matchWinner(sets, bestOf)
+    if (winner) return { sets, bad: null, winner }
+  }
+  return { sets, bad: null, winner: null }
+}
 
 export function ScoreDialog({
   tournament,
@@ -26,88 +43,163 @@ export function ScoreDialog({
   onWalkover: (winnerId: string) => void
   onRetire: (winnerId: string, sets: SetScore[]) => void
 }) {
-  const [sets, setSets] = useState<SetScore[]>(match.sets)
-  const [customA, setCustomA] = useState('11')
-  const [customB, setCustomB] = useState('9')
   const t = (k: Key) => translate(lang, k)
   const a = findPlayer(tournament, match.slotA)
   const b = findPlayer(tournament, match.slotB)
-  const need = setsNeeded(match.bestOf)
-  const clean = sets.every((s) => isValidSet(s.a, s.b))
-  const won = (side: 'A' | 'B') => sets.filter((s) => isValidSet(s.a, s.b) && (side === 'A' ? s.a > s.b : s.b > s.a)).length
-  const finished = clean && (won('A') >= need || won('B') >= need)
+  const [rows, setRows] = useState<Row[]>(() =>
+    match.sets.length > 0 ? match.sets.map((s) => ({ a: String(s.a), b: String(s.b) })) : [{ a: '', b: '' }],
+  )
+  const [focusAt, setFocusAt] = useState<{ i: number; side: Side } | null>({ i: 0, side: 'a' })
+  const [pending, setPending] = useState<null | { kind: 'wo' | 'retire'; id: string }>(null)
+  const root = useRef<HTMLDivElement>(null)
+  const viewed = read(rows, match.bestOf)
+  const finished = viewed.winner != null
+  const wins = { A: 0, B: 0 }
+  for (const s of viewed.sets) {
+    if (s.a > s.b) wins.A++
+    else wins.B++
+  }
+
+  useEffect(() => {
+    if (!focusAt || !root.current) return
+    const el = root.current.querySelector<HTMLInputElement>(`[data-set="${focusAt.i}-${focusAt.side}"]`)
+    el?.focus()
+    el?.select()
+  }, [focusAt, rows.length])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
-      if (e.key === 'Enter' && finished) onScore(sets)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [finished, onClose, onScore, sets])
+  }, [onClose])
 
-  function push(set: SetScore) {
-    if (finished) return
-    setSets((prev) => [...prev, set])
+  function save() {
+    const now = read(rows, match.bestOf)
+    if (now.winner) onScore(now.sets)
   }
+
+  function write(index: number, side: Side, raw: string) {
+    const pair = raw.trim().match(/^(\d{1,2})\s*[:\- ]\s*(\d{1,2})$/)
+    setRows((prev) => {
+      const next = prev.map((row) => ({ ...row }))
+      const row = next[index] ?? { a: '', b: '' }
+      next[index] = row
+      if (pair && side === 'a') {
+        row.a = pair[1]!
+        row.b = pair[2]!
+      } else {
+        row[side] = raw.replace(/\D/g, '').slice(0, 2)
+      }
+      return next
+    })
+    if (pair && side === 'a') setFocusAt({ i: index, side: 'b' })
+  }
+
+  function onKey(e: KeyEvt<HTMLInputElement>, index: number, side: Side) {
+    if (e.key === ' ' && side === 'a') {
+      e.preventDefault()
+      setFocusAt({ i: index, side: 'b' })
+      return
+    }
+    if (e.key !== 'Enter') return
+    e.preventDefault()
+    const now = read(rows, match.bestOf)
+    if (now.winner) {
+      onScore(now.sets)
+      return
+    }
+    const row = rows[index]
+    if (!row) return
+    if (side === 'a' && row.a.trim() !== '' && row.b.trim() === '') {
+      setFocusAt({ i: index, side: 'b' })
+      return
+    }
+    if (row.a.trim() !== '' && row.b.trim() !== '' && isValidSet(Number(row.a), Number(row.b)) && index + 1 < match.bestOf) {
+      setRows((prev) => (prev[index + 1] ? prev : [...prev, { a: '', b: '' }]))
+      setFocusAt({ i: index + 1, side: 'a' })
+    }
+  }
+
+  const winnerName = viewed.winner === 'A' ? pname(a, lang) : viewed.winner === 'B' ? pname(b, lang) : ''
+  const pendingName = pending ? pname(findPlayer(tournament, pending.id), lang) : ''
 
   return (
     <div className="dialog-back" onMouseDown={onClose}>
-      <div className="dialog" role="dialog" aria-modal="true" onMouseDown={(e) => e.stopPropagation()}>
+      <div className="dialog score-dialog" role="dialog" aria-modal="true" ref={root} onMouseDown={(e) => e.stopPropagation()}>
         <div className="row" style={{ justifyContent: 'space-between' }}>
           <h2>{t('scoreTitle')}</h2>
           <button className="btn secondary small" onClick={onClose}>{t('close')}</button>
         </div>
-        <p className="muted">{match.bestOf === 5 ? t('bestOf5') : t('bestOf3')}</p>
-        <div className="sets-so-far">
-          {sets.map((s, i) => (
-            <span className="chip" key={i} style={isValidSet(s.a, s.b) ? undefined : { background: '#fdecec' }}>{s.a}:{s.b}</span>
-          ))}
-          {sets.length > 0 && (
-            <button className="btn secondary small" onClick={() => setSets((prev) => prev.slice(0, -1))}>
-              {lang === 'pl' ? 'Cofnij set' : 'Undo set'}
-            </button>
-          )}
+        <p className="muted">{match.bestOf === 5 ? t('bestOf5') : t('bestOf3')} · {wins.A}:{wins.B}</p>
+        <div className="set-head">
+          <strong>{pname(a, lang)}</strong>
+          <strong>{pname(b, lang)}</strong>
         </div>
-        <div className="score-grid">
-          {(['A', 'B'] as const).map((side) => {
-            const p = side === 'A' ? a : b
-            return (
-              <div className="score-col" key={side}>
-                <h4>{pname(p, lang)}</h4>
-                <div className="muted">{p?.club}</div>
-                <div className="pills" style={{ marginTop: 8 }}>
-                  {QUICK.map((n) => (
-                    <button key={n} data-testid={`set-${side}-11-${n}`} disabled={finished} onClick={() => push(side === 'A' ? { a: 11, b: n } : { a: n, b: 11 })}>
-                      11:{n}
-                    </button>
-                  ))}
-                  {DEUCE.map(([hi, lo]) => (
-                    <button key={hi} disabled={finished} onClick={() => push(side === 'A' ? { a: hi, b: lo } : { a: lo, b: hi })}>
-                      {hi}:{lo}
-                    </button>
-                  ))}
-                </div>
+        {rows.map((row, i) => {
+          const both = row.a.trim() !== '' && row.b.trim() !== ''
+          const sa = Number(row.a)
+          const sb = Number(row.b)
+          const legal = both && isValidSet(sa, sb)
+          const bad = both && !legal
+          return (
+            <div key={i}>
+              <div className="set-row">
+                <input
+                  data-set={`${i}-a`}
+                  data-testid={i === 0 ? 'set-a' : undefined}
+                  inputMode="numeric"
+                  aria-label={`${pname(a, lang)} ${t('set')} ${i + 1}`}
+                  value={row.a}
+                  className={legal && sa > sb ? 'win' : bad ? 'bad' : ''}
+                  onChange={(e) => write(i, 'a', e.target.value)}
+                  onKeyDown={(e) => onKey(e, i, 'a')}
+                />
+                <span className="colon">:</span>
+                <input
+                  data-set={`${i}-b`}
+                  data-testid={i === 0 ? 'set-b' : undefined}
+                  inputMode="numeric"
+                  aria-label={`${pname(b, lang)} ${t('set')} ${i + 1}`}
+                  value={row.b}
+                  className={legal && sb > sa ? 'win' : bad ? 'bad' : ''}
+                  onChange={(e) => write(i, 'b', e.target.value)}
+                  onKeyDown={(e) => onKey(e, i, 'b')}
+                />
               </div>
-            )
-          })}
+              {bad && <p className="set-reason">{t('setRule')}</p>}
+            </div>
+          )
+        })}
+        {finished && (
+          <p className="winner-line">{t('whoWon')} {winnerName} {wins.A}:{wins.B}</p>
+        )}
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="btn" data-testid="score-save" disabled={!finished} onClick={save}>{t('saveScore')}</button>
         </div>
-        <div className="row" style={{ marginTop: 10 }}>
-          <label className="field">{t('custom')} A
-            <input value={customA} inputMode="numeric" onChange={(e) => setCustomA(e.target.value)} />
-          </label>
-          <label className="field">B
-            <input value={customB} inputMode="numeric" onChange={(e) => setCustomB(e.target.value)} />
-          </label>
-          <button className="btn secondary" disabled={finished} onClick={() => push({ a: Number(customA), b: Number(customB) })}>{t('addSet')}</button>
-        </div>
-        <div className="row" style={{ marginTop: 14 }}>
-          <button className="btn" data-testid="score-save" disabled={!finished} onClick={() => onScore(sets)}>{t('saveScore')}</button>
-          {match.slotA && <button className="btn secondary" onClick={() => onWalkover(match.slotA!)}>{t('walkover')}: {pname(a, lang)}</button>}
-          {match.slotB && <button className="btn secondary" onClick={() => onWalkover(match.slotB!)}>{t('walkover')}: {pname(b, lang)}</button>}
-          {match.slotA && <button className="btn secondary" onClick={() => onRetire(match.slotA!, sets)}>{t('retirement')}: {pname(a, lang)}</button>}
-          {match.slotB && <button className="btn secondary" onClick={() => onRetire(match.slotB!, sets)}>{t('retirement')}: {pname(b, lang)}</button>}
-        </div>
+        <details className="special">
+          <summary>{t('specialTitle')}</summary>
+          {pending == null ? (
+            <div className="row" style={{ marginTop: 8 }}>
+              {match.slotA && <button className="btn secondary small" onClick={() => setPending({ kind: 'wo', id: match.slotA! })}>{t('walkover')}: {pname(a, lang)}</button>}
+              {match.slotB && <button className="btn secondary small" onClick={() => setPending({ kind: 'wo', id: match.slotB! })}>{t('walkover')}: {pname(b, lang)}</button>}
+              {match.slotA && <button className="btn secondary small" onClick={() => setPending({ kind: 'retire', id: match.slotA! })}>{t('retirement')}: {pname(a, lang)}</button>}
+              {match.slotB && <button className="btn secondary small" onClick={() => setPending({ kind: 'retire', id: match.slotB! })}>{t('retirement')}: {pname(b, lang)}</button>}
+            </div>
+          ) : (
+            <div style={{ marginTop: 8 }}>
+              <p>{pending.kind === 'wo' ? t('walkover') : t('retirement')}: <b>{pendingName}</b>?</p>
+              <div className="row">
+                <button className="btn" onClick={() => {
+                  if (pending.kind === 'wo') onWalkover(pending.id)
+                  else onRetire(pending.id, viewed.sets)
+                }}>{t('yes')}</button>
+                <button className="btn secondary" onClick={() => setPending(null)}>{t('no')}</button>
+              </div>
+            </div>
+          )}
+        </details>
       </div>
     </div>
   )

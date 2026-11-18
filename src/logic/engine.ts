@@ -38,6 +38,7 @@ export function defaultSettings(): Settings {
     places: defaultPlaces(),
     pointsCategory: 'senior',
     pointsOverride: {},
+    autoAssign: true,
   }
 }
 
@@ -386,6 +387,46 @@ export function suggestAssignments(t: Tournament): { matchId: string; table: num
     busy.add(m.slotB!)
   }
   return plan
+}
+
+/** The match that just finished gives its table to the next ready match that can use it. */
+export function fillFreedTable(t: Tournament, table: number | null): Tournament {
+  if (!t.settings.autoAssign || table == null) return t
+  for (const m of readyMatches(t)) {
+    if (m.table != null) continue
+    const res = assignTable(t, m.id, table)
+    if (res.ok) return res.tournament
+  }
+  return t
+}
+
+export function simulateRemaining(start: Tournament): Action {
+  let t = start
+  if (t.phase === 'setup' && qualifyingRequired(t)) {
+    const built = generateQualifying(t)
+    if (!built.ok) return built
+    t = built.tournament
+  }
+  for (let i = 0; i < 800 && !qualifyingComplete(t); i++) {
+    const m = readyMatches(t)[0]
+    if (!m?.slotA) break
+    const res = enterWalkover(t, m.id, m.slotA)
+    if (!res.ok) return res
+    t = res.tournament
+  }
+  if (t.phase !== 'main') {
+    const main = generateMainDraw(t)
+    if (!main.ok) return main
+    t = main.tournament
+  }
+  for (let i = 0; i < 800; i++) {
+    const m = readyMatches(t)[0]
+    if (!m?.slotA) break
+    const res = enterWalkover(t, m.id, m.slotA)
+    if (!res.ok) return res
+    t = res.tournament
+  }
+  return { ok: true, tournament: t }
 }
 
 export function applySuggestions(t: Tournament): Tournament {

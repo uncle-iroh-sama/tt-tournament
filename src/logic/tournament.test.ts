@@ -7,6 +7,7 @@ import {
   defaultSettings,
   enterScore,
   enterWalkover,
+  fillFreedTable,
   generateMainDraw,
   generateQualifying,
   readyMatches,
@@ -394,6 +395,49 @@ describe('group stage into a main draw', () => {
     const done = playOut(main.tournament)
     const champ = classification(done).find((r) => r.ref.kind === 'place' && r.ref.place === 1)
     expect(champ).toBeTruthy()
+  })
+})
+
+describe('tables and bands', () => {
+  it('moves the next ready match onto a freed table', () => {
+    const settings = { ...defaultSettings(), mainDrawSize: 16 as const, tables: 2, autoAssign: true }
+    const players = Array.from({ length: 4 }, (_, i) => player(`p${i + 1}`, `K${i}`, 40 - i, i + 1))
+    const drawn = generateMainDraw(withPlayers(settings, players, 'TABLE1'))
+    expect(drawn.ok).toBe(true)
+    if (!drawn.ok) return
+    const first = readyMatches(drawn.tournament)[0]!
+    const seated = fillFreedTable({ ...drawn.tournament, settings: { ...drawn.tournament.settings, autoAssign: true } }, null)
+    const assigned = enterScore(
+      { ...drawn.tournament, matches: drawn.tournament.matches.map((m) => m.id === first.id ? { ...m, table: 1 } : m) },
+      first.id,
+      setsFor(first.bestOf, true),
+    )
+    expect(assigned.ok).toBe(true)
+    if (!assigned.ok) return
+    const next = fillFreedTable(assigned.tournament, 1)
+    const onTable = next.matches.find((m) => m.outcome === 'pending' && m.table === 1)
+    expect(onTable).toBeTruthy()
+    expect(onTable!.id).not.toBe(first.id)
+    const off = fillFreedTable({ ...assigned.tournament, settings: { ...assigned.tournament.settings, autoAssign: false } }, 1)
+    expect(off.matches.some((m) => m.outcome === 'pending' && m.table === 1)).toBe(false)
+    expect(seated.matches.some((m) => m.table === 1)).toBe(false)
+  })
+
+  it('orders a shared band by seed, then ranking', () => {
+    const players = [
+      player('low', 'K', 100, 2),
+      player('high', 'K', 200, 1),
+      player('mid', 'K', 150, 3),
+    ]
+    let t = withPlayers(defaultSettings(), players, 'BAND01')
+    t = {
+      ...t,
+      phase: 'main',
+      mainSeeds: { high: 4, low: 1, mid: 9 },
+      shared: [{ playerIds: ['low', 'high', 'mid'], from: 9, to: 16 }],
+    }
+    const ids = classification(t).filter((r) => r.ref.kind === 'band').map((r) => r.playerId)
+    expect(ids).toEqual(['low', 'high', 'mid'])
   })
 })
 

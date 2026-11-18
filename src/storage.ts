@@ -36,6 +36,7 @@ export function tournamentFromJson(raw: string): Tournament | null {
       data.settings.pointsCategory = 'custom'
     }
     data.settings.seeding ??= 'fixed'
+    data.settings.autoAssign ??= true
     return data
   } catch {
     return null

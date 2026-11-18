@@ -9,12 +9,14 @@ import {
   enterRetirement,
   enterScore,
   enterWalkover,
+  fillFreedTable,
   generateMainDraw,
   generateQualifying,
   qualifyingComplete,
   qualifyingRequired,
   readyMatches,
   removePlayer,
+  simulateRemaining,
   suggestAssignments,
   swapMainSlots,
   undoAll,
@@ -27,8 +29,8 @@ import { planGroupSizes, previewQualifying } from '../logic/plan.ts'
 import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
-import { parsePlayerLines } from '../demo.ts'
-import { catKey, findPlayer, matchTitle, pname, ratioText, roundHeading } from './format.ts'
+import { isDemoTournament, parsePlayerLines } from '../demo.ts'
+import { catKey, findPlayer, matchTitle, placeColumnTitle, pname, ratioText, roundHeading } from './format.ts'
 import { ScoreDialog } from './score.tsx'
 
 const CATS: Category[] = ['senior', 'mlodziezowiec', 'junior', 'kadet', 'mlodzik', 'zak', 'skrzat', 'masters']
@@ -77,6 +79,11 @@ export function Desk({
     else setT(res.tournament)
   }
 
+  function openMatch(id: string) {
+    if (laterResult(t, id)) setAsk({ text: tr('correctWarn'), run: () => setScoreId(id) })
+    else setScoreId(id)
+  }
+
   const scoreMatch = t.matches.find((m) => m.id === scoreId) ?? null
   if (route.startsWith('#/druk')) {
     return <PrintView t={t} lang={lang} kind={route.replace('#/druk/', '')} />
@@ -90,14 +97,14 @@ export function Desk({
       {route === '#/zawodnicy' && (
         <Players
           t={t} tr={tr} form={form} setForm={setForm} paste={paste} setPaste={setPaste}
-          editId={editId} setEditId={setEditId} setT={setT} onError={onError} act={act}
+          editId={editId} setEditId={setEditId} setT={setT} onError={onError} act={act} ask={setAsk}
         />
       )}
-      {route === '#/eliminacje' && <Qualifying t={t} lang={lang} tr={tr} act={act} go={go} />}
+      {route === '#/eliminacje' && <Qualifying t={t} lang={lang} tr={tr} act={act} go={go} openScore={openMatch} />}
       {route === '#/drabinka' && (
         <Bracket
           t={t} lang={lang} tr={tr} roundOn={roundOn} setRoundOn={setRoundOn}
-          swapFrom={swapFrom} setSwapFrom={setSwapFrom} act={act} onError={onError} setT={setT}
+          swapFrom={swapFrom} setSwapFrom={setSwapFrom} act={act} ask={setAsk} openScore={openMatch}
         />
       )}
       {route === '#/mecze' && (
@@ -113,15 +120,24 @@ export function Desk({
           lang={lang}
           onClose={() => setScoreId(null)}
           onScore={(sets) => {
-            act(enterScore(t, scoreMatch.id, sets))
+            const table = scoreMatch.table
+            const res = enterScore(t, scoreMatch.id, sets)
+            if (res.ok) setT(fillFreedTable(res.tournament, table))
+            else onError(res.error)
             setScoreId(null)
           }}
           onWalkover={(id) => {
-            act(enterWalkover(t, scoreMatch.id, id))
+            const table = scoreMatch.table
+            const res = enterWalkover(t, scoreMatch.id, id)
+            if (res.ok) setT(fillFreedTable(res.tournament, table))
+            else onError(res.error)
             setScoreId(null)
           }}
           onRetire={(id, sets) => {
-            act(enterRetirement(t, scoreMatch.id, id, sets))
+            const table = scoreMatch.table
+            const res = enterRetirement(t, scoreMatch.id, id, sets)
+            if (res.ok) setT(fillFreedTable(res.tournament, table))
+            else onError(res.error)
             setScoreId(null)
           }}
         />
@@ -176,6 +192,9 @@ function Home({
           {step.kind === 'play' && <button className="btn" onClick={() => go('#/mecze')}>{tr('navMatches')}</button>}
           {step.kind === 'players' && <button className="btn" onClick={() => go('#/zawodnicy')}>{tr('navPlayers')}</button>}
           {step.kind === 'done' && <button className="btn" onClick={() => go('#/klasyfikacja')}>{tr('navClass')}</button>}
+          {isDemoTournament(t) && step.kind !== 'done' && (
+            <button className="btn secondary" data-testid="simulate" onClick={() => act(simulateRemaining(t))}>{tr('simulate')}</button>
+          )}
         </div>
       </div>
       <div className="stats">
@@ -198,8 +217,10 @@ function Home({
           <button className="btn secondary" onClick={() => download(t)}>{tr('export')}</button>
           <button className="btn secondary" onClick={() => go('#/druk/kartki')}>{tr('printSheets')}</button>
           <button className="btn secondary" onClick={() => go('#/druk/drabinka')}>{tr('printBracket')}</button>
-          <button className="btn secondary" onClick={() => ask({ text: tr('undoConfirm'), run: () => setT(undoAll(t)) })}>{tr('undo')}</button>
-          <button className="btn secondary" onClick={onReplace}>{tr('newTournament')}</button>
+        </div>
+        <div className="row" style={{ marginTop: 10 }}>
+          <button className="btn danger" onClick={() => ask({ text: tr('undoConfirm'), run: () => setT(undoAll(t)) })}>{tr('undo')}</button>
+          <button className="btn danger" onClick={onReplace}>{tr('newTournament')}</button>
         </div>
         <p className="muted">{tr('drawCode')}: <b>{t.drawCode}</b>. {tr('drawCodeHint')}</p>
         {t.phase === 'setup' && (
@@ -272,7 +293,7 @@ function describePlan(t: Tournament, lang: Lang) {
 }
 
 function Players({
-  t, tr, form, setForm, paste, setPaste, editId, setEditId, setT, onError, act,
+  t, tr, form, setForm, paste, setPaste, editId, setEditId, setT, onError, act, ask,
 }: {
   t: Tournament
   tr: (k: Key) => string
@@ -285,6 +306,7 @@ function Players({
   setT: (t: Tournament) => void
   onError: (c: string) => void
   act: (r: { ok: true; tournament: Tournament } | { ok: false; error: string }) => void
+  ask: (q: { text: string; run: () => void } | null) => void
 }) {
   const ranked = t.players.slice().sort(compareRanking)
   function readNums() {
@@ -357,7 +379,7 @@ function Players({
                     setForm({ name: p.name, club: p.club, points: p.rankingPoints?.toString() ?? '', position: p.rankingPosition?.toString() ?? '' })
                   }}>{tr('edit')}</button>{' '}
                   {!p.withdrawn && <button className="btn secondary small" onClick={() => setT(withdrawPlayer(t, p.id))}>{tr('withdraw')}</button>}{' '}
-                  <button className="btn secondary small" onClick={() => act(removePlayer(t, p.id))}>{tr('remove')}</button>
+                  <button className="btn danger small" onClick={() => ask({ text: `${p.name}. ${tr('removeConfirm')}`, run: () => act(removePlayer(t, p.id)) })}>{tr('remove')}</button>
                 </td>
               </tr>
             ))}
@@ -368,7 +390,7 @@ function Players({
   )
 }
 
-function Qualifying({ t, lang, tr, act, go, quiet = false }: { t: Tournament; lang: Lang; tr: (k: Key) => string; act: DeskAct; go: (h: string) => void; quiet?: boolean }) {
+function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tournament; lang: Lang; tr: (k: Key) => string; act: DeskAct; go: (h: string) => void; openScore?: (id: string) => void; quiet?: boolean }) {
   const groups = t.groups
   const qual = t.matches.filter((m) => m.stage === 'qualifying')
   return (
@@ -416,13 +438,13 @@ function Qualifying({ t, lang, tr, act, go, quiet = false }: { t: Tournament; la
           })}
         </div>
       )}
-      {qual.length > 0 && <BracketColumns t={t} lang={lang} matches={qual} title={tr('qualBracket')} />}
+      {qual.length > 0 && <BracketColumns t={t} lang={lang} matches={qual} title={tr('qualBracket')} onOpen={quiet ? undefined : openScore} />}
     </>
   )
 }
 
 function Bracket({
-  t, lang, tr, roundOn, setRoundOn, swapFrom, setSwapFrom, act,
+  t, lang, tr, roundOn, setRoundOn, swapFrom, setSwapFrom, act, ask, openScore,
 }: {
   t: Tournament
   lang: Lang
@@ -432,8 +454,8 @@ function Bracket({
   swapFrom: number | null
   setSwapFrom: (n: number | null) => void
   act: DeskAct
-  onError: (c: string) => void
-  setT: (t: Tournament) => void
+  ask: (q: { text: string; run: () => void } | null) => void
+  openScore: (id: string) => void
 }) {
   const main = t.matches.filter((m) => m.stage === 'main')
   const places = t.matches.filter((m) => m.stage === 'placement' && (m.outcome !== 'pending' || m.slotA != null || m.slotB != null))
@@ -447,7 +469,7 @@ function Bracket({
         {t.phase !== 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
         {t.phase === 'main' && (
           <div className="row">
-            <button className="btn secondary" onClick={() => act(generateMainDraw(t))}>{tr('redoMain')}</button>
+            <button className="btn danger" onClick={() => ask({ text: tr('redoConfirm'), run: () => act(generateMainDraw(t)) })}>{tr('redoMain')}</button>
             <button className={`btn ${swapFrom != null ? '' : 'secondary'}`} onClick={() => setSwapFrom(swapFrom == null ? -1 : null)}>
               {tr('swap')}
             </button>
@@ -460,15 +482,15 @@ function Bracket({
         <div className="sheet-two">
           {places.length > 0 && (
             <div className="consolation">
-              <BracketColumns t={t} lang={lang} matches={places} title={tr('placement')} />
+              <BracketColumns t={t} lang={lang} matches={places} title={tr('placement')} onOpen={openScore} />
             </div>
           )}
           {main.length > 0 && (
             <div className="championship">
               <BracketColumns
                 t={t} lang={lang} matches={main} title={tr('main')} roundOn={roundOn} setRoundOn={setRoundOn}
-                onSlot={(index) => {
-                  if (swapFrom == null) return
+                onOpen={swapFrom == null ? openScore : undefined}
+                onSlot={swapFrom == null ? undefined : (index) => {
                   if (swapFrom < 0) setSwapFrom(index)
                   else {
                     act(swapMainSlots(t, swapFrom, index))
@@ -555,9 +577,9 @@ function Matches({
             <Slip t={t} m={m} lang={lang} />
             <div className="row" style={{ margin: '-4px 0 10px' }}>
               <button className="btn small" onClick={() => openScore(m.id)}>{tr('enter')}</button>
-              {m.table == null && (
-                <button className="btn secondary small" onClick={() => act(assignTable(t, m.id, suggestOf.get(m.id) ?? null))}>
-                  {tr('suggest')} {suggestOf.get(m.id) ?? '—'}
+              {m.table == null && suggestOf.has(m.id) && (
+                <button className="btn secondary small" onClick={() => act(assignTable(t, m.id, suggestOf.get(m.id)!))}>
+                  {tr('toTable')} {suggestOf.get(m.id)}
                 </button>
               )}
               {m.table != null && <button className="btn secondary small" onClick={() => act(assignTable(t, m.id, null))}>{tr('clearTable')}</button>}
@@ -625,7 +647,7 @@ function ClassView({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; set
         </label>
         {rows.length === 0 && <p>{tr('classEmpty')}</p>}
         <table className="list">
-          <thead><tr><th>{tr('place')}</th><th>{tr('playerName')}</th><th>{tr('club')}</th><th>{tr('kwgpp')}</th></tr></thead>
+          <thead><tr><th scope="col">{tr('place')}</th><th scope="col">{tr('colPlayer')}</th><th scope="col">{tr('colPoints')}</th><th scope="col">{tr('club')}</th></tr></thead>
           <tbody>
             {rows.map((r) => {
               const p = findPlayer(t, r.playerId)
@@ -634,8 +656,8 @@ function ClassView({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; set
                 <tr key={r.playerId}>
                   <td title={r.ref.kind === 'out' ? tr('notClassifiedLong') : undefined}>{place}</td>
                   <td>{p?.name}</td>
-                  <td>{p?.club}</td>
-                  <td>{r.points ?? '—'}</td>
+                  <td className="pts">{r.points ?? '—'}</td>
+                  <td className="club-cell">{p?.club}</td>
                 </tr>
               )
             })}
@@ -698,6 +720,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
         </select>
       </label>
       <label className="field">{tr('tables')}<input type="number" min={1} max={32} value={settings.tables} onChange={(e) => set({ tables: Number(e.target.value) })} /></label>
+      <label className="check" style={{ alignSelf: 'end' }}><input type="checkbox" checked={settings.autoAssign} onChange={(e) => set({ autoAssign: e.target.checked })} />{tr('autoAssign')}</label>
       <label className="field">{tr('bestOf')}
         <select value={settings.bestOf} onChange={(e) => set({ bestOf: Number(e.target.value) as 3 | 5 })}>
           <option value={5}>{tr('bestOf5')}</option>
@@ -751,32 +774,48 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
   )
 }
 
-function Slip({ t, m, lang }: { t: Tournament; m: Match; lang: Lang }) {
+function Slip({ t, m, lang, onOpen, onPick, picked }: { t: Tournament; m: Match; lang: Lang; onOpen?: () => void; onPick?: (slot: 'A' | 'B') => void; picked?: 'A' | 'B' | null }) {
   const cls = m.outcome === 'pending' && m.table ? 'live' : m.outcome === 'pending' && m.slotA && m.slotB ? 'ready' : m.outcome === 'pending' ? 'pending' : 'done'
   const sets = m.sets.map((s) => `${s.a}:${s.b}`).join('  ')
+  const playable = !!onOpen && !!m.slotA && !!m.slotB && m.outcome !== 'bye' && m.outcome !== 'cancelled'
   return (
-    <div className={`slip ${cls}`}>
+    <div
+      className={`slip ${cls} ${playable ? 'click' : ''}`}
+      onClick={playable ? onOpen : undefined}
+      onKeyDown={playable ? (e) => { if (e.key === 'Enter') onOpen?.() } : undefined}
+      role={playable ? 'button' : undefined}
+      tabIndex={playable ? 0 : undefined}
+    >
       <div className="meta">
         <span>{matchTitle(m, lang)}{m.table ? ` · ${translate(lang, 'suggest')} ${m.table}` : ''}</span>
         <span>{m.outcome === 'bye' ? translate(lang, 'bye') : sets || translate(lang, m.outcome === 'walkover' ? 'status_walkover' : m.outcome === 'retirement' ? 'status_retirement' : 'status_pending')}</span>
       </div>
-      <Side t={t} id={m.slotA} win={m.winnerId != null && m.winnerId === m.slotA} lose={m.winnerId != null && m.winnerId !== m.slotA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} />
-      <Side t={t} id={m.slotB} win={m.winnerId != null && m.winnerId === m.slotB} lose={m.winnerId != null && m.winnerId !== m.slotB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} />
+      <Side t={t} id={m.slotA} win={m.winnerId != null && m.winnerId === m.slotA} lose={m.winnerId != null && m.winnerId !== m.slotA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} marked={picked === 'A'} onPick={onPick ? () => onPick('A') : undefined} />
+      <Side t={t} id={m.slotB} win={m.winnerId != null && m.winnerId === m.slotB} lose={m.winnerId != null && m.winnerId !== m.slotB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} marked={picked === 'B'} onPick={onPick ? () => onPick('B') : undefined} />
     </div>
   )
 }
 
-function Side({ t, id, win, lose, lang, seed, bye }: { t: Tournament; id: string | null; win: boolean; lose: boolean; lang: Lang; seed?: number; bye: boolean }) {
+function Side({ t, id, win, lose, lang, seed, bye, onPick, marked }: { t: Tournament; id: string | null; win: boolean; lose: boolean; lang: Lang; seed?: number; bye: boolean; onPick?: () => void; marked?: boolean }) {
   const p = findPlayer(t, id)
   return (
-    <div className={`side ${win ? 'win' : ''} ${lose ? 'lose' : ''}`}>
-      <span>{seed ? <span className="muted">{seed} </span> : null}{bye ? translate(lang, 'bye') : pname(p, lang)} <span className="club">{p?.club}</span></span>
+    <div className={`side ${win ? 'win' : ''} ${lose ? 'lose' : ''} ${onPick ? 'pick' : ''} ${marked ? 'marked' : ''}`} onClick={onPick ? (e) => { e.stopPropagation(); onPick() } : undefined}>
+      {seed != null && <span className="seed">{seed}</span>}
+      <span className="nm">{bye ? translate(lang, 'bye') : pname(p, lang)}</span>
+      {p?.club && <span className="club">{p.club}</span>}
     </div>
   )
+}
+
+function columnHeading(matches: Match[], lang: Lang): string {
+  const sample = matches[0]
+  if (!sample) return ''
+  if (sample.stage === 'placement') return placeColumnTitle(matches, lang)
+  return roundHeading(sample, lang)
 }
 
 function BracketColumns({
-  t, lang, matches, title, roundOn = 0, setRoundOn, onSlot, highlight,
+  t, lang, matches, title, roundOn = 0, setRoundOn, onSlot, highlight, onOpen,
 }: {
   t: Tournament
   lang: Lang
@@ -786,39 +825,43 @@ function BracketColumns({
   setRoundOn?: (n: number) => void
   onSlot?: (index: number) => void
   highlight?: number | null
+  onOpen?: (id: string) => void
 }) {
   const rounds = [...new Set(matches.map((m) => m.round))].sort((a, b) => a - b)
+  const multi = rounds.length > 1
   return (
     <div className="card">
       <h2>{title}</h2>
-      <div className="rounds-switch">
+      {multi && (
+        <div className="rounds-switch">
+          {rounds.map((r) => {
+            const inRound = matches.filter((m) => m.round === r)
+            return (
+              <button key={r} className={r === roundOn ? 'on' : ''} onClick={() => setRoundOn?.(r)}>{columnHeading(inRound, lang)}</button>
+            )
+          })}
+        </div>
+      )}
+      <div className="bracket">
         {rounds.map((r) => {
-          const sampleR = matches.find((m) => m.round === r)!
+          const inRound = matches.filter((m) => m.round === r).sort((a, b) => a.index - b.index)
           return (
-            <button key={r} className={r === roundOn ? 'on' : ''} onClick={() => setRoundOn?.(r)}>{roundHeading(sampleR, lang)}</button>
+            <div className={`round ${r === roundOn ? 'on' : ''}`} key={r}>
+              {multi && <h3>{columnHeading(inRound, lang)}</h3>}
+              {inRound.map((m) => (
+                <Slip
+                  key={m.id}
+                  t={t}
+                  m={m}
+                  lang={lang}
+                  onOpen={onOpen && m.outcome !== 'bye' ? () => onOpen(m.id) : undefined}
+                  onPick={onSlot && m.round === 0 ? (slot) => onSlot(m.index * 2 + (slot === 'A' ? 0 : 1)) : undefined}
+                  picked={highlight != null && m.round === 0 ? (highlight === m.index * 2 ? 'A' : highlight === m.index * 2 + 1 ? 'B' : null) : null}
+                />
+              ))}
+            </div>
           )
         })}
-      </div>
-      <div className="bracket">
-        {rounds.map((r) => (
-          <div className={`round ${r === roundOn ? 'on' : ''}`} key={r}>
-            <h3>{roundHeading(matches.find((m) => m.round === r)!, lang)}</h3>
-            {matches.filter((m) => m.round === r).sort((a, b) => a.index - b.index).map((m) => (
-              <div key={m.id} onClick={() => {
-                if (!onSlot || m.round !== 0) return
-                onSlot(m.index * 2)
-              }}>
-                <Slip t={t} m={m} lang={lang} />
-                {onSlot && m.round === 0 && (
-                  <div className="row" style={{ marginTop: -6, marginBottom: 8 }}>
-                    <button className={`btn small ${highlight === m.index * 2 ? '' : 'secondary'}`} onClick={(e) => { e.stopPropagation(); onSlot(m.index * 2) }}>A</button>
-                    <button className={`btn small ${highlight === m.index * 2 + 1 ? '' : 'secondary'}`} onClick={(e) => { e.stopPropagation(); onSlot(m.index * 2 + 1) }}>B</button>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        ))}
       </div>
     </div>
   )
@@ -826,16 +869,45 @@ function BracketColumns({
 
 function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
   const tr = (k: Key) => translate(lang, k)
-  const live = t.matches.filter((m) => m.outcome === 'pending' && m.table != null)
+  const live = t.matches.filter((m) => m.outcome === 'pending' && m.table != null).sort((a, b) => (a.table ?? 0) - (b.table ?? 0))
   const next = readyMatches(t).filter((m) => m.table == null).slice(0, 8)
-  const rows = classification(t).slice(0, 16)
+  const rows = classification(t)
   const [roundOn, setRoundOn] = useState(0)
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLocaleLowerCase('pl')
+  const hits = q.length < 2 ? [] : t.players.filter((p) => p.name.toLocaleLowerCase('pl').includes(q)).slice(0, 6)
   return (
     <>
+      <p className="back-link"><a href="#/">{tr('back')}</a></p>
       <div className="card">
         <h2>{tr('nowPlaying')}</h2>
         {live.length === 0 && <p className="muted">{tr('noLive')}</p>}
         {live.map((m) => <Slip key={m.id} t={t} m={m} lang={lang} />)}
+      </div>
+      <div className="card">
+        <label className="field">{tr('findPlayer')}
+          <input value={query} onChange={(e) => setQuery(e.target.value)} autoComplete="off" />
+        </label>
+        {q.length >= 2 && hits.length === 0 && <p className="muted">{tr('findEmpty')}</p>}
+        {hits.map((p) => {
+          const current = live.find((m) => m.slotA === p.id || m.slotB === p.id)
+          const upcoming = next.find((m) => m.slotA === p.id || m.slotB === p.id)
+            ?? readyMatches(t).find((m) => m.table == null && (m.slotA === p.id || m.slotB === p.id))
+          const row = rows.find((r) => r.playerId === p.id)
+          const shown = current ?? upcoming
+          const foe = shown ? pname(findPlayer(t, shown.slotA === p.id ? shown.slotB : shown.slotA), lang) : ''
+          return (
+            <div key={p.id} className="hit">
+              <strong>{p.name}</strong>
+              <div className="muted">{p.club}</div>
+              {current && <div>{tr('playingNow')}: {tr('suggest')} {current.table} · {foe}</div>}
+              {!current && upcoming && <div>{tr('playingNext')}: {foe}{upcoming.table ? ` · ${tr('suggest')} ${upcoming.table}` : ''}</div>}
+              {!current && !upcoming && shown == null && row && (
+                <div>{tr('playingDone')}: {placeText(row.ref, tr('notClassified'))}{row.points != null ? ` · ${row.points}` : ''}</div>
+              )}
+            </div>
+          )
+        })}
       </div>
       {next.length > 0 && (
         <div className="card">
@@ -846,11 +918,19 @@ function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
       <div className="card">
         <h2>{tr('classTitle')}</h2>
         <table className="list">
+          <thead><tr><th scope="col">{tr('place')}</th><th scope="col">{tr('colPlayer')}</th><th scope="col">{tr('colPoints')}</th><th scope="col">{tr('club')}</th></tr></thead>
           <tbody>
-            {rows.map((r) => {
+            {rows.slice(0, 32).map((r) => {
               const p = findPlayer(t, r.playerId)
               const place = placeText(r.ref, tr('notClassified'))
-              return <tr key={r.playerId}><td>{place}</td><td>{p?.name}<div className="muted">{p?.club}</div></td><td>{r.points ?? ''}</td></tr>
+              return (
+                <tr key={r.playerId}>
+                  <td>{place}</td>
+                  <td>{p?.name}</td>
+                  <td className="pts">{r.points ?? '—'}</td>
+                  <td className="club-cell">{p?.club}</td>
+                </tr>
+              )
             })}
           </tbody>
         </table>
@@ -873,12 +953,12 @@ function PrintView({ t, lang, kind }: { t: Tournament; lang: Lang; kind: string 
         <p>{t.settings.date} · {t.settings.venue}</p>
         <h3>{tr('classTitle')}</h3>
         <table className="list">
-          <thead><tr><th>{tr('place')}</th><th>{tr('playerName')}</th><th>{tr('club')}</th><th>{tr('kwgpp')}</th></tr></thead>
+          <thead><tr><th scope="col">{tr('place')}</th><th scope="col">{tr('colPlayer')}</th><th scope="col">{tr('colPoints')}</th><th scope="col">{tr('club')}</th></tr></thead>
           <tbody>
             {rows.map((r) => {
               const p = findPlayer(t, r.playerId)
               const place = placeText(r.ref, tr('notClassified'))
-              return <tr key={r.playerId}><td>{place}</td><td>{p?.name}</td><td>{p?.club}</td><td>{r.points ?? ''}</td></tr>
+              return <tr key={r.playerId}><td>{place}</td><td>{p?.name}</td><td className="pts">{r.points ?? ''}</td><td>{p?.club}</td></tr>
             })}
           </tbody>
         </table>
@@ -934,24 +1014,38 @@ export function Welcome({
   onImport: (file: File) => void
 }) {
   return (
-    <div className="card">
-      <h2 style={{ fontSize: '2rem' }}>{tr('welcomeTitle')}</h2>
-      <p className="lead">{tr('welcomeLead')}</p>
-      <ol className="steps">
-        <li><b>1</b>{tr('stepList')}</li>
-        <li><b>2</b>{tr('stepDraw')}</li>
-        <li><b>3</b>{tr('stepScore')}</li>
-      </ol>
-      <p className="muted">{tr('stepNote')}</p>
-      <div className="row">
-        <button className="btn" onClick={onCreate}>{tr('newTournament')}</button>
-        <button className="btn secondary" data-testid="demo-button" onClick={onDemo}>{tr('demo')}</button>
-        <label className="btn secondary">
-          {tr('import')}
-          <input type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImport(f) }} />
-        </label>
+    <div className="hero">
+      <div className="card hero-copy">
+        <p className="kicker">WZTS · KWGPP</p>
+        <h2>{tr('welcomeTitle')}</h2>
+        <p className="lead">{tr('welcomeLead')}</p>
+        <ol className="steps">
+          <li><b>1</b>{tr('stepList')}</li>
+          <li><b>2</b>{tr('stepDraw')}</li>
+          <li><b>3</b>{tr('stepScore')}</li>
+        </ol>
+        <p className="muted">{tr('stepNote')}</p>
+        <div className="row">
+          <button className="btn" onClick={onCreate}>{tr('newTournament')}</button>
+          <button className="btn secondary" data-testid="demo-button" onClick={onDemo}>{tr('demo')}</button>
+          <label className="btn secondary">
+            {tr('import')}
+            <input type="file" accept="application/json" hidden onChange={(e) => { const f = e.target.files?.[0]; if (f) onImport(f) }} />
+          </label>
+        </div>
+        <p className="muted">{tr('demoHint')}</p>
       </div>
-      <p className="muted">{tr('demoHint')}</p>
+      <div className="mini" aria-hidden="true">
+        <div className="col">
+          <span className="m" /><span className="m" /><span className="m" /><span className="m" />
+        </div>
+        <div className="col">
+          <span className="m" /><span className="m" />
+        </div>
+        <div className="col">
+          <span className="m final" />
+        </div>
+      </div>
     </div>
   )
 }

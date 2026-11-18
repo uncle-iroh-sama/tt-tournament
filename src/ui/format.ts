@@ -29,10 +29,19 @@ export function matchTitle(m: Match, lang: Lang): string {
   return `1/${size}`
 }
 
+export function placeColumnTitle(matches: Match[], lang: Lang): string {
+  const places = matches.flatMap((m) => (m.label.k === 'place' ? [m.label.place] : []))
+  if (places.length === 0) return translate(lang, 'placement')
+  const lo = Math.min(...places)
+  const hi = Math.max(...places)
+  if (lo === hi) return lang === 'pl' ? `O ${lo}. miejsce` : `Place ${lo}`
+  return lang === 'pl' ? `Miejsca ${lo}–${hi}` : `Places ${lo}–${hi}`
+}
+
 export function roundHeading(m: Match, lang: Lang): string {
   if (m.stage === 'qualifying') return `${translate(lang, 'qual')} · ${m.round + 1}`
   if (m.stage === 'group') return `${translate(lang, 'group')} · ${translate(lang, 'kolejka')} ${m.round + 1}`
-  if (m.stage === 'placement') return translate(lang, 'placement')
+  if (m.stage === 'placement') return placeColumnTitle([m], lang)
   const label = m.label
   if (label.k !== 'main') return translate(lang, 'main')
   const size = 2 ** (label.rounds - label.round)

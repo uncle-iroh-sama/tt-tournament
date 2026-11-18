@@ -121,6 +121,8 @@ export interface Settings {
   places: PlaceFlags
   pointsCategory: PointsCategory
   pointsOverride: Partial<Record<PointsCategory, Record<string, number>>>
+  /** After a result, put the next ready match on the table that just freed. */
+  autoAssign: boolean
 }
 
 export interface Award {

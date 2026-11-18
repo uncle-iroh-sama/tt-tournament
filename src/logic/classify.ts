@@ -1,5 +1,6 @@
 import { pointsFor } from './points.ts'
-import type { Match, Tournament } from './types.ts'
+import { compareRanking } from './ranking.ts'
+import type { Match, Player, Tournament } from './types.ts'
 
 export interface PlaceRef {
   kind: 'place' | 'band' | 'pending' | 'out'
@@ -79,8 +80,22 @@ export function classification(t: Tournament): ClassRow[] {
     if (row.ref.kind === 'pending') return 10000
     return 20000
   }
-  rows.sort((a, b) => rank(a) - rank(b) || a.playerId.localeCompare(b.playerId))
+  const byId = new Map(t.players.map((p) => [p.id, p]))
+  rows.sort((a, b) => rank(a) - rank(b) || bandOrder(t, a, b, byId) || a.playerId.localeCompare(b.playerId))
   return rows
+}
+
+/** Inside one shared band, the better seed (then the better ranking) comes first. */
+function bandOrder(t: Tournament, a: ClassRow, b: ClassRow, byId: Map<string, Player>): number {
+  if (a.ref.kind !== 'band' || b.ref.kind !== 'band') return 0
+  if (a.ref.from !== b.ref.from || a.ref.to !== b.ref.to) return 0
+  const sa = t.mainSeeds[a.playerId]
+  const sb = t.mainSeeds[b.playerId]
+  if (sa != null && sb != null && sa !== sb) return sa - sb
+  const pa = byId.get(a.playerId)
+  const pb = byId.get(b.playerId)
+  if (pa && pb) return compareRanking(pa, pb)
+  return 0
 }
 
 export function countFinished(t: Tournament): { done: number; total: number } {
