@@ -103,6 +103,17 @@ export function ScoreDialog({
       setFocusAt({ i: index, side: 'b' })
       return
     }
+    if (e.key === 'Tab' && !e.shiftKey && side === 'b') {
+      const row = rows[index]
+      if (!row || row.a.trim() === '' || row.b.trim() === '') return
+      if (!isValidSet(Number(row.a), Number(row.b))) return
+      if (read(rows, match.bestOf).winner) return
+      if (index + 1 >= match.bestOf || rows[index + 1]) return
+      e.preventDefault()
+      setRows((prev) => [...prev, { a: '', b: '' }])
+      setFocusAt({ i: index + 1, side: 'a' })
+      return
+    }
     if (e.key !== 'Enter') return
     e.preventDefault()
     const now = read(rows, match.bestOf)

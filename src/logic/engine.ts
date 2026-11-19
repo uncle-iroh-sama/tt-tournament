@@ -400,9 +400,24 @@ export function fillFreedTable(t: Tournament, table: number | null): Tournament 
   return t
 }
 
-const SIM_SETS: Array<[number, number]> = [
-  [11, 7], [11, 5], [11, 9], [11, 8], [11, 6], [11, 4], [12, 10], [11, 3], [13, 11], [14, 12], [11, 2],
+const CLOSE_SETS: Array<[number, number]> = [
+  [11, 9], [11, 8], [11, 7], [11, 6], [11, 5],
 ]
+const DEUCE_SETS: Array<[number, number]> = [[12, 10], [13, 11]]
+
+function pickSimSet(rng: () => number): [number, number] {
+  const roll = rng()
+  if (roll < 0.78) return CLOSE_SETS[Math.floor(rng() * CLOSE_SETS.length)]!
+  if (roll < 0.93) return DEUCE_SETS[Math.floor(rng() * DEUCE_SETS.length)]!
+  return [11, 3]
+}
+
+function upsetChance(gap: number): number {
+  if (gap <= 2) return 0.3
+  if (gap <= 5) return 0.18
+  if (gap <= 10) return 0.1
+  return 0.05
+}
 
 function strength(t: Tournament, id: string): number {
   const seed = t.mainSeeds[id]
@@ -416,8 +431,10 @@ function strength(t: Tournament, id: string): number {
 /** Plausible set scores. The better seed wins more often, and not every time. */
 function simulatedSets(t: Tournament, m: Match): SetScore[] {
   const rng = rngFrom(t.drawCode, `sim:${m.id}`)
-  const aIsBetter = strength(t, m.slotA!) <= strength(t, m.slotB!)
-  const aWins = rng() < 0.28 ? !aIsBetter : aIsBetter
+  const aStrength = strength(t, m.slotA!)
+  const bStrength = strength(t, m.slotB!)
+  const aIsBetter = aStrength <= bStrength
+  const aWins = rng() < upsetChance(Math.abs(aStrength - bStrength)) ? !aIsBetter : aIsBetter
   const need = m.bestOf === 5 ? 3 : 2
   const roll = rng()
   const losses = need === 3 ? (roll < 0.35 ? 0 : roll < 0.72 ? 1 : 2) : roll < 0.55 ? 0 : 1
@@ -427,7 +444,7 @@ function simulatedSets(t: Tournament, m: Match): SetScore[] {
   const order = shuffle(marks, rng)
   order.push('W')
   return order.map((mark) => {
-    const pair = SIM_SETS[Math.floor(rng() * SIM_SETS.length)]!
+    const pair = pickSimSet(rng)
     const highOnA = mark === 'W' ? aWins : !aWins
     return highOnA ? { a: pair[0], b: pair[1] } : { a: pair[1], b: pair[0] }
   })

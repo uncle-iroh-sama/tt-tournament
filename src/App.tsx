@@ -72,7 +72,9 @@ export default function App() {
     root.classList.add('notranslate')
     const page = translate(lang, pageKey(route))
     const name = tournament?.settings.name.trim()
-    document.title = name ? `${page} · ${name}` : page
+    const app = translate(lang, 'app')
+    const tag = translate(lang, 'tag')
+    document.title = name ? `${page} · ${name}` : `${app} · ${tag}`
   }, [lang, route, tournament])
 
   useEffect(() => {
