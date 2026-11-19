@@ -1085,25 +1085,22 @@ export function Welcome({
       <aside className="sample">
         <p className="kicker">{tr('sample')}</p>
         <div className="sample-board">
-          <div className="sample-col">
-            <article className="sample-card">
-              <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
-              <div className="sample-side"><span>Nowak</span><b>1</b></div>
-              <div className="sample-sets"><i>11:8</i><i className="down">9:11</i><i>11:6</i><i>11:7</i></div>
-            </article>
-            <article className="sample-card">
-              <div className="sample-side win"><span>Zieliński</span><b>3</b></div>
-              <div className="sample-side"><span>Wójcik</span><b>0</b></div>
-              <div className="sample-sets"><i>11:5</i><i>11:9</i><i>11:7</i></div>
-            </article>
-          </div>
-          <div className="sample-col final-col">
-            <article className="sample-card final">
-              <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
-              <div className="sample-side"><span>Zieliński</span><b>1</b></div>
-              <div className="sample-sets"><i>11:7</i><i className="down">6:11</i><i>12:10</i><i>11:8</i></div>
-            </article>
-          </div>
+          <article className="sample-card top">
+            <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
+            <div className="sample-side"><span>Nowak</span><b>1</b></div>
+            <div className="sample-sets"><i>11:8</i><i className="down">9:11</i><i>11:6</i><i>11:7</i></div>
+          </article>
+          <div className="join" aria-hidden="true" />
+          <article className="sample-card final">
+            <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
+            <div className="sample-side"><span>Zieliński</span><b>1</b></div>
+            <div className="sample-sets"><i>11:7</i><i className="down">6:11</i><i>12:10</i><i>11:8</i></div>
+          </article>
+          <article className="sample-card bottom">
+            <div className="sample-side win"><span>Zieliński</span><b>3</b></div>
+            <div className="sample-side"><span>Wójcik</span><b>0</b></div>
+            <div className="sample-sets"><i>11:5</i><i>11:9</i><i>11:7</i></div>
+          </article>
         </div>
       </aside>
     </div>

@@ -80,28 +80,40 @@ a { color: var(--green); }
 .steps { list-style: none; margin: 12px 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .steps li { background: var(--paper); border-radius: 12px; padding: 12px; }
 .steps b { display: block; font-family: var(--serif); font-size: 1.4rem; line-height: 1; margin-bottom: 6px; }
-.hero { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(200px, 0.7fr); gap: 16px; align-items: stretch; }
+.hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(300px, 1fr); gap: 16px; align-items: stretch; }
 .kicker { letter-spacing: 0.14em; text-transform: uppercase; font-size: 0.75rem; color: var(--muted); margin: 0 0 6px; }
 .hero-copy h2 { font-size: 2.05rem; margin: 0 0 8px; }
 .sample {
-  display: flex; flex-direction: column; justify-content: center; gap: 10px;
-  background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 8px; min-width: 0;
+  background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); padding: 16px 18px 18px;
 }
-.sample-board { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 10px; align-items: center; }
-.sample-col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.sample-board {
+  flex: 1; min-height: 240px; min-width: 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) 36px minmax(0, 1fr); grid-template-rows: 1fr 1fr;
+}
 .sample-card {
-  border: 1px solid var(--line); border-left: 3px solid var(--green); border-radius: 10px;
-  background: #fff; padding: 6px 8px; min-width: 0;
+  border: 1px solid var(--line); border-left: 4px solid var(--green); border-radius: 12px;
+  background: #fff; padding: 10px 12px; min-width: 0; max-width: 100%; align-self: center;
 }
-.sample-card.final { border-left-color: var(--ball); }
-.sample-side { display: flex; justify-content: space-between; gap: 8px; font-size: 0.82rem; line-height: 1.3; }
+.sample-card.top { grid-column: 1; grid-row: 1; align-self: start; }
+.sample-card.bottom { grid-column: 1; grid-row: 2; align-self: end; }
+.sample-card.final { grid-column: 3; grid-row: 1 / span 2; border-left-color: var(--ball); }
+.join { grid-column: 2; grid-row: 1 / span 2; position: relative; }
+.join::before {
+  content: ""; position: absolute; left: 0; width: 18px; top: 44px; bottom: 44px;
+  border: 2px solid #c9bfb0; border-left: 0; border-radius: 0 10px 10px 0;
+}
+.join::after {
+  content: ""; position: absolute; left: 18px; right: 0; top: 50%; height: 2px; background: #c9bfb0;
+}
+.sample-side { display: flex; justify-content: space-between; gap: 8px; font-size: 0.98rem; line-height: 1.35; }
 .sample-side span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sample-side b { font-variant-numeric: tabular-nums; font-weight: 600; }
 .sample-side.win { font-weight: 700; }
 .sample-side.win b { font-weight: 700; }
-.sample-sets { display: flex; flex-wrap: nowrap; gap: 3px; margin-top: 4px; }
+.sample-sets { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; max-width: 100%; }
 .sample-sets i {
-  font-style: normal; font-size: 0.66rem; line-height: 1.45; padding: 0 4px; border-radius: 999px;
+  font-style: normal; font-size: 0.75rem; line-height: 1.45; padding: 0 5px; border-radius: 999px;
   background: var(--green-2); color: var(--green); font-variant-numeric: tabular-nums; white-space: nowrap;
 }
 .sample-sets i.down { background: var(--paper); color: var(--muted); }
@@ -271,7 +283,10 @@ details.audit summary { cursor: pointer; font-weight: 600; }
   .bracket .round.on { display: block; min-width: 0; width: 100%; }
   .round h3 { display: none; }
   .hero { grid-template-columns: 1fr; }
-  .sample-board { grid-template-columns: 1fr 1fr; }
+  .sample-board { display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+  .join { display: none; }
+  .sample-card.top, .sample-card.bottom, .sample-card.final { align-self: stretch; }
+  .sample-card.final { order: 3; }
   .grid-2, .steps { grid-template-columns: 1fr; }
   .grid-3, .stats { grid-template-columns: 1fr 1fr; }
   .wrap { width: min(100% - 16px, 1120px); }
