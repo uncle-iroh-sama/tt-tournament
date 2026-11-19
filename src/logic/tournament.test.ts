@@ -568,5 +568,26 @@ describe('simulate remaining stays on the current stage', () => {
     expect(rest.tournament.matches.some((m) => m.outcome === 'walkover')).toBe(false)
     expect(later.some((m) => m.sets.length > (m.bestOf === 5 ? 3 : 2))).toBe(true)
     expect(rest.tournament.matches.some((m) => m.placeWin === 1 && m.winnerId)).toBe(true)
+
+    let close = 0
+    let deuce = 0
+    let rare = 0
+    for (const m of [...played, ...later]) {
+      for (const s of m.sets) {
+        const hi = Math.max(s.a, s.b)
+        const lo = Math.min(s.a, s.b)
+        expect(lo).toBeGreaterThanOrEqual(3)
+        expect(hi).toBeLessThanOrEqual(13)
+        expect(lo === 2 || lo === 4).toBe(false)
+        if (hi === 11 && lo >= 5 && lo <= 9) close++
+        else if ((hi === 12 && lo === 10) || (hi === 13 && lo === 11)) deuce++
+        else if (hi === 11 && lo === 3) rare++
+        else throw new Error(`unrealistic set ${hi}:${lo}`)
+      }
+    }
+    expect(close).toBeGreaterThan(deuce)
+    expect(close).toBeGreaterThan(rare)
+    expect(deuce).toBeGreaterThan(0)
+    expect(rare).toBeGreaterThan(0)
   })
 })

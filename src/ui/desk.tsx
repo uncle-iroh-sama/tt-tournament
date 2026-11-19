@@ -798,12 +798,25 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
   )
 }
 
-function Slip({ t, m, lang, onOpen, onPick, picked }: { t: Tournament; m: Match; lang: Lang; onOpen?: () => void; onPick?: (slot: 'A' | 'B') => void; picked?: 'A' | 'B' | null }) {
+function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: Match; lang: Lang; onOpen?: () => void; onPick?: (slot: 'A' | 'B') => void; picked?: 'A' | 'B' | null; bare?: boolean }) {
   const cls = m.outcome === 'pending' && m.table ? 'live' : m.outcome === 'pending' && m.slotA && m.slotB ? 'ready' : m.outcome === 'pending' ? 'pending' : 'done'
   const wonA = m.sets.filter((s) => s.a > s.b).length
   const wonB = m.sets.filter((s) => s.b > s.a).length
-  const sets = m.sets.length > 0 ? `${wonA}:${wonB} · ${m.sets.map((s) => `${s.a}:${s.b}`).join(' ')}` : ''
+  const scored = m.sets.length > 0
+  const hideRound = bare && (m.label.k === 'main' || m.label.k === 'qual')
+  const title = hideRound ? '' : matchTitle(m, lang)
+  const table = m.table != null ? `${translate(lang, 'suggest')} ${m.table}` : ''
+  const status = m.outcome === 'bye'
+    ? translate(lang, 'bye')
+    : m.outcome === 'walkover'
+      ? translate(lang, 'status_walkover')
+      : m.outcome === 'retirement'
+        ? translate(lang, 'status_retirement')
+        : ''
+  const meta = [title, table, m.outcome === 'retirement' || !scored ? status : ''].filter(Boolean).join(' · ')
   const playable = !!onOpen && !!m.slotA && !!m.slotB && m.outcome !== 'bye' && m.outcome !== 'cancelled'
+  const winA = m.winnerId != null && m.winnerId === m.slotA
+  const winB = m.winnerId != null && m.winnerId === m.slotB
   return (
     <div
       className={`slip ${cls} ${playable ? 'click' : ''}`}
@@ -812,23 +825,28 @@ function Slip({ t, m, lang, onOpen, onPick, picked }: { t: Tournament; m: Match;
       role={playable ? 'button' : undefined}
       tabIndex={playable ? 0 : undefined}
     >
-      <div className="meta">
-        <span>{matchTitle(m, lang)}{m.table ? ` · ${translate(lang, 'suggest')} ${m.table}` : ''}</span>
-        <span>{m.outcome === 'bye' ? translate(lang, 'bye') : sets || translate(lang, m.outcome === 'walkover' ? 'status_walkover' : m.outcome === 'retirement' ? 'status_retirement' : 'status_pending')}</span>
-      </div>
-      <Side t={t} id={m.slotA} win={m.winnerId != null && m.winnerId === m.slotA} lose={m.winnerId != null && m.winnerId !== m.slotA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} marked={picked === 'A'} onPick={onPick ? () => onPick('A') : undefined} />
-      <Side t={t} id={m.slotB} win={m.winnerId != null && m.winnerId === m.slotB} lose={m.winnerId != null && m.winnerId !== m.slotB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} marked={picked === 'B'} onPick={onPick ? () => onPick('B') : undefined} />
+      {meta && <div className="meta"><span>{meta}</span></div>}
+      <Side t={t} id={m.slotA} win={winA} lose={m.winnerId != null && !winA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} marked={picked === 'A'} games={scored ? wonA : undefined} onPick={onPick ? () => onPick('A') : undefined} />
+      <Side t={t} id={m.slotB} win={winB} lose={m.winnerId != null && !winB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} marked={picked === 'B'} games={scored ? wonB : undefined} onPick={onPick ? () => onPick('B') : undefined} />
+      {scored && (
+        <div className="set-chips">
+          {m.sets.map((s, i) => (
+            <span key={i} className={`set-chip ${s.a > s.b ? 'up' : 'down'}`}>{s.a}:{s.b}</span>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-function Side({ t, id, win, lose, lang, seed, bye, onPick, marked }: { t: Tournament; id: string | null; win: boolean; lose: boolean; lang: Lang; seed?: number; bye: boolean; onPick?: () => void; marked?: boolean }) {
+function Side({ t, id, win, lose, lang, seed, bye, onPick, marked, games }: { t: Tournament; id: string | null; win: boolean; lose: boolean; lang: Lang; seed?: number; bye: boolean; onPick?: () => void; marked?: boolean; games?: number }) {
   const p = findPlayer(t, id)
   return (
     <div className={`side ${win ? 'win' : ''} ${lose ? 'lose' : ''} ${onPick ? 'pick' : ''} ${marked ? 'marked' : ''}`} onClick={onPick ? (e) => { e.stopPropagation(); onPick() } : undefined}>
       {seed != null && <span className="seed">{seed}</span>}
       <span className="nm">{bye ? translate(lang, 'bye') : pname(p, lang)}</span>
       {p?.club && <span className="club">{p.club}</span>}
+      {games != null && <span className="games">{games}</span>}
     </div>
   )
 }
@@ -877,6 +895,7 @@ function BracketColumns({
               {inRound.map((m) => (
                 <Slip
                   key={m.id}
+                  bare={multi}
                   t={t}
                   m={m}
                   lang={lang}
@@ -1063,17 +1082,30 @@ export function Welcome({
         </div>
         <p className="muted">{tr('demoHint')}</p>
       </div>
-      <div className="mini" aria-hidden="true">
-        <div className="col">
-          <span className="m" /><span className="m" /><span className="m" /><span className="m" />
+      <aside className="sample">
+        <p className="kicker">{tr('sample')}</p>
+        <div className="sample-board">
+          <div className="sample-col">
+            <article className="sample-card">
+              <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
+              <div className="sample-side"><span>Nowak</span><b>1</b></div>
+              <div className="sample-sets"><i>11:8</i><i className="down">9:11</i><i>11:6</i><i>11:7</i></div>
+            </article>
+            <article className="sample-card">
+              <div className="sample-side win"><span>Zieliński</span><b>3</b></div>
+              <div className="sample-side"><span>Wójcik</span><b>0</b></div>
+              <div className="sample-sets"><i>11:5</i><i>11:9</i><i>11:7</i></div>
+            </article>
+          </div>
+          <div className="sample-col final-col">
+            <article className="sample-card final">
+              <div className="sample-side win"><span>Kowalski</span><b>3</b></div>
+              <div className="sample-side"><span>Zieliński</span><b>1</b></div>
+              <div className="sample-sets"><i>11:7</i><i className="down">6:11</i><i>12:10</i><i>11:8</i></div>
+            </article>
+          </div>
         </div>
-        <div className="col">
-          <span className="m" /><span className="m" />
-        </div>
-        <div className="col">
-          <span className="m final" />
-        </div>
-      </div>
+      </aside>
     </div>
   )
 }
