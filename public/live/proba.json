@@ -1,0 +1,899 @@
+{
+  "version": 1,
+  "id": "t-import",
+  "settings": {
+    "name": "Próba — Grand Prix Wielkopolski",
+    "date": "2026-11-21",
+    "venue": "Hala sportowa, ul. Starołęcka, Poznań",
+    "category": "senior",
+    "tables": 8,
+    "bestOf": 5,
+    "placeMatchBestOf": 3,
+    "mainDrawSize": 32,
+    "directSeeds": 16,
+    "qualifyingMode": "knockout",
+    "seeding": "fixed",
+    "groupSize": 4,
+    "advancePerGroup": 2,
+    "places": {
+      "third": true,
+      "fiveToEight": true,
+      "nineToSixteen": false,
+      "seventeenToThirtyTwo": false,
+      "nonQualifiers": false
+    },
+    "pointsCategory": "senior",
+    "pointsOverride": {},
+    "autoAssign": true
+  },
+  "players": [
+    {
+      "id": "p-1",
+      "name": "Lewandowski Filip",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 1840,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-2",
+      "name": "Wiśniewski Adam",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 1810,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-3",
+      "name": "Zieliński Michał",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 1780,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-4",
+      "name": "Szymański Bartosz",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 1750,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-5",
+      "name": "Woźniak Kacper",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 1720,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-6",
+      "name": "Dąbrowski Jan",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 1690,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-7",
+      "name": "Kozłowski Antoni",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 1660,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-8",
+      "name": "Jankowski Hubert",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 1630,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-9",
+      "name": "Krawczyk Szymon",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1600,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-10",
+      "name": "Piotrowski Franciszek",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1570,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-11",
+      "name": "Grabowski Leon",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1540,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-12",
+      "name": "Adamczyk Marcel",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1510,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-13",
+      "name": "Król Maciej",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1480,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-14",
+      "name": "Majewski Patryk",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1450,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-15",
+      "name": "Górski Łukasz",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1420,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-16",
+      "name": "Sikora Adrian",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1390,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-17",
+      "name": "Urbański Miłosz",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 1120,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-18",
+      "name": "Czarnecki Bruno",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 1090,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-19",
+      "name": "Kowalski Jan",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 1060,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-20",
+      "name": "Nowak Piotr",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 1030,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-21",
+      "name": "Kowalski Adam",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 1000,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-22",
+      "name": "Wójcik Tomasz",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 980,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-23",
+      "name": "Kamiński Jakub",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 960,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-24",
+      "name": "Mazur Oliwier",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 940,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-25",
+      "name": "Nowicki Aleksander",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 920,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-26",
+      "name": "Dudek Stanisław",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 900,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-27",
+      "name": "Zając Krzysztof",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 880,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-28",
+      "name": "Olszewski Wojciech",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 860,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-29",
+      "name": "Jaworski Rafał",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 840,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-30",
+      "name": "Rutkowski Karol",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 820,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-31",
+      "name": "Szewczyk Marcin",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 800,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-32",
+      "name": "Chmielewski Oskar",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 780,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-33",
+      "name": "Baran Kamil",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1360,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-34",
+      "name": "Tomaszewski Paweł",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1330,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-35",
+      "name": "Pietrzak Alan",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1300,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-36",
+      "name": "Wróbel Cezary",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1270,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-37",
+      "name": "Jarosz Maksymilian",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1240,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-38",
+      "name": "Bąk Natan",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1210,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-39",
+      "name": "Sokołowski Arkadiusz",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 1180,
+      "rankingPosition": null,
+      "withdrawn": false
+    },
+    {
+      "id": "p-40",
+      "name": "Lis Robert",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 1150,
+      "rankingPosition": null,
+      "withdrawn": false
+    }
+  ],
+  "phase": "qualifying",
+  "groups": [],
+  "matches": [
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-17",
+      "slotB": "p-18",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m0",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 0,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 1,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-19",
+      "slotB": "p-20",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m1",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 1,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 2,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-21",
+      "slotB": "p-22",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m2",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 2,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 3,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-23",
+      "slotB": "p-24",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m3",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 4,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-25",
+      "slotB": "p-26",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m4",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 4,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 5,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-27",
+      "slotB": "p-28",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m5",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 6,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-29",
+      "slotB": "p-30",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m6",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 6,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 7,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-31",
+      "slotB": "p-32",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m7",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 8,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "p-33",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-33",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m8",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 8,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 9,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-34",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-34",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m9",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 9,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 10,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-35",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-35",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m10",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 10,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 11,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-36",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-36",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m11",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 11,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 12,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-37",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-37",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m12",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 12,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 13,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-38",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-38",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m13",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 13,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 14,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-39",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-39",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m14",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 14,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 15,
+        "draw": 32
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "p-40",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "p-40",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m15",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 15,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 16,
+        "draw": 32
+      },
+      "bestOf": 5
+    }
+  ],
+  "mainSeeds": {},
+  "mainSlots": null,
+  "drawCode": "4FTLZL",
+  "audit": [
+    {
+      "at": "2026-11-20T18:31:40.830Z",
+      "code": "fixed-round",
+      "detail": "pairs=16"
+    },
+    {
+      "at": "2026-11-20T18:31:40.830Z",
+      "code": "qualifying-built",
+      "detail": "direct=16;in=24;advance=16"
+    }
+  ],
+  "awards": [],
+  "directIds": [
+    "p-1",
+    "p-2",
+    "p-3",
+    "p-4",
+    "p-5",
+    "p-6",
+    "p-7",
+    "p-8",
+    "p-9",
+    "p-10",
+    "p-11",
+    "p-12",
+    "p-13",
+    "p-14",
+    "p-15",
+    "p-16"
+  ],
+  "qualifierSlots": [
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m0"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m1"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m2"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m3"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m4"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m5"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m6"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r0-m7"
+    },
+    {
+      "playerId": "p-33",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-34",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-35",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-36",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-37",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-38",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-39",
+      "fromMatchId": null
+    },
+    {
+      "playerId": "p-40",
+      "fromMatchId": null
+    }
+  ],
+  "shared": [],
+  "fixedFirstRound": [
+    {
+      "a": "Urbański Miłosz",
+      "b": "Czarnecki Bruno"
+    },
+    {
+      "a": "Kowalski Jan",
+      "b": "Nowak Piotr"
+    },
+    {
+      "a": "Kowalski Adam",
+      "b": "Wójcik Tomasz"
+    },
+    {
+      "a": "Kamiński Jakub",
+      "b": "Mazur Oliwier"
+    },
+    {
+      "a": "Nowicki Aleksander",
+      "b": "Dudek Stanisław"
+    },
+    {
+      "a": "Zając Krzysztof",
+      "b": "Olszewski Wojciech"
+    },
+    {
+      "a": "Jaworski Rafał",
+      "b": "Rutkowski Karol"
+    },
+    {
+      "a": "Szewczyk Marcin",
+      "b": "Chmielewski Oskar"
+    },
+    {
+      "a": "Baran Kamil",
+      "b": null
+    },
+    {
+      "a": "Tomaszewski Paweł",
+      "b": null
+    },
+    {
+      "a": "Pietrzak Alan",
+      "b": null
+    },
+    {
+      "a": "Wróbel Cezary",
+      "b": null
+    },
+    {
+      "a": "Jarosz Maksymilian",
+      "b": null
+    },
+    {
+      "a": "Bąk Natan",
+      "b": null
+    },
+    {
+      "a": "Sokołowski Arkadiusz",
+      "b": null
+    },
+    {
+      "a": "Lis Robert",
+      "b": null
+    }
+  ],
+  "updatedAt": "2026-11-20T18:31:40.830Z"
+}
