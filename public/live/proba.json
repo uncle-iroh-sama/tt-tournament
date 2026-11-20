@@ -385,7 +385,8 @@
         "k": "qual",
         "round": 0,
         "n": 1,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -424,7 +425,8 @@
         "k": "qual",
         "round": 0,
         "n": 2,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -450,7 +452,8 @@
         "k": "qual",
         "round": 0,
         "n": 3,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -489,7 +492,8 @@
         "k": "qual",
         "round": 0,
         "n": 4,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -536,7 +540,8 @@
         "k": "qual",
         "round": 0,
         "n": 5,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -575,7 +580,8 @@
         "k": "qual",
         "round": 0,
         "n": 6,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -618,7 +624,8 @@
         "k": "qual",
         "round": 0,
         "n": 7,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -657,7 +664,8 @@
         "k": "qual",
         "round": 0,
         "n": 8,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5,
       "qualifies": true,
@@ -683,7 +691,8 @@
         "k": "qual",
         "round": 0,
         "n": 9,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -704,7 +713,8 @@
         "k": "qual",
         "round": 0,
         "n": 10,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -725,7 +735,8 @@
         "k": "qual",
         "round": 0,
         "n": 11,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -746,7 +757,8 @@
         "k": "qual",
         "round": 0,
         "n": 12,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -767,7 +779,8 @@
         "k": "qual",
         "round": 0,
         "n": 13,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -788,7 +801,8 @@
         "k": "qual",
         "round": 0,
         "n": 14,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -809,7 +823,8 @@
         "k": "qual",
         "round": 0,
         "n": 15,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -830,7 +845,8 @@
         "k": "qual",
         "round": 0,
         "n": 16,
-        "draw": 32
+        "draw": 32,
+        "rounds": 1
       },
       "bestOf": 5
     },
@@ -999,8 +1015,8 @@
     },
     {
       "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "winnerId": "p-4",
+      "outcome": "score",
       "table": null,
       "slotA": "p-4",
       "slotB": "p-25",
@@ -1024,6 +1040,10 @@
       "placeBand": {
         "from": 21,
         "to": 24
+      },
+      "games": {
+        "a": 3,
+        "b": 1
       }
     },
     {
@@ -1408,9 +1428,9 @@
       "winnerId": null,
       "outcome": "pending",
       "table": null,
-      "slotA": null,
+      "slotA": "p-4",
       "slotB": null,
-      "waitA": true,
+      "waitA": false,
       "waitB": true,
       "id": "m-r1-m2",
       "stage": "main",
@@ -2145,5 +2165,5 @@
       "b": null
     }
   ],
-  "updatedAt": "2026-11-20T18:33:33.787Z"
+  "updatedAt": "2026-11-20T18:41:59.591Z"
 }
