@@ -514,12 +514,16 @@ describe('round names', () => {
     const qual = generateQualifying(demoTournament())
     expect(qual.ok).toBe(true)
     if (!qual.ok) return
-    const q0 = qual.tournament.matches.find((m) => m.stage === 'qualifying' && m.round === 0)!
-    const q1 = qual.tournament.matches.find((m) => m.stage === 'qualifying' && m.round === 1)!
-    expect(roundHeading(q0, 'pl')).toBe('1/32')
-    expect(matchTitle(q0, 'en')).toBe('Round of 64')
-    expect(roundHeading(q1, 'pl')).toBe('1/16')
-    expect(matchTitle(q1, 'en')).toBe('Round of 32')
+    const qualMatches = qual.tournament.matches.filter((m) => m.stage === 'qualifying')
+    const rounds = Math.max(...qualMatches.map((m) => m.round)) + 1
+    const q0 = qualMatches.find((m) => m.round === 0)!
+    const q1 = qualMatches.find((m) => m.round === 1)!
+    expect(rounds).toBeGreaterThan(1)
+    expect(roundHeading(q0, 'pl')).toBe(`Eliminacje, runda 1 z ${rounds}`)
+    expect(matchTitle(q0, 'en')).toBe(`Qualifying, round 1 of ${rounds}`)
+    expect(roundHeading(q1, 'pl')).toBe(`Eliminacje, runda 2 z ${rounds}`)
+    expect(matchTitle(q1, 'en')).toBe(`Qualifying, round 2 of ${rounds}`)
+    expect(matchTitle(q0, 'en')).not.toContain('Round of')
   })
 })
 

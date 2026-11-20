@@ -44,7 +44,7 @@ export interface PlaceBand {
 }
 
 export type MatchLabel =
-  | { k: 'qual'; round: number; n: number; draw?: number }
+  | { k: 'qual'; round: number; n: number; draw?: number; rounds?: number }
   | { k: 'main'; round: number; rounds: number; n: number }
   | { k: 'place'; place: number; n: number }
   | { k: 'group'; group: string; n: number; kolejka: number }
@@ -62,6 +62,8 @@ export interface Match {
   waitA: boolean
   waitB: boolean
   sets: SetScore[]
+  /** Set count from slot A's side, when the individual set scores were not recorded. */
+  games?: { a: number; b: number } | null
   winnerId: string | null
   outcome: Outcome
   table: number | null

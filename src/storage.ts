@@ -1,5 +1,5 @@
 import { defaultPlaces, defaultSettings } from './logic/engine.ts'
-import type { Category, Player, QualifyingMode, SeedingMode, Settings, Tournament } from './logic/types.ts'
+import type { Category, Match, Player, QualifyingMode, SeedingMode, Settings, Tournament } from './logic/types.ts'
 
 const KEY = 'tt-tournament-v1'
 
@@ -102,6 +102,17 @@ function readSettings(raw: unknown): Settings | null {
   return settings
 }
 
+function withQualRounds(matches: Match[]): Match[] {
+  let max = -1
+  for (const m of matches) if (m?.stage === 'qualifying') max = Math.max(max, m.round)
+  if (max < 0) return matches
+  const rounds = max + 1
+  return matches.map((m) => {
+    if (m?.label?.k !== 'qual' || m.label.rounds === rounds) return m
+    return { ...m, label: { ...m.label, rounds } }
+  })
+}
+
 /** Accepts a full export, or a short file written by hand: players, and optional fixed pairings. */
 export function tournamentFromJson(raw: string): Tournament | null {
   try {
@@ -125,7 +136,7 @@ export function tournamentFromJson(raw: string): Tournament | null {
       players,
       phase,
       groups: Array.isArray(data.groups) ? data.groups : [],
-      matches: Array.isArray(data.matches) ? data.matches : [],
+      matches: withQualRounds(Array.isArray(data.matches) ? data.matches : []),
       mainSeeds: data.mainSeeds && typeof data.mainSeeds === 'object' ? data.mainSeeds : {},
       mainSlots: Array.isArray(data.mainSlots) ? data.mainSlots : null,
       drawCode: typeof data.drawCode === 'string' && data.drawCode ? data.drawCode : 'IMPORT',

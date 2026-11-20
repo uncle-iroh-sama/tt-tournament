@@ -239,8 +239,15 @@ function accumulate(ids: string[], matches: Match[], onlyAmong: Set<string> | nu
     map.get(loserId)!.points += 1
     a.played++
     b.played++
-    addSets(a, m.sets, 'A')
-    addSets(b, m.sets, 'B')
+    if (m.sets.length > 0) {
+      addSets(a, m.sets, 'A')
+      addSets(b, m.sets, 'B')
+    } else if (m.games) {
+      a.sw += m.games.a
+      a.sl += m.games.b
+      b.sw += m.games.b
+      b.sl += m.games.a
+    }
   }
   return map
 }
