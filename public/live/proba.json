@@ -348,13 +348,30 @@
       "withdrawn": false
     }
   ],
-  "phase": "qualifying",
+  "phase": "main",
   "groups": [],
   "matches": [
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-17",
+      "outcome": "score",
       "table": null,
       "slotA": "p-17",
       "slotB": "p-18",
@@ -378,9 +395,22 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-19",
+      "outcome": "score",
       "table": null,
       "slotA": "p-19",
       "slotB": "p-20",
@@ -405,8 +435,8 @@
     },
     {
       "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "winnerId": "p-21",
+      "outcome": "walkover",
       "table": null,
       "slotA": "p-21",
       "slotB": "p-22",
@@ -430,9 +460,22 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-23",
+      "outcome": "score",
       "table": null,
       "slotA": "p-23",
       "slotB": "p-24",
@@ -456,9 +499,30 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-25",
+      "outcome": "score",
       "table": null,
       "slotA": "p-25",
       "slotB": "p-26",
@@ -482,9 +546,22 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-27",
+      "outcome": "score",
       "table": null,
       "slotA": "p-27",
       "slotB": "p-28",
@@ -508,9 +585,26 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-29",
+      "outcome": "score",
       "table": null,
       "slotA": "p-29",
       "slotB": "p-30",
@@ -534,9 +628,22 @@
       }
     },
     {
-      "sets": [],
-      "winnerId": null,
-      "outcome": "pending",
+      "sets": [
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-31",
+      "outcome": "score",
       "table": null,
       "slotA": "p-31",
       "slotB": "p-32",
@@ -726,10 +833,1143 @@
         "draw": 32
       },
       "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-1",
+      "outcome": "score",
+      "table": null,
+      "slotA": "p-1",
+      "slotB": "p-31",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m0",
+      "stage": "main",
+      "round": 0,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m0",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 4
+        }
+      ],
+      "winnerId": "p-16",
+      "outcome": "score",
+      "table": null,
+      "slotA": "p-16",
+      "slotB": "p-34",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m1",
+      "stage": "main",
+      "round": 0,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m0",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "p-8",
+      "outcome": "score",
+      "table": null,
+      "slotA": "p-8",
+      "slotB": "p-17",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m2",
+      "stage": "main",
+      "round": 0,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m1",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "p-9",
+      "outcome": "walkover",
+      "table": null,
+      "slotA": "p-9",
+      "slotB": "p-40",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m3",
+      "stage": "main",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m1",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-4",
+      "slotB": "p-25",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m4",
+      "stage": "main",
+      "round": 0,
+      "index": 4,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 5
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m2",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-13",
+      "slotB": "p-36",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m5",
+      "stage": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 6
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m2",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-5",
+      "slotB": "p-23",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m6",
+      "stage": "main",
+      "round": 0,
+      "index": 6,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 7
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m3",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-12",
+      "slotB": "p-37",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m7",
+      "stage": "main",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 8
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m3",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-2",
+      "slotB": "p-29",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m8",
+      "stage": "main",
+      "round": 0,
+      "index": 8,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 9
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m4",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-15",
+      "slotB": "p-33",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m9",
+      "stage": "main",
+      "round": 0,
+      "index": 9,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 10
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m4",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-7",
+      "slotB": "p-19",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m10",
+      "stage": "main",
+      "round": 0,
+      "index": 10,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 11
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m5",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-10",
+      "slotB": "p-39",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m11",
+      "stage": "main",
+      "round": 0,
+      "index": 11,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 12
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m5",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-3",
+      "slotB": "p-27",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m12",
+      "stage": "main",
+      "round": 0,
+      "index": 12,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 13
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m6",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-14",
+      "slotB": "p-35",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m13",
+      "stage": "main",
+      "round": 0,
+      "index": 13,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 14
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m6",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-6",
+      "slotB": "p-21",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m14",
+      "stage": "main",
+      "round": 0,
+      "index": 14,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 15
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m7",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-11",
+      "slotB": "p-38",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m15",
+      "stage": "main",
+      "round": 0,
+      "index": 15,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 16
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m7",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-1",
+      "slotB": "p-16",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m0",
+      "stage": "main",
+      "round": 1,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m0",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "p-8",
+      "slotB": "p-9",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m1",
+      "stage": "main",
+      "round": 1,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m0",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m2",
+      "stage": "main",
+      "round": 1,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m1",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m3",
+      "stage": "main",
+      "round": 1,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m1",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m4",
+      "stage": "main",
+      "round": 1,
+      "index": 4,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 5
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m2",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m5",
+      "stage": "main",
+      "round": 1,
+      "index": 5,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 6
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m2",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m6",
+      "stage": "main",
+      "round": 1,
+      "index": 6,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 7
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m3",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m7",
+      "stage": "main",
+      "round": 1,
+      "index": 7,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 8
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m3",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m0",
+      "stage": "main",
+      "round": 2,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m0",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5-r1",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m1",
+      "stage": "main",
+      "round": 2,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m0",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5-r1",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m2",
+      "stage": "main",
+      "round": 2,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m1",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5-r2",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m3",
+      "stage": "main",
+      "round": 2,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m1",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5-r2",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r3-m0",
+      "stage": "main",
+      "round": 3,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 3,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r4-m0",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm3-f3",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r3-m1",
+      "stage": "main",
+      "round": 3,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 3,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r4-m0",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm3-f3",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r4-m0",
+      "stage": "main",
+      "round": 4,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 4,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "placeWin": 1,
+      "placeLose": 2
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5-r1",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "winnerTo": {
+        "matchId": "pm5w-f5",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5l-f7",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5-r2",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "winnerTo": {
+        "matchId": "pm5w-f5",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5l-f7",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5w-f5",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 5,
+      "placeLose": 6
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5l-f7",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "place",
+        "place": 7,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 7,
+      "placeLose": 8
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm3-f3",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "place",
+        "place": 3,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 3,
+      "placeLose": 4
     }
   ],
-  "mainSeeds": {},
-  "mainSlots": null,
+  "mainSeeds": {
+    "p-1": 1,
+    "p-31": 32,
+    "p-16": 16,
+    "p-34": 17,
+    "p-8": 8,
+    "p-17": 25,
+    "p-9": 9,
+    "p-40": 24,
+    "p-4": 4,
+    "p-25": 29,
+    "p-13": 13,
+    "p-36": 20,
+    "p-5": 5,
+    "p-23": 28,
+    "p-12": 12,
+    "p-37": 21,
+    "p-2": 2,
+    "p-29": 31,
+    "p-15": 15,
+    "p-33": 18,
+    "p-7": 7,
+    "p-19": 26,
+    "p-10": 10,
+    "p-39": 23,
+    "p-3": 3,
+    "p-27": 30,
+    "p-14": 14,
+    "p-35": 19,
+    "p-6": 6,
+    "p-21": 27,
+    "p-11": 11,
+    "p-38": 22
+  },
+  "mainSlots": [
+    "p-1",
+    "p-31",
+    "p-16",
+    "p-34",
+    "p-8",
+    "p-17",
+    "p-9",
+    "p-40",
+    "p-4",
+    "p-25",
+    "p-13",
+    "p-36",
+    "p-5",
+    "p-23",
+    "p-12",
+    "p-37",
+    "p-2",
+    "p-29",
+    "p-15",
+    "p-33",
+    "p-7",
+    "p-19",
+    "p-10",
+    "p-39",
+    "p-3",
+    "p-27",
+    "p-14",
+    "p-35",
+    "p-6",
+    "p-21",
+    "p-11",
+    "p-38"
+  ],
   "drawCode": "4FTLZL",
   "audit": [
     {
@@ -741,6 +1981,16 @@
       "at": "2026-11-20T18:31:40.830Z",
       "code": "qualifying-built",
       "detail": "direct=16;in=24;advance=16"
+    },
+    {
+      "at": "2026-11-20T18:33:18.283Z",
+      "code": "club-swap",
+      "detail": "p-33<->p-34"
+    },
+    {
+      "at": "2026-11-20T18:33:18.283Z",
+      "code": "main-built",
+      "detail": "field=32;code=4FTLZL"
     }
   ],
   "awards": [],
@@ -895,5 +2145,5 @@
       "b": null
     }
   ],
-  "updatedAt": "2026-11-20T18:31:40.830Z"
+  "updatedAt": "2026-11-20T18:33:33.787Z"
 }
