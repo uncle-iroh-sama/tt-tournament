@@ -1245,11 +1245,13 @@ export function LivePage({ lang, slug }: { lang: Lang; slug: string }) {
       </div>
     )
   }
+  const fromFile = t.updatedAt ? new Date(t.updatedAt) : null
+  const when = fromFile && !Number.isNaN(fromFile.getTime()) ? fromFile : updated
   return (
     <div data-testid="live-board">
       <div className="live-bar">
         <h2>{t.settings.name || tr('liveTitle')}</h2>
-        {updated && <p className="when" data-testid="live-updated">{tr('liveUpdated')} {clock(updated, lang)}</p>}
+        {when && <p className="when" data-testid="live-updated">{tr('liveUpdated')} {clock(when, lang)}</p>}
       </div>
       <PublicView t={t} lang={lang} board />
     </div>
