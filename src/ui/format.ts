@@ -16,20 +16,16 @@ export function roundName(players: number, lang: Lang): string {
   return `1/${players / 2}`
 }
 
-function namedRound(players: number | undefined, lang: Lang): string | null {
-  if (players == null || players < 2 || (players & (players - 1)) !== 0) return null
-  return roundName(players, lang)
+/** A qualifying round is not a main-draw round. One round is just "Qualifying"; further rounds are numbered. */
+export function qualifyingHeading(round: number, rounds: number, lang: Lang): string {
+  const name = translate(lang, 'qual')
+  if (rounds <= 1) return name
+  return lang === 'pl' ? `${name}, runda ${round + 1} z ${rounds}` : `${name}, round ${round + 1} of ${rounds}`
 }
 
 export function matchTitle(m: Match, lang: Lang): string {
   const l = m.label
-  if (l.k === 'qual') {
-    const named = namedRound(l.draw, lang)
-    if (named) return named
-    return lang === 'pl'
-      ? `Eliminacje · runda ${l.round + 1} · mecz ${l.n}`
-      : `Qualifying · round ${l.round + 1} · match ${l.n}`
-  }
+  if (l.k === 'qual') return qualifyingHeading(l.round, l.rounds ?? 1, lang)
   if (l.k === 'group') {
     return lang === 'pl'
       ? `Grupa ${l.group} · kolejka ${l.kolejka} · mecz ${l.n}`
@@ -63,8 +59,9 @@ export function countForm(n: number, lang: Lang, one: string, few: string, many:
 
 export function roundHeading(m: Match, lang: Lang): string {
   if (m.stage === 'qualifying') {
-    const draw = m.label.k === 'qual' ? m.label.draw : undefined
-    return namedRound(draw, lang) ?? `${translate(lang, 'qual')} · ${m.round + 1}`
+    const round = m.label.k === 'qual' ? m.label.round : m.round
+    const rounds = m.label.k === 'qual' ? (m.label.rounds ?? 1) : 1
+    return qualifyingHeading(round, rounds, lang)
   }
   if (m.stage === 'group') return `${translate(lang, 'group')} · ${translate(lang, 'kolejka')} ${m.round + 1}`
   if (m.stage === 'placement') return placeColumnTitle([m], lang)

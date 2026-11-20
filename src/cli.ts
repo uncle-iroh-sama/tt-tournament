@@ -6,9 +6,11 @@ import {
   addPlayer,
   clearResult,
   enterScore,
+  enterSetCount,
   enterWalkover,
   generateMainDraw,
   generateQualifying,
+  qualifyingComplete,
   qualifyingRequired,
   readyMatches,
   removePlayer,
@@ -17,7 +19,7 @@ import {
 import type { PaperPair } from './logic/fixed.ts'
 import { findPlayerByName } from './logic/names.ts'
 import { makeDrawCode } from './logic/rng.ts'
-import { explainSets, setsFromCount } from './logic/score.ts'
+import { explainCount, explainSets } from './logic/score.ts'
 import type { Match, Player, SetScore, Tournament } from './logic/types.ts'
 import { countFinished } from './logic/classify.ts'
 import { isLiveSlug, tournamentFromJson } from './storage.ts'
@@ -271,14 +273,26 @@ function cmdResult(root: string, slug: string, aQuery: string, bQuery: string, s
     saveLive(root, slug, t)
     return `Recorded: ${a.name} walkover against ${b.name}.\n`
   }
-  let sets = score.kind === 'sets' ? score.sets : setsFromCount(score.a, score.b)
-  if (!sets) throw new CliError(`Score ${scoreText} is not a finished match.`)
-  const problem = explainSets(sets, match.bestOf)
+  if (score.kind === 'count') {
+    const games = match.slotA === a.id ? { a: score.a, b: score.b } : { a: score.b, b: score.a }
+    const problem = explainCount(games.a, games.b, match.bestOf)
+    if (problem === 'no-winner') {
+      throw new CliError(`Score ${scoreText} does not finish a match played to ${match.bestOf === 5 ? 3 : 2} sets.`)
+    }
+    if (problem) throw new CliError(explainEngine(t, problem))
+    t = must(t, enterSetCount(t, match.id, games.a, games.b))
+    saveLive(root, slug, t)
+    const winner = score.a > score.b ? a : b
+    const loser = score.a > score.b ? b : a
+    const shown = score.a > score.b ? `${score.a}:${score.b}` : `${score.b}:${score.a}`
+    return `Recorded: ${winner.name} beat ${loser.name} ${shown}.\n`
+  }
+  const problem = explainSets(score.sets, match.bestOf)
   if (problem === 'no-winner') {
     throw new CliError(`Score ${scoreText} does not finish a match played to ${match.bestOf === 5 ? 3 : 2} sets.`)
   }
   if (problem) throw new CliError(explainEngine(t, problem))
-  const stored = orient(match, a.id, sets)
+  const stored = orient(match, a.id, score.sets)
   t = must(t, enterScore(t, match.id, stored))
   saveLive(root, slug, t)
   const saved = t.matches.find((m) => m.id === match.id)!
@@ -307,13 +321,15 @@ function cmdDrawMain(root: string, slug: string, fixedPath?: string): string {
     paper = readPairs(readText(fixedPath), fixedPath)
     if (paper.length === 0) throw new CliError(`${fixedPath} has no pairs.`)
   }
-  const before = t.matches.length
+  const before = new Set(t.matches.map((m) => m.id))
   t = must(t, generateMainDraw(t, paper))
   saveLive(root, slug, t)
-  const added = t.matches.length - before
+  const added = t.matches.filter((m) => !before.has(m.id))
+  const mainN = added.filter((m) => m.stage === 'main').length
+  const placeN = added.filter((m) => m.stage === 'placement').length
   const inDraw = t.mainSlots?.filter(Boolean).length ?? 0
   const how = paper ? 'from the paper pairs' : 'from the ranking'
-  return `Main draw made ${how}: ${inDraw} players, ${added} matches, code ${t.drawCode}.\n`
+  return `Main draw made ${how}: ${inDraw} players, ${mainN} main-draw matches + ${placeN} placement matches, code ${t.drawCode}.\n`
 }
 
 function cmdStatus(root: string, slug: string): string {
@@ -321,10 +337,13 @@ function cmdStatus(root: string, slug: string): string {
   const stage = t.phase === 'main' ? 'main draw' : t.phase === 'qualifying' ? 'qualifying' : 'not drawn'
   const { done, total } = countFinished(t)
   const lines = [t.settings.name || slug, `${stage} · ${done}/${total} played`]
+  if (qualifyingRequired(t) && qualifyingComplete(t) && t.phase !== 'main') {
+    lines.push('qualifying done — run draw-main')
+  }
   if (t.updatedAt) {
     const when = new Date(t.updatedAt)
     if (!Number.isNaN(when.getTime())) {
-      lines.push(`updated ${when.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`)
+      lines.push(`updated ${when.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`)
     }
   }
   const onTables = t.matches
@@ -333,7 +352,7 @@ function cmdStatus(root: string, slug: string): string {
   lines.push('on tables:')
   if (onTables.length === 0) lines.push('  —')
   for (const m of onTables) lines.push(`  table ${m.table}  ${playerName(t, m.slotA)} – ${playerName(t, m.slotB)}  (${roundHeading(m, 'en')})`)
-  const next = readyMatches(t).filter((m) => m.table == null).slice(0, 8)
+  const next = readyMatches(t).filter((m) => m.table == null)
   lines.push('next:')
   if (next.length === 0) lines.push('  —')
   for (const m of next) lines.push(`  ${playerName(t, m.slotA)} – ${playerName(t, m.slotB)}  (${roundHeading(m, 'en')})`)

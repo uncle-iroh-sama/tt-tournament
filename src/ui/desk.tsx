@@ -28,6 +28,7 @@ import { groupPairings, groupStandings } from '../logic/groups.ts'
 import { planGroupSizes, previewQualifying } from '../logic/plan.ts'
 import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { compareRanking } from '../logic/ranking.ts'
+import { setCount } from '../logic/score.ts'
 import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { isDemoTournament, parsePlayerLines } from '../demo.ts'
 import { fetchLive, isLiveSlug, slugify } from '../storage.ts'
@@ -438,6 +439,7 @@ function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tou
         {!quiet && (
           <div className="row" style={{ marginTop: 10 }}>
             {t.phase === 'setup' && qualifyingRequired(t) && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr('generateQual')}</button>}
+            {qualifyingComplete(t) && t.phase !== 'main' && qualifyingRequired(t) && <strong data-testid="qual-done">{tr('nextMain')}</strong>}
             {qualifyingComplete(t) && t.phase !== 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
             {t.phase === 'main' && <button className="btn secondary" onClick={() => go('#/drabinka')}>{tr('navBracket')}</button>}
           </div>
@@ -813,9 +815,10 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
 
 function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: Match; lang: Lang; onOpen?: () => void; onPick?: (slot: 'A' | 'B') => void; picked?: 'A' | 'B' | null; bare?: boolean }) {
   const cls = m.outcome === 'pending' && m.table ? 'live' : m.outcome === 'pending' && m.slotA && m.slotB ? 'ready' : m.outcome === 'pending' ? 'pending' : 'done'
-  const wonA = m.sets.filter((s) => s.a > s.b).length
-  const wonB = m.sets.filter((s) => s.b > s.a).length
-  const scored = m.sets.length > 0
+  const count = m.outcome === 'score' || m.outcome === 'retirement' ? setCount(m) : null
+  const wonA = count?.a
+  const wonB = count?.b
+  const hasSets = m.sets.length > 0
   const hideRound = bare && (m.label.k === 'main' || m.label.k === 'qual')
   const title = hideRound ? '' : matchTitle(m, lang)
   const table = m.table != null ? `${translate(lang, 'suggest')} ${m.table}` : ''
@@ -826,7 +829,7 @@ function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: 
       : m.outcome === 'retirement'
         ? translate(lang, 'status_retirement')
         : ''
-  const meta = [title, table, m.outcome === 'retirement' || !scored ? status : ''].filter(Boolean).join(' · ')
+  const meta = [title, table, m.outcome === 'retirement' || !count ? status : ''].filter(Boolean).join(' · ')
   const playable = !!onOpen && !!m.slotA && !!m.slotB && m.outcome !== 'bye' && m.outcome !== 'cancelled'
   const winA = m.winnerId != null && m.winnerId === m.slotA
   const winB = m.winnerId != null && m.winnerId === m.slotB
@@ -839,15 +842,16 @@ function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: 
       tabIndex={playable ? 0 : undefined}
     >
       {meta && <div className="meta"><span>{meta}</span></div>}
-      <Side t={t} id={m.slotA} win={winA} lose={m.winnerId != null && !winA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} marked={picked === 'A'} games={scored ? wonA : undefined} onPick={onPick ? () => onPick('A') : undefined} />
-      <Side t={t} id={m.slotB} win={winB} lose={m.winnerId != null && !winB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} marked={picked === 'B'} games={scored ? wonB : undefined} onPick={onPick ? () => onPick('B') : undefined} />
-      {scored && (
+      <Side t={t} id={m.slotA} win={winA} lose={m.winnerId != null && !winA && !!m.slotA} lang={lang} seed={m.slotA ? t.mainSeeds[m.slotA] : undefined} bye={!m.slotA && !m.waitA} marked={picked === 'A'} games={count ? wonA : undefined} onPick={onPick ? () => onPick('A') : undefined} />
+      <Side t={t} id={m.slotB} win={winB} lose={m.winnerId != null && !winB && !!m.slotB} lang={lang} seed={m.slotB ? t.mainSeeds[m.slotB] : undefined} bye={!m.slotB && !m.waitB} marked={picked === 'B'} games={count ? wonB : undefined} onPick={onPick ? () => onPick('B') : undefined} />
+      {hasSets && (
         <div className="set-chips">
           {m.sets.map((s, i) => (
             <span key={i} className={`set-chip ${s.a > s.b ? 'up' : 'down'}`}>{s.a}:{s.b}</span>
           ))}
         </div>
       )}
+      {!hasSets && count && <div className="set-count">{count.a}:{count.b}</div>}
     </div>
   )
 }
