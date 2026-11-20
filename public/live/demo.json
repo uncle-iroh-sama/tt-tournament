@@ -1,0 +1,3512 @@
+{
+  "version": 1,
+  "id": "live-demo",
+  "settings": {
+    "name": "Grand Prix Wielkopolski — na żywo",
+    "date": "2026-11-20",
+    "venue": "Hala sportowa, ul. Starołęcka, Poznań",
+    "category": "senior",
+    "tables": 12,
+    "bestOf": 5,
+    "placeMatchBestOf": 3,
+    "mainDrawSize": 32,
+    "directSeeds": 16,
+    "qualifyingMode": "knockout",
+    "seeding": "fixed",
+    "groupSize": 4,
+    "advancePerGroup": 2,
+    "places": {
+      "third": true,
+      "fiveToEight": true,
+      "nineToSixteen": false,
+      "seventeenToThirtyTwo": false,
+      "nonQualifiers": false
+    },
+    "pointsCategory": "senior",
+    "pointsOverride": {},
+    "autoAssign": true
+  },
+  "players": [
+    {
+      "id": "demo-1",
+      "name": "Kowalski Marek",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2400,
+      "rankingPosition": 1,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-2",
+      "name": "Nowak Piotr",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2372,
+      "rankingPosition": 2,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-3",
+      "name": "Wiśniewski Adam",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2344,
+      "rankingPosition": 3,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-4",
+      "name": "Wójcik Tomasz",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2316,
+      "rankingPosition": 4,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-5",
+      "name": "Kamiński Jakub",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2288,
+      "rankingPosition": 5,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-6",
+      "name": "Lewandowski Filip",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2260,
+      "rankingPosition": 6,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-7",
+      "name": "Zieliński Michał",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2232,
+      "rankingPosition": 7,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-8",
+      "name": "Szymański Bartosz",
+      "club": "KU AZS Poznań",
+      "rankingPoints": 2204,
+      "rankingPosition": 8,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-9",
+      "name": "Woźniak Kacper",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2176,
+      "rankingPosition": 9,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-10",
+      "name": "Dąbrowski Jan",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2148,
+      "rankingPosition": 10,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-11",
+      "name": "Kozłowski Antoni",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2120,
+      "rankingPosition": 11,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-12",
+      "name": "Jankowski Hubert",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2092,
+      "rankingPosition": 12,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-13",
+      "name": "Mazur Oliwier",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2064,
+      "rankingPosition": 13,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-14",
+      "name": "Kwiatkowski Igor",
+      "club": "UKS Joker Śrem",
+      "rankingPoints": 2036,
+      "rankingPosition": 14,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-15",
+      "name": "Krawczyk Szymon",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 2008,
+      "rankingPosition": 15,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-16",
+      "name": "Piotrowski Franciszek",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1980,
+      "rankingPosition": 16,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-17",
+      "name": "Grabowski Leon",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1952,
+      "rankingPosition": 17,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-18",
+      "name": "Nowicki Aleksander",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1924,
+      "rankingPosition": 18,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-19",
+      "name": "Pawłowski Nikodem",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1896,
+      "rankingPosition": 19,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-20",
+      "name": "Michalski Tymon",
+      "club": "MLKS Górnik Konin",
+      "rankingPoints": 1868,
+      "rankingPosition": 20,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-21",
+      "name": "Adamczyk Marcel",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1868,
+      "rankingPosition": 21,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-22",
+      "name": "Dudek Stanisław",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1812,
+      "rankingPosition": 22,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-23",
+      "name": "Zając Krzysztof",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1784,
+      "rankingPosition": 23,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-24",
+      "name": "Wieczorek Mikołaj",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1756,
+      "rankingPosition": 24,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-25",
+      "name": "Jabłoński Dawid",
+      "club": "KS Unia Swarzędz",
+      "rankingPoints": 1728,
+      "rankingPosition": 25,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-26",
+      "name": "Król Maciej",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1700,
+      "rankingPosition": 26,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-27",
+      "name": "Majewski Patryk",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1672,
+      "rankingPosition": 27,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-28",
+      "name": "Olszewski Wojciech",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1644,
+      "rankingPosition": 28,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-29",
+      "name": "Jaworski Rafał",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1616,
+      "rankingPosition": 29,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-30",
+      "name": "Malinowski Sebastian",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1588,
+      "rankingPosition": 30,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-31",
+      "name": "Pawlak Grzegorz",
+      "club": "UKS Olimpijczyk Leszno",
+      "rankingPoints": 1560,
+      "rankingPosition": 31,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-32",
+      "name": "Witkowski Andrzej",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1532,
+      "rankingPosition": 32,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-33",
+      "name": "Walczak Dominik",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1504,
+      "rankingPosition": 33,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-34",
+      "name": "Stępień Mateusz",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1476,
+      "rankingPosition": 34,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-35",
+      "name": "Górski Łukasz",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1448,
+      "rankingPosition": 35,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-36",
+      "name": "Rutkowski Karol",
+      "club": "KS Polonia Kępno",
+      "rankingPoints": 1420,
+      "rankingPosition": 36,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-37",
+      "name": "Sikora Adrian",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1392,
+      "rankingPosition": 37,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-38",
+      "name": "Ostrowski Damian",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1364,
+      "rankingPosition": 38,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-39",
+      "name": "Baran Kamil",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1336,
+      "rankingPosition": 39,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-40",
+      "name": "Duda Przemysław",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1308,
+      "rankingPosition": 40,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-41",
+      "name": "Szewczyk Marcin",
+      "club": "KS Start Pleszew",
+      "rankingPoints": 1280,
+      "rankingPosition": 41,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-42",
+      "name": "Tomaszewski Paweł",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1252,
+      "rankingPosition": 42,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-43",
+      "name": "Pietrzak Alan",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1224,
+      "rankingPosition": 43,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-44",
+      "name": "Marciniak Borys",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1196,
+      "rankingPosition": 44,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-45",
+      "name": "Wróbel Cezary",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1168,
+      "rankingPosition": 45,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-46",
+      "name": "Zalewski Julian",
+      "club": "MLKS Piast Gostyń",
+      "rankingPoints": 1140,
+      "rankingPosition": 46,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-47",
+      "name": "Jarosz Maksymilian",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1112,
+      "rankingPosition": 47,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-48",
+      "name": "Bąk Natan",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1084,
+      "rankingPosition": 48,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-49",
+      "name": "Chmielewski Oskar",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1056,
+      "rankingPosition": 49,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-50",
+      "name": "Borkowski Radosław",
+      "club": "UKS Sokół Pniewy",
+      "rankingPoints": 1028,
+      "rankingPosition": 50,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-51",
+      "name": "Sokołowski Arkadiusz",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 1000,
+      "rankingPosition": 51,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-52",
+      "name": "Sawicki Konrad",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 972,
+      "rankingPosition": 52,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-53",
+      "name": "Lis Robert",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 944,
+      "rankingPosition": 53,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-54",
+      "name": "Kubiak Daniel",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 916,
+      "rankingPosition": 54,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-55",
+      "name": "Kaczmarek Artur",
+      "club": "KS Energetyk Poznań",
+      "rankingPoints": 888,
+      "rankingPosition": 55,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-56",
+      "name": "Urbański Miłosz",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 860,
+      "rankingPosition": 56,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-57",
+      "name": "Sikorski Fabian",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 832,
+      "rankingPosition": 57,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-58",
+      "name": "Krupa Tadeusz",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 804,
+      "rankingPosition": 58,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-59",
+      "name": "Włodarczyk Ignacy",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 776,
+      "rankingPosition": 59,
+      "withdrawn": false
+    },
+    {
+      "id": "demo-60",
+      "name": "Czarnecki Bruno",
+      "club": "MKS Jutrzenka Warta",
+      "rankingPoints": 748,
+      "rankingPosition": 60,
+      "withdrawn": false
+    }
+  ],
+  "phase": "main",
+  "groups": [],
+  "matches": [
+    {
+      "sets": [],
+      "winnerId": "demo-17",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-17",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m0",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 0,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 1,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 10,
+          "b": 12
+        },
+        {
+          "a": 8,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-49",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-48",
+      "slotB": "demo-49",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m1",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 1,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 2,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m0",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-32",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-32",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m2",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 2,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 3,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-33",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-33",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m3",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 4,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-24",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-24",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m4",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 4,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 5,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 3
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "demo-41",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-41",
+      "slotB": "demo-56",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m5",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 6,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m2",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-25",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-25",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m6",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 6,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 7,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 12,
+          "b": 10
+        }
+      ],
+      "winnerId": "demo-40",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-40",
+      "slotB": "demo-57",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m7",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 8,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m3",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-20",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-20",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m8",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 8,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 9,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 7,
+          "b": 11
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 6,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-52",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-45",
+      "slotB": "demo-52",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m9",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 9,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 10,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m4",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-29",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-29",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m10",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 10,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 11,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-36",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-36",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m11",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 11,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 12,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-21",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-21",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m12",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 12,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 13,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 10,
+          "b": 12
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-44",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-44",
+      "slotB": "demo-53",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m13",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 13,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 14,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m6",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-28",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-28",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m14",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 14,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 15,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 7,
+          "b": 11
+        },
+        {
+          "a": 12,
+          "b": 10
+        }
+      ],
+      "winnerId": "demo-37",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-37",
+      "slotB": "demo-60",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m15",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 15,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 16,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m7",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-18",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-18",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m16",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 16,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 17,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 3,
+          "b": 11
+        },
+        {
+          "a": 13,
+          "b": 11
+        },
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "demo-47",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-47",
+      "slotB": "demo-50",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m17",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 17,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 18,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m8",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-31",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-31",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m18",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 18,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 19,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-34",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-34",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m19",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 19,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 20,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-23",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-23",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m20",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 20,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 21,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 13,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 3
+        },
+        {
+          "a": 11,
+          "b": 7
+        }
+      ],
+      "winnerId": "demo-42",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-42",
+      "slotB": "demo-55",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m21",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 21,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 22,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m10",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 49,
+        "to": 56
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-26",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-26",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m22",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 22,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 23,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 13
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-39",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-39",
+      "slotB": "demo-58",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m23",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 23,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 24,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m11",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 57,
+        "to": 64
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-19",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-19",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m24",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 24,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 25,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 7,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 3
+        },
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 7
+        }
+      ],
+      "winnerId": "demo-46",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-46",
+      "slotB": "demo-51",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m25",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 25,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 26,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m12",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 57,
+        "to": 64
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-30",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-30",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m26",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 26,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 27,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-35",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-35",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m27",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 27,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 28,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-22",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-22",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m28",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 28,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 29,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 12,
+          "b": 10
+        }
+      ],
+      "winnerId": "demo-43",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-43",
+      "slotB": "demo-54",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m29",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 29,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 30,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m14",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 57,
+        "to": 64
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": "demo-27",
+      "outcome": "bye",
+      "table": null,
+      "slotA": "demo-27",
+      "slotB": null,
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m30",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 30,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 31,
+        "draw": 64
+      },
+      "bestOf": 5
+    },
+    {
+      "sets": [
+        {
+          "a": 10,
+          "b": 12
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 7
+        }
+      ],
+      "winnerId": "demo-38",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-38",
+      "slotB": "demo-59",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r0-m31",
+      "stage": "qualifying",
+      "round": 0,
+      "index": 31,
+      "label": {
+        "k": "qual",
+        "round": 0,
+        "n": 32,
+        "draw": 64
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "q-r1-m15",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 57,
+        "to": 64
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-17",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-17",
+      "slotB": "demo-49",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m0",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 0,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 1,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 13,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 13
+        },
+        {
+          "a": 13,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-32",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-32",
+      "slotB": "demo-33",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m1",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 1,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 2,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-24",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-24",
+      "slotB": "demo-41",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m2",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 2,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 3,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 6
+        }
+      ],
+      "winnerId": "demo-25",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-25",
+      "slotB": "demo-40",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m3",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 3,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 4,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 11,
+          "b": 6
+        }
+      ],
+      "winnerId": "demo-20",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-20",
+      "slotB": "demo-52",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m4",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 4,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 5,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-29",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-29",
+      "slotB": "demo-36",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m5",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 5,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 6,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-21",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-21",
+      "slotB": "demo-44",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m6",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 6,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 7,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 5,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-37",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-28",
+      "slotB": "demo-37",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m7",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 7,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 8,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 33,
+        "to": 40
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-18",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-18",
+      "slotB": "demo-47",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m8",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 8,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 9,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 7,
+          "b": 11
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 9,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-34",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-31",
+      "slotB": "demo-34",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m9",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 9,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 10,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 5,
+          "b": 11
+        },
+        {
+          "a": 12,
+          "b": 10
+        }
+      ],
+      "winnerId": "demo-23",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-23",
+      "slotB": "demo-42",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m10",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 10,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 11,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-26",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-26",
+      "slotB": "demo-39",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m11",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 11,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 12,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 13
+        },
+        {
+          "a": 11,
+          "b": 5
+        },
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-19",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-19",
+      "slotB": "demo-46",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m12",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 12,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 13,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 3,
+          "b": 11
+        },
+        {
+          "a": 10,
+          "b": 12
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 13,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-30",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-30",
+      "slotB": "demo-35",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m13",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 13,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 14,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 3
+        },
+        {
+          "a": 11,
+          "b": 13
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-22",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-22",
+      "slotB": "demo-43",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m14",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 14,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 15,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 6
+        }
+      ],
+      "winnerId": "demo-27",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-27",
+      "slotB": "demo-38",
+      "waitA": false,
+      "waitB": false,
+      "id": "q-r1-m15",
+      "stage": "qualifying",
+      "round": 1,
+      "index": 15,
+      "label": {
+        "k": "qual",
+        "round": 1,
+        "n": 16,
+        "draw": 32
+      },
+      "bestOf": 5,
+      "qualifies": true,
+      "placeBand": {
+        "from": 41,
+        "to": 48
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-1",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-1",
+      "slotB": "demo-37",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m0",
+      "stage": "main",
+      "round": 0,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m0",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "demo-16",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-16",
+      "slotB": "demo-21",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m1",
+      "stage": "main",
+      "round": 0,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m0",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 12,
+          "b": 10
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-8",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-8",
+      "slotB": "demo-25",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m2",
+      "stage": "main",
+      "round": 0,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m1",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 4
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 7
+        }
+      ],
+      "winnerId": "demo-9",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-9",
+      "slotB": "demo-24",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m3",
+      "stage": "main",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m1",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 17,
+        "to": 20
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 8,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 13
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 11,
+          "b": 8
+        }
+      ],
+      "winnerId": "demo-4",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-4",
+      "slotB": "demo-30",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m4",
+      "stage": "main",
+      "round": 0,
+      "index": 4,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 5
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m2",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 11,
+          "b": 7
+        },
+        {
+          "a": 7,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 5
+        }
+      ],
+      "winnerId": "demo-13",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-13",
+      "slotB": "demo-20",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m5",
+      "stage": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 6
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m2",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 11,
+          "b": 6
+        },
+        {
+          "a": 9,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 9
+        }
+      ],
+      "winnerId": "demo-5",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-5",
+      "slotB": "demo-29",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m6",
+      "stage": "main",
+      "round": 0,
+      "index": 6,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 7
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m3",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [
+        {
+          "a": 6,
+          "b": 11
+        },
+        {
+          "a": 11,
+          "b": 8
+        },
+        {
+          "a": 11,
+          "b": 9
+        },
+        {
+          "a": 13,
+          "b": 11
+        }
+      ],
+      "winnerId": "demo-12",
+      "outcome": "score",
+      "table": null,
+      "slotA": "demo-12",
+      "slotB": "demo-17",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m7",
+      "stage": "main",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 8
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m3",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 21,
+        "to": 24
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": 1,
+      "slotA": "demo-2",
+      "slotB": "demo-34",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m8",
+      "stage": "main",
+      "round": 0,
+      "index": 8,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 9
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m4",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": 2,
+      "slotA": "demo-15",
+      "slotB": "demo-22",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m9",
+      "stage": "main",
+      "round": 0,
+      "index": 9,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 10
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m4",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": 3,
+      "slotA": "demo-7",
+      "slotB": "demo-26",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m10",
+      "stage": "main",
+      "round": 0,
+      "index": 10,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 11
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m5",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": 4,
+      "slotA": "demo-10",
+      "slotB": "demo-23",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m11",
+      "stage": "main",
+      "round": 0,
+      "index": 11,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 12
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m5",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 25,
+        "to": 28
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-3",
+      "slotB": "demo-32",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m12",
+      "stage": "main",
+      "round": 0,
+      "index": 12,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 13
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m6",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-14",
+      "slotB": "demo-19",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m13",
+      "stage": "main",
+      "round": 0,
+      "index": 13,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 14
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m6",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-6",
+      "slotB": "demo-27",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m14",
+      "stage": "main",
+      "round": 0,
+      "index": 14,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 15
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m7",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-11",
+      "slotB": "demo-18",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r0-m15",
+      "stage": "main",
+      "round": 0,
+      "index": 15,
+      "label": {
+        "k": "main",
+        "round": 0,
+        "rounds": 5,
+        "n": 16
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r1-m7",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 29,
+        "to": 32
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-1",
+      "slotB": "demo-16",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m0",
+      "stage": "main",
+      "round": 1,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m0",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-8",
+      "slotB": "demo-9",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m1",
+      "stage": "main",
+      "round": 1,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m0",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-4",
+      "slotB": "demo-13",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m2",
+      "stage": "main",
+      "round": 1,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m1",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": "demo-5",
+      "slotB": "demo-12",
+      "waitA": false,
+      "waitB": false,
+      "id": "m-r1-m3",
+      "stage": "main",
+      "round": 1,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m1",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m4",
+      "stage": "main",
+      "round": 1,
+      "index": 4,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 5
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m2",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m5",
+      "stage": "main",
+      "round": 1,
+      "index": 5,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 6
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m2",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m6",
+      "stage": "main",
+      "round": 1,
+      "index": 6,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 7
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m3",
+        "slot": "A"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r1-m7",
+      "stage": "main",
+      "round": 1,
+      "index": 7,
+      "label": {
+        "k": "main",
+        "round": 1,
+        "rounds": 5,
+        "n": 8
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r2-m3",
+        "slot": "B"
+      },
+      "placeBand": {
+        "from": 9,
+        "to": 16
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m0",
+      "stage": "main",
+      "round": 2,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m0",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5-r1",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m1",
+      "stage": "main",
+      "round": 2,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m0",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5-r1",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m2",
+      "stage": "main",
+      "round": 2,
+      "index": 2,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 3
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m1",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5-r2",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r2-m3",
+      "stage": "main",
+      "round": 2,
+      "index": 3,
+      "label": {
+        "k": "main",
+        "round": 2,
+        "rounds": 5,
+        "n": 4
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r3-m1",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5-r2",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r3-m0",
+      "stage": "main",
+      "round": 3,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 3,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r4-m0",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm3-f3",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r3-m1",
+      "stage": "main",
+      "round": 3,
+      "index": 1,
+      "label": {
+        "k": "main",
+        "round": 3,
+        "rounds": 5,
+        "n": 2
+      },
+      "bestOf": 5,
+      "winnerTo": {
+        "matchId": "m-r4-m0",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm3-f3",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "m-r4-m0",
+      "stage": "main",
+      "round": 4,
+      "index": 0,
+      "label": {
+        "k": "main",
+        "round": 4,
+        "rounds": 5,
+        "n": 1
+      },
+      "bestOf": 5,
+      "placeWin": 1,
+      "placeLose": 2
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5-r1",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "winnerTo": {
+        "matchId": "pm5w-f5",
+        "slot": "A"
+      },
+      "loserTo": {
+        "matchId": "pm5l-f7",
+        "slot": "A"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5-r2",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "winnerTo": {
+        "matchId": "pm5w-f5",
+        "slot": "B"
+      },
+      "loserTo": {
+        "matchId": "pm5l-f7",
+        "slot": "B"
+      }
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5w-f5",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 5,
+      "label": {
+        "k": "place",
+        "place": 5,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 5,
+      "placeLose": 6
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm5l-f7",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 7,
+      "label": {
+        "k": "place",
+        "place": 7,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 7,
+      "placeLose": 8
+    },
+    {
+      "sets": [],
+      "winnerId": null,
+      "outcome": "pending",
+      "table": null,
+      "slotA": null,
+      "slotB": null,
+      "waitA": true,
+      "waitB": true,
+      "id": "pm3-f3",
+      "stage": "placement",
+      "placementOf": "main",
+      "round": 0,
+      "index": 3,
+      "label": {
+        "k": "place",
+        "place": 3,
+        "n": 1
+      },
+      "bestOf": 3,
+      "placeWin": 3,
+      "placeLose": 4
+    }
+  ],
+  "mainSeeds": {
+    "demo-1": 1,
+    "demo-37": 32,
+    "demo-16": 16,
+    "demo-21": 17,
+    "demo-8": 8,
+    "demo-25": 25,
+    "demo-9": 9,
+    "demo-24": 24,
+    "demo-4": 4,
+    "demo-30": 29,
+    "demo-13": 13,
+    "demo-20": 20,
+    "demo-5": 5,
+    "demo-29": 28,
+    "demo-12": 12,
+    "demo-17": 21,
+    "demo-2": 2,
+    "demo-34": 31,
+    "demo-15": 15,
+    "demo-22": 18,
+    "demo-7": 7,
+    "demo-26": 26,
+    "demo-10": 10,
+    "demo-23": 23,
+    "demo-3": 3,
+    "demo-32": 30,
+    "demo-14": 14,
+    "demo-19": 19,
+    "demo-6": 6,
+    "demo-27": 27,
+    "demo-11": 11,
+    "demo-18": 22
+  },
+  "mainSlots": [
+    "demo-1",
+    "demo-37",
+    "demo-16",
+    "demo-21",
+    "demo-8",
+    "demo-25",
+    "demo-9",
+    "demo-24",
+    "demo-4",
+    "demo-30",
+    "demo-13",
+    "demo-20",
+    "demo-5",
+    "demo-29",
+    "demo-12",
+    "demo-17",
+    "demo-2",
+    "demo-34",
+    "demo-15",
+    "demo-22",
+    "demo-7",
+    "demo-26",
+    "demo-10",
+    "demo-23",
+    "demo-3",
+    "demo-32",
+    "demo-14",
+    "demo-19",
+    "demo-6",
+    "demo-27",
+    "demo-11",
+    "demo-18"
+  ],
+  "drawCode": "DEMO60",
+  "audit": [
+    {
+      "at": "2026-11-20T18:16:13.879Z",
+      "code": "qualifying-built",
+      "detail": "direct=16;in=44;advance=16"
+    },
+    {
+      "at": "2026-11-20T18:16:13.884Z",
+      "code": "club-swap",
+      "detail": "demo-17<->demo-21"
+    },
+    {
+      "at": "2026-11-20T18:16:13.884Z",
+      "code": "club-swap",
+      "detail": "demo-18<->demo-22"
+    },
+    {
+      "at": "2026-11-20T18:16:13.884Z",
+      "code": "main-built",
+      "detail": "field=32;code=DEMO60"
+    }
+  ],
+  "awards": [],
+  "directIds": [
+    "demo-1",
+    "demo-2",
+    "demo-3",
+    "demo-4",
+    "demo-5",
+    "demo-6",
+    "demo-7",
+    "demo-8",
+    "demo-9",
+    "demo-10",
+    "demo-11",
+    "demo-12",
+    "demo-13",
+    "demo-14",
+    "demo-15",
+    "demo-16"
+  ],
+  "qualifierSlots": [
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m0"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m1"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m2"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m3"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m4"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m5"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m6"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m7"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m8"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m9"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m10"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m11"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m12"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m13"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m14"
+    },
+    {
+      "playerId": null,
+      "fromMatchId": "q-r1-m15"
+    }
+  ],
+  "shared": []
+}

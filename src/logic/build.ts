@@ -281,9 +281,8 @@ export interface QualifyingBuild {
   audit: AuditEvent[]
 }
 
-export function buildQualifying(players: Player[], settings: Settings, at: string): QualifyingBuild {
-  const active = activePlayers(players)
-  const ranked = active.slice().sort((a, b) => {
+export function rankPlayers(players: Player[]): Player[] {
+  return activePlayers(players).slice().sort((a, b) => {
     const ap = a.rankingPoints
     const bp = b.rankingPoints
     if (ap != null && bp != null && ap !== bp) return bp - ap
@@ -296,6 +295,57 @@ export function buildQualifying(players: Player[], settings: Settings, at: strin
     if (ar == null && br != null) return 1
     return a.name.localeCompare(b.name, 'pl')
   })
+}
+
+/** Direct seeds, and the players who contest the first round. */
+export function qualifyingEntrants(players: Player[], settings: Settings): { direct: Player[]; rest: Player[] } {
+  const ranked = rankPlayers(players)
+  if (settings.qualifyingMode === 'groups') {
+    const directCount = Math.min(Math.max(0, settings.directSeeds), ranked.length)
+    return { direct: ranked.slice(0, directCount), rest: ranked.slice(directCount) }
+  }
+  const directCount = Math.min(settings.directSeeds, settings.mainDrawSize, ranked.length)
+  return { direct: ranked.slice(0, directCount), rest: ranked.slice(directCount) }
+}
+
+function playDown(start: Tok[], target: number, round0: number, matches: Match[], bestOf: 3 | 5): Tok[] {
+  let current = start
+  let round = round0
+  while (current.length > target) {
+    if (current.length % 2 === 0 && current.length / 2 >= target) {
+      const next: Tok[] = []
+      for (let i = 0; i < current.length; i += 2) {
+        const id = `q-r${round}-m${i / 2}`
+        next.push(pairToks(id, current[i]!, current[i + 1]!, round, i / 2, bestOf, matches, current.length))
+      }
+      current = next
+      round++
+    } else {
+      const eliminate = current.length - target
+      const playCount = eliminate * 2
+      const indexed = current.map((tok, i) => ({ tok, i }))
+      indexed.sort((a, b) => a.tok.bestSeed - b.tok.bestSeed || a.i - b.i)
+      const byeIdx = new Set(indexed.slice(0, current.length - playCount).map((x) => x.i))
+      const playing = current.filter((_, i) => !byeIdx.has(i))
+      const next: Tok[] = current.filter((_, i) => byeIdx.has(i))
+      for (let i = 0; i < playing.length; i += 2) {
+        const id = `q-r${round}-m${i / 2}`
+        next.push(pairToks(id, playing[i]!, playing[i + 1]!, round, i / 2, bestOf, matches))
+      }
+      current = next
+      round++
+    }
+  }
+  return current
+}
+
+export function buildQualifying(
+  players: Player[],
+  settings: Settings,
+  at: string,
+  fixed: { a: string | null; b: string | null }[] | null = null,
+): QualifyingBuild {
+  const ranked = rankPlayers(players)
   const audit: AuditEvent[] = []
   const awards: Award[] = []
   if (settings.qualifyingMode === 'groups') {
@@ -326,37 +376,34 @@ export function buildQualifying(players: Player[], settings: Settings, at: strin
       audit,
     }
   }
-  const plan = planKnockout(rest.length, target)
-  const order = seedOrder(plan.bracketSize)
-  let current: Tok[] = order.map((seed) => ({
-    playerId: seed <= rest.length ? rest[seed - 1]!.id : null,
-    bestSeed: seed,
-  }))
-  let round = 0
-  while (current.length > target) {
-    if (current.length % 2 === 0 && current.length / 2 >= target) {
-      const next: Tok[] = []
-      for (let i = 0; i < current.length; i += 2) {
-        const id = `q-r${round}-m${i / 2}`
-        next.push(pairToks(id, current[i]!, current[i + 1]!, round, i / 2, settings.bestOf, matches, current.length))
-      }
-      current = next
-      round++
-    } else {
-      const eliminate = current.length - target
-      const playCount = eliminate * 2
-      const indexed = current.map((t, i) => ({ t, i }))
-      indexed.sort((a, b) => a.t.bestSeed - b.t.bestSeed || a.i - b.i)
-      const byeIdx = new Set(indexed.slice(0, current.length - playCount).map((x) => x.i))
-      const playing = current.filter((_, i) => !byeIdx.has(i))
-      const next: Tok[] = current.filter((_, i) => byeIdx.has(i))
-      for (let i = 0; i < playing.length; i += 2) {
-        const id = `q-r${round}-m${i / 2}`
-        next.push(pairToks(id, playing[i]!, playing[i + 1]!, round, i / 2, settings.bestOf, matches))
-      }
-      current = next
-      round++
-    }
+  let current: Tok[]
+  if (fixed && fixed.length > 0) {
+    const rank = new Map(rest.map((p, i) => [p.id, i + 1]))
+    const seedOf = (id: string | null) => (id ? rank.get(id) ?? 5000 : 5000)
+    const draw = fixed.length * 2
+    const named = draw >= 2 && (draw & (draw - 1)) === 0 ? draw : undefined
+    current = fixed.map((pair, i) =>
+      pairToks(
+        `q-r0-m${i}`,
+        { playerId: pair.a, bestSeed: seedOf(pair.a) },
+        { playerId: pair.b, bestSeed: seedOf(pair.b) },
+        0,
+        i,
+        settings.bestOf,
+        matches,
+        named,
+      ),
+    )
+    current = playDown(current, target, 1, matches, settings.bestOf)
+    audit.push(stamp('fixed-round', `pairs=${fixed.length}`, at))
+  } else {
+    const plan = planKnockout(rest.length, target)
+    const order = seedOrder(plan.bracketSize)
+    current = order.map((seed) => ({
+      playerId: seed <= rest.length ? rest[seed - 1]!.id : null,
+      bestSeed: seed,
+    }))
+    current = playDown(current, target, 0, matches, settings.bestOf)
   }
   const qualifierSlots = current.map((tok) => {
     if (tok.from) {

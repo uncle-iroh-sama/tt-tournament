@@ -1,4 +1,5 @@
-import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort } from './build.ts'
+import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, qualifyingEntrants } from './build.ts'
+import { resolvePaperPairs, sameIds } from './fixed.ts'
 import { groupStandings } from './groups.ts'
 import { explainSets, matchWinner } from './score.ts'
 import { invalidateDownstream, settle } from './propagate.ts'
@@ -175,10 +176,28 @@ function hasPlayed(matches: Match[], pred: (m: Match) => boolean): boolean {
   )
 }
 
+function paperPairs(
+  t: Tournament,
+): { ok: false; error: string } | { ok: true; pairs: { a: string | null; b: string | null }[] } | null {
+  const paper = t.fixedFirstRound
+  if (!paper || paper.length === 0) return null
+  if (t.settings.qualifyingMode === 'groups') return { ok: false, error: 'fixed-groups' }
+  return resolvePaperPairs(t.players, paper)
+}
+
 export function generateQualifying(t: Tournament): Action {
   if (!qualifyingRequired(t)) return { ok: false, error: 'qualifying-skip' }
   if (hasPlayed(t.matches, () => true)) return { ok: false, error: 'results-exist' }
-  const built = buildQualifying(t.players, t.settings, now())
+  const paper = paperPairs(t)
+  if (paper && !paper.ok) return paper
+  let fixed: { a: string | null; b: string | null }[] | null = null
+  if (paper && paper.ok) {
+    const { rest } = qualifyingEntrants(t.players, t.settings)
+    const ids = paper.pairs.flatMap((p) => [p.a, p.b].filter((id): id is string => !!id))
+    if (!sameIds(ids, rest)) return { ok: false, error: 'fixed-field' }
+    fixed = paper.pairs
+  }
+  const built = buildQualifying(t.players, t.settings, now(), fixed)
   return {
     ok: true,
     tournament: {
@@ -203,8 +222,35 @@ export function generateMainDraw(t: Tournament): Action {
   const drawCode = t.drawCode || makeDrawCode()
   const field = mainCandidates(t)
   if (field.length < 2) return { ok: false, error: 'too-few' }
-  const groupOf = (id: string) => t.groups.find((g) => g.playerIds.includes(id))?.id ?? null
-  const laid = layMainDraw(field, t.settings, drawCode, groupOf, now())
+  const usePaper = !qualifyingRequired(t)
+  const paper = usePaper ? paperPairs(t) : null
+  if (paper && !paper.ok) return paper
+  let laid: ReturnType<typeof layMainDraw>
+  if (paper && paper.ok) {
+    const ids = paper.pairs.flatMap((p) => [p.a, p.b].filter((id): id is string => !!id))
+    if (!sameIds(ids, field)) return { ok: false, error: 'fixed-field' }
+    const slots: (string | null)[] = []
+    for (const pair of paper.pairs) slots.push(pair.a, pair.b)
+    if (slots.length > t.settings.mainDrawSize) return { ok: false, error: 'fixed-size' }
+    while (slots.length < t.settings.mainDrawSize) slots.push(null)
+    const built = bracketFromSlots(slots, t.settings)
+    const byeCount = slots.filter((id) => !id).length
+    const at = now()
+    laid = {
+      slots,
+      matches: built.matches,
+      awards: built.awards,
+      seeds: built.seeds,
+      audit: [
+        ...(byeCount > 0 ? [{ at, code: 'bye' as const, detail: String(byeCount) }] : []),
+        { at, code: 'fixed-round' as const, detail: `pairs=${paper.pairs.length}` },
+        { at, code: 'main-built' as const, detail: `field=${field.length};code=${drawCode}` },
+      ],
+    }
+  } else {
+    const groupOf = (id: string) => t.groups.find((g) => g.playerIds.includes(id))?.id ?? null
+    laid = layMainDraw(field, t.settings, drawCode, groupOf, now())
+  }
   const inDraw = new Set(laid.slots.filter((id): id is string => !!id))
   const cut = field.filter((p) => !inDraw.has(p.id)).map((p) => p.id)
   let matches = t.matches.filter((m) => m.stage !== 'main' && m.placementOf !== 'main' && m.placementOf !== 'group')
