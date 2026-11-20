@@ -1,7 +1,7 @@
 import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, qualifyingEntrants } from './build.ts'
 import { resolvePaperPairs, sameIds } from './fixed.ts'
 import { groupStandings } from './groups.ts'
-import { explainSets, matchWinner } from './score.ts'
+import { explainCount, explainSets, matchWinner } from './score.ts'
 import { invalidateDownstream, settle } from './propagate.ts'
 import { activePlayers, compareRanking } from './ranking.ts'
 import { makeDrawCode, rngFrom, shuffle } from './rng.ts'
@@ -328,14 +328,21 @@ function replaceOrigin(matches: Match[], id: string, patch: Partial<Match>): Mat
   return matches.map((m) => (m.id === id ? { ...m, ...patch } : m))
 }
 
-function applyResult(t: Tournament, matchId: string, winnerId: string, sets: SetScore[], outcome: Outcome): Action {
+function applyResult(
+  t: Tournament,
+  matchId: string,
+  winnerId: string,
+  sets: SetScore[],
+  outcome: Outcome,
+  games: { a: number; b: number } | null = null,
+): Action {
   const match = t.matches.find((m) => m.id === matchId)
   if (!match) return { ok: false, error: 'missing' }
   if (match.outcome === 'bye' || match.outcome === 'cancelled') return { ok: false, error: 'locked' }
   if (winnerId !== match.slotA && winnerId !== match.slotB) return { ok: false, error: 'no-winner' }
   let matches = t.matches
   if (match.outcome !== 'pending') matches = invalidateDownstream(matches, match)
-  matches = replaceOrigin(matches, matchId, { sets, winnerId, outcome, table: null })
+  matches = replaceOrigin(matches, matchId, { sets, games, winnerId, outcome, table: null })
   matches = settle(matches, withdrawnSet({ ...t, matches }))
   return { ok: true, tournament: { ...t, matches } }
 }
@@ -348,7 +355,18 @@ export function enterScore(t: Tournament, matchId: string, sets: SetScore[]): Ac
   const side = matchWinner(sets, match.bestOf)
   const winnerId = side === 'A' ? match.slotA : side === 'B' ? match.slotB : null
   if (!winnerId) return { ok: false, error: 'no-winner' }
-  return applyResult(t, matchId, winnerId, sets, 'score')
+  return applyResult(t, matchId, winnerId, sets, 'score', null)
+}
+
+/** Record a finished match from the set count alone, with no set scores. `a` and `b` are slot A's sets. */
+export function enterSetCount(t: Tournament, matchId: string, a: number, b: number): Action {
+  const match = t.matches.find((m) => m.id === matchId)
+  if (!match) return { ok: false, error: 'missing' }
+  const problem = explainCount(a, b, match.bestOf)
+  if (problem) return { ok: false, error: problem }
+  const winnerId = a > b ? match.slotA : match.slotB
+  if (!winnerId) return { ok: false, error: 'no-winner' }
+  return applyResult(t, matchId, winnerId, [], 'score', { a, b })
 }
 
 function downstreamPlayed(matches: Match[], origin: Match): Match[] {
@@ -380,7 +398,7 @@ export function clearResult(t: Tournament, matchId: string): Action {
     return { ok: false, error: 'downstream', detail: blockers.map((m) => m.id).join(',') }
   }
   let matches = t.matches.map((m) =>
-    m.id === matchId ? { ...m, outcome: 'pending' as const, winnerId: null, sets: [], table: null } : m,
+    m.id === matchId ? { ...m, outcome: 'pending' as const, winnerId: null, sets: [], games: null, table: null } : m,
   )
   matches = invalidateDownstream(matches, match)
   matches = settle(matches, withdrawnSet({ ...t, matches }))

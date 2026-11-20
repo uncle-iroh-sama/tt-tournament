@@ -415,6 +415,7 @@ export function buildQualifying(
   })
   const mainCount = direct.length + qualifierSlots.length
   attachQualPlaces(matches, mainCount, settings, awards)
+  stampQualRounds(matches)
   audit.push(stamp('qualifying-built', `direct=${direct.length};in=${rest.length};advance=${target}`, at))
   return {
     matches: settle(matches, new Set()),
@@ -423,6 +424,16 @@ export function buildQualifying(
     directIds: direct.map((p) => p.id),
     qualifierSlots,
     audit,
+  }
+}
+
+function stampQualRounds(matches: Match[]) {
+  let max = -1
+  for (const m of matches) if (m.stage === 'qualifying') max = Math.max(max, m.round)
+  if (max < 0) return
+  const rounds = max + 1
+  for (const m of matches) {
+    if (m.label.k === 'qual') m.label = { ...m.label, rounds }
   }
 }
 

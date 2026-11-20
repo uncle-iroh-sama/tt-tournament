@@ -98,8 +98,14 @@ describe('operator CLI', () => {
     const status = run(root, ['status', 'kalisz'])
     expect(status.code, status.err).toBe(0)
     expect(status.out).toContain('qualifying ·')
+    expect(status.out).toContain('(Qualifying)')
+    expect(status.out).not.toContain('Round of')
+    expect(status.out).toMatch(/updated \d{2}:\d{2}:\d{2}/)
     expect(status.out).toContain('Kowalski Jan')
     expect(status.out).toContain('next:')
+    const ready = readyMatches(t).filter((m) => m.table == null)
+    const nextLines = status.out.split('next:')[1]!.split('\n').filter((line) => line.startsWith('  ') && line.trim() !== '—')
+    expect(nextLines.length).toBe(ready.length)
 
     const seated = assignTable(t, first.id, 3)
     expect(seated.ok).toBe(true)
@@ -111,15 +117,12 @@ describe('operator CLI', () => {
     const counted = run(root, ['result', 'kalisz', 'Jan Kowalski', 'Zolc', '3:1'])
     expect(counted.code, counted.err).toBe(0)
     expect(counted.out).toContain('Kowalski Jan beat Żółć Anna 3:1')
+    expect(counted.out).not.toContain('11:')
     t = load(root, 'kalisz')
     const scored = t.matches.find((m) => m.id === 'q-r0-m0')!
     expect(scored.winnerId).toBe(jan.id)
-    expect(scored.sets).toEqual([
-      { a: 5, b: 11 },
-      { a: 11, b: 5 },
-      { a: 11, b: 5 },
-      { a: 11, b: 5 },
-    ])
+    expect(scored.sets).toEqual([])
+    expect(scored.games).toEqual({ a: 3, b: 1 })
 
     const again = run(root, ['result', 'kalisz', 'Kowalski Jan', 'Żółć Anna', '3:0'])
     expect(again.code).toBe(1)
@@ -162,9 +165,13 @@ describe('operator CLI', () => {
     t = load(root, 'kalisz')
     expect(t.matches.filter((m) => m.id.startsWith('q-r0-') && m.outcome === 'pending')).toHaveLength(0)
 
+    const beforeDraw = run(root, ['status', 'kalisz'])
+    expect(beforeDraw.out).toContain('qualifying done — run draw-main')
     const drawn = run(root, ['draw-main', 'kalisz'])
     expect(drawn.code, drawn.err).toBe(0)
     expect(drawn.out).toContain('from the ranking')
+    expect(drawn.out).toContain('31 main-draw matches +')
+    expect(drawn.out).toMatch(/\d+ main-draw matches \+ \d+ placement matches/)
     t = load(root, 'kalisz')
     expect(t.phase).toBe('main')
     expect(t.mainSlots?.filter(Boolean)).toHaveLength(32)

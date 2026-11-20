@@ -4,6 +4,7 @@ function cloneMatch(m: Match): Match {
   return {
     ...m,
     sets: m.sets.map((s) => ({ ...s })),
+    games: m.games ? { ...m.games } : m.games,
     winnerTo: m.winnerTo ? { ...m.winnerTo } : undefined,
     loserTo: m.loserTo ? { ...m.loserTo } : undefined,
     placeBand: m.placeBand ? { ...m.placeBand } : undefined,
@@ -41,6 +42,7 @@ export function invalidateDownstream(matches: Match[], origin: Match): Match[] {
     m.outcome = 'pending'
     m.winnerId = null
     m.sets = []
+    m.games = null
     m.table = null
     walk(winnerTo)
     walk(loserTo)
@@ -71,7 +73,10 @@ function finish(m: Match, winnerId: string, outcome: Outcome) {
   m.winnerId = winnerId
   m.outcome = outcome
   m.table = null
-  if (outcome !== 'score' && outcome !== 'retirement') m.sets = []
+  if (outcome !== 'score' && outcome !== 'retirement') {
+    m.sets = []
+    m.games = null
+  }
 }
 
 /** Resolve byes, push winners and losers, and award walkovers to withdrawn players. */
