@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Lang } from '../i18n.ts'
 import { translate, type Key } from '../i18n.ts'
 import { classification, countFinished } from '../logic/classify.ts'
@@ -30,6 +30,7 @@ import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { isDemoTournament, parsePlayerLines } from '../demo.ts'
+import { fetchLive, isLiveSlug, slugify } from '../storage.ts'
 import { catKey, countForm, findPlayer, matchTitle, placeColumnTitle, pname, ratioText, roundHeading } from './format.ts'
 import { ScoreDialog } from './score.tsx'
 
@@ -78,6 +79,8 @@ export function Desk({
   setT,
   onError,
   onReplace,
+  publishedSlug = null,
+  onOpenPublished,
 }: {
   tournament: Tournament
   lang: Lang
@@ -86,6 +89,8 @@ export function Desk({
   setT: (t: Tournament) => void
   onError: (code: string) => void
   onReplace: () => void
+  publishedSlug?: string | null
+  onOpenPublished?: (slug: string) => void
 }) {
   const tr = (k: Key) => translate(lang, k)
   const [scoreId, setScoreId] = useState<string | null>(null)
@@ -134,7 +139,12 @@ export function Desk({
       )}
       {route === '#/klasyfikacja' && <ClassView t={t} tr={tr} setT={setT} />}
       {route === '#/ustawienia' && <SettingsEdit t={t} tr={tr} setT={setT} />}
-      {(route === '#/' || route === '') && <Home t={t} lang={lang} tr={tr} go={go} setT={setT} act={act} onReplace={onReplace} ask={setAsk} />}
+      {(route === '#/' || route === '') && (
+        <Home
+          t={t} lang={lang} tr={tr} go={go} setT={setT} act={act} onReplace={onReplace} ask={setAsk}
+          publishedSlug={publishedSlug} onOpenPublished={onOpenPublished}
+        />
+      )}
       {scoreMatch && (
         <ScoreDialog
           tournament={t}
@@ -180,7 +190,7 @@ export function Desk({
 }
 
 function Home({
-  t, lang, tr, go, setT, act, onReplace, ask,
+  t, lang, tr, go, setT, act, onReplace, ask, publishedSlug, onOpenPublished,
 }: {
   t: Tournament
   lang: Lang
@@ -190,6 +200,8 @@ function Home({
   act: (r: { ok: true; tournament: Tournament } | { ok: false; error: string }) => void
   onReplace: () => void
   ask: (q: { text: string; run: () => void } | null) => void
+  publishedSlug: string | null
+  onOpenPublished?: (slug: string) => void
 }) {
   const active = t.players.filter((p) => !p.withdrawn)
   const prog = countFinished(t)
@@ -247,6 +259,7 @@ function Home({
           <button className="btn danger" onClick={onReplace}>{tr('newTournament')}</button>
         </div>
         <p className="muted">{tr('drawCode')}: <b>{t.drawCode}</b>. {tr('drawCodeHint')}</p>
+        {onOpenPublished && <PublishBox t={t} tr={tr} publishedSlug={publishedSlug} onOpen={onOpenPublished} />}
         {t.phase === 'setup' && (
           <label className="field" style={{ maxWidth: 220 }}>
             {tr('drawCode')}
@@ -912,7 +925,7 @@ function BracketColumns({
   )
 }
 
-function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
+function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; board?: boolean }) {
   const tr = (k: Key) => translate(lang, k)
   const live = t.matches.filter((m) => m.outcome === 'pending' && m.table != null).sort((a, b) => (a.table ?? 0) - (b.table ?? 0))
   const next = readyMatches(t).filter((m) => m.table == null).slice(0, 8)
@@ -982,8 +995,12 @@ function PublicView({ t, lang }: { t: Tournament; lang: Lang }) {
           </tbody>
         </table>
       </div>
+      {board && <RecentResults t={t} lang={lang} tr={tr} />}
       {t.matches.some((m) => m.stage === 'main') && (
         <BracketColumns t={t} lang={lang} matches={t.matches.filter((m) => m.stage === 'main')} title={tr('main')} roundOn={roundOn} setRoundOn={setRoundOn} />
+      )}
+      {board && !t.matches.some((m) => m.stage === 'main') && t.matches.some((m) => m.stage === 'qualifying') && (
+        <BracketColumns t={t} lang={lang} matches={t.matches.filter((m) => m.stage === 'qualifying')} title={tr('qualBracket')} roundOn={roundOn} setRoundOn={setRoundOn} />
       )}
       {t.groups.length > 0 && <Qualifying quiet t={t} lang={lang} tr={tr} act={() => undefined} go={() => undefined} />}
     </>
@@ -1053,12 +1070,13 @@ function download(t: Tournament) {
 }
 
 export function Welcome({
-  tr, onCreate, onDemo, onImport,
+  tr, onCreate, onDemo, onImport, onOpenPublished,
 }: {
   tr: (k: Key) => string
   onCreate: () => void
   onDemo: () => void
   onImport: (file: File) => void
+  onOpenPublished: (slug: string) => void
 }) {
   return (
     <div className="hero">
@@ -1081,6 +1099,7 @@ export function Welcome({
           </label>
         </div>
         <p className="muted">{tr('demoHint')}</p>
+        <OpenPublished tr={tr} onOpen={onOpenPublished} />
       </div>
       <aside className="sample">
         <p className="kicker">{tr('sample')}</p>
@@ -1103,6 +1122,136 @@ export function Welcome({
           </article>
         </div>
       </aside>
+    </div>
+  )
+}
+
+function OpenPublished({ tr, onOpen }: { tr: (k: Key) => string; onOpen: (slug: string) => void }) {
+  const [slug, setSlug] = useState('demo')
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        const name = slug.trim().toLowerCase()
+        if (name) onOpen(name)
+      }}
+    >
+      <h3 style={{ marginTop: 16 }}>{tr('openPublished')}</h3>
+      <p className="muted">{tr('openPublishedHint')}</p>
+      <div className="row">
+        <label className="field" style={{ maxWidth: 220, margin: 0 }}>
+          {tr('openSlug')}
+          <input value={slug} data-testid="open-slug" onChange={(e) => setSlug(e.target.value.toLowerCase())} />
+        </label>
+        <button className="btn secondary" type="submit" data-testid="open-published">{tr('openBtn')}</button>
+      </div>
+    </form>
+  )
+}
+
+function PublishBox({
+  t, tr, publishedSlug, onOpen,
+}: {
+  t: Tournament
+  tr: (k: Key) => string
+  publishedSlug: string | null
+  onOpen: (slug: string) => void
+}) {
+  const [slug, setSlug] = useState(publishedSlug || slugify(t.settings.name))
+  const [copied, setCopied] = useState(false)
+  const safe = isLiveSlug(slug) ? slug : slugify(slug)
+  const link = `${window.location.origin}${window.location.pathname}${window.location.search}#/live/${safe}`
+  return (
+    <div style={{ marginTop: 14 }}>
+      <h3>{tr('liveLink')}</h3>
+      <div className="row">
+        <label className="field" style={{ maxWidth: 260, margin: 0 }}>
+          {tr('openSlug')}
+          <input value={slug} data-testid="live-slug" onChange={(e) => setSlug(e.target.value.toLowerCase())} />
+        </label>
+        <button
+          className="btn secondary"
+          type="button"
+          onClick={() => {
+            const node = document.querySelector<HTMLInputElement>('[data-testid="live-link"]')
+            node?.focus()
+            node?.select()
+            navigator.clipboard?.writeText(link).then(() => {
+              setCopied(true)
+              window.setTimeout(() => setCopied(false), 2000)
+            }).catch(() => setCopied(false))
+          }}
+        >{tr('copyLive')}</button>
+        {copied && <span className="muted">{tr('copied')}</span>}
+      </div>
+      <input className="live-url" data-testid="live-link" readOnly value={link} onFocus={(e) => e.currentTarget.select()} />
+      <OpenPublished tr={tr} onOpen={onOpen} />
+    </div>
+  )
+}
+
+function RecentResults({ t, lang, tr }: { t: Tournament; lang: Lang; tr: (k: Key) => string }) {
+  const rows = t.matches
+    .filter((m) => m.outcome === 'score' || m.outcome === 'walkover' || m.outcome === 'retirement')
+    .sort((a, b) => {
+      const stage = (m: Match) => (m.stage === 'main' ? 0 : m.stage === 'placement' ? 1 : 2)
+      return stage(a) - stage(b) || b.round - a.round || a.index - b.index
+    })
+    .slice(0, 12)
+  if (rows.length === 0) return null
+  return (
+    <div className="card">
+      <h2>{tr('liveResults')}</h2>
+      {rows.map((m) => <Slip key={m.id} t={t} m={m} lang={lang} />)}
+    </div>
+  )
+}
+
+function clock(d: Date, lang: Lang): string {
+  return d.toLocaleTimeString(lang === 'pl' ? 'pl-PL' : 'en-GB', { hour: '2-digit', minute: '2-digit' })
+}
+
+export function LivePage({ lang, slug }: { lang: Lang; slug: string }) {
+  const tr = (k: Key) => translate(lang, k)
+  const [t, setT] = useState<Tournament | null>(null)
+  const [error, setError] = useState<'missing' | 'bad' | null>(null)
+  const [updated, setUpdated] = useState<Date | null>(null)
+  const seen = useRef(false)
+  useEffect(() => {
+    let stop = false
+    seen.current = false
+    const pull = () => {
+      fetchLive(slug).then((res) => {
+        if (stop) return
+        if (res.ok) {
+          seen.current = true
+          setT(res.tournament)
+          setUpdated(new Date())
+          setError(null)
+        } else if (!seen.current) setError(res.error)
+      })
+    }
+    pull()
+    const id = window.setInterval(pull, 30_000)
+    return () => {
+      stop = true
+      window.clearInterval(id)
+    }
+  }, [slug])
+  if (!t) {
+    return (
+      <div className="card" data-testid="live-board">
+        <p>{error === 'bad' ? tr('liveBad') : error === 'missing' ? tr('liveMissing') : tr('liveLoading')}</p>
+      </div>
+    )
+  }
+  return (
+    <div data-testid="live-board">
+      <div className="live-bar">
+        <h2>{t.settings.name || tr('liveTitle')}</h2>
+        {updated && <p className="when" data-testid="live-updated">{tr('liveUpdated')} {clock(updated, lang)}</p>}
+      </div>
+      <PublicView t={t} lang={lang} board />
     </div>
   )
 }

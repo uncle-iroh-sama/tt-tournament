@@ -84,7 +84,14 @@ export function settle(matches: Match[], withdrawn: Set<string>): Match[] {
       if (m.outcome !== 'pending') continue
       const aBye = !m.slotA && !m.waitA
       const bBye = !m.slotB && !m.waitB
-      if ((aBye && bBye) || (aBye && m.waitB) || (bBye && m.waitA)) continue
+      if ((aBye && m.waitB) || (bBye && m.waitA)) continue
+      if (aBye && bBye) {
+        m.outcome = 'bye'
+        m.winnerId = null
+        m.table = null
+        changed = true
+        continue
+      }
       if (aBye && m.slotB) {
         finish(m, m.slotB, 'bye')
         changed = true

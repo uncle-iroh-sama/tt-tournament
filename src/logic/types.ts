@@ -91,6 +91,7 @@ export interface AuditEvent {
     | 'manual-swap'
     | 'qualifying-built'
     | 'main-built'
+    | 'fixed-round'
     | 'bye'
   detail: string
 }
@@ -152,6 +153,12 @@ export interface Tournament {
   qualifierSlots: { playerId: string | null; fromMatchId: string | null }[]
   /** Players who share a place band without a further match. */
   shared: { playerIds: string[]; from: number; to: number }[]
+  /**
+   * First round as drawn on paper. Each side is a player id or the player's name.
+   * A null side is a bye. The order is the bracket order: the winners of pair 1 and pair 2 meet.
+   * Used for qualifying when the field is larger than the main draw, otherwise for the main draw.
+   */
+  fixedFirstRound?: { a: string; b: string | null }[] | null
 }
 
 export interface RoundInfo {

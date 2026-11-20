@@ -16,6 +16,29 @@ Stół sędziego głównego do turnieju indywidualnego w tenisie stołowym, w uk
 
 Przycisk **Turniej demonstracyjny** wstawia 60 zawodników z klubów Wielkopolski (kod losowania `DEMO60`), żeby przejść cały przebieg od razu.
 
+## Plik JSON i turniej na żywo
+
+Zapis jest zwykłym JSON-em w wersji 1. Pełny eksport (przycisk **Eksportuj JSON**) to stan turnieju: ustawienia, zawodnicy, mecze i wyniki. Taki plik można włożyć do `public/live/<nazwa>.json` i opublikować razem ze stroną. Widok `#/live/<nazwa>` pobiera ten plik, odświeża go co pół minuty i pokazuje drabinkę, wyniki, klasyfikację i wyszukiwanie. Na pulpicie **Otwórz opublikowany turniej** wczytuje ten sam plik jako turniej do prowadzenia, a **Kopiuj link** daje adres widoku publicznego. Przykład: `public/live/demo.json`, adres `#/live/demo`.
+
+Krótszy plik da się napisać ręcznie ze zdjęć kartek. Wystarczą zawodnicy i, gdy pierwsza runda jest już rozlosowana na papierze, pary. `ranking` to punkty rankingowe; `ranking: "#12"` albo `rankingPosition` to miejsce na liście. `b: null` (albo `"bye"`) to wolny los. Kolejność par jest kolejnością drabinki: zwycięzca pierwszej pary gra ze zwycięzcą drugiej. W parach muszą być dokładnie ci, którzy grają tę rundę — przy eliminacjach bez rozstawionych bezpośrednio, przy pełnej stawce wszyscy. Nazwisko ma być takie jak na liście; wielkość liter i polskie znaki nie przeszkadzają.
+
+```json
+{
+  "version": 1,
+  "settings": { "name": "Grand Prix Kalisz", "date": "2026-11-21", "mainDrawSize": 32, "directSeeds": 16 },
+  "players": [
+    { "name": "Kowalski Jan", "club": "KU AZS Poznań", "ranking": 1480 },
+    { "name": "Nowak Piotr", "club": "UKS Joker Śrem", "ranking": 1410 }
+  ],
+  "fixedFirstRound": [
+    { "a": "Kowalski Jan", "b": "Nowak Piotr" },
+    { "a": "Zieliński Marek", "b": null }
+  ]
+}
+```
+
+Pary dotyczą pierwszej rundy, która naprawdę się odbywa: eliminacji, gdy zgłoszonych jest więcej niż miejsc w turnieju głównym, a w przeciwnym razie turnieju głównego. Dalsze rundy, mecze o miejsca i klasyfikacja liczą się same. Przy systemie grupowym pary z kartki nie obowiązują.
+
 ## Uruchomienie
 
 ```bash
@@ -54,6 +77,29 @@ A chief referee’s desk for an individual table-tennis tournament run the way W
 9. **Public view** is read-only and comfortable on a phone. Export JSON to move the whole event; import reads it back.
 
 **Demo tournament** loads 60 players from Wielkopolska clubs (draw code `DEMO60`) so the whole event can be tried immediately.
+
+## Tournament file and the live view
+
+The save is version-1 JSON. A full export (**Export JSON**) is the tournament state: settings, players, matches and results. Put that file at `public/live/<slug>.json` and publish it with the site. `#/live/<slug>` fetches the file, refreshes it about every half minute, and shows the draw, the results, the classification and player search. On the desk, **Open published tournament** loads the same file as the working event, and **Copy link** gives the public address. The example is `public/live/demo.json`, at `#/live/demo`.
+
+A shorter file can be written by hand from photographs of the paper. Players are enough, plus the pairs when the first round has already been drawn. `ranking` is ranking points; `ranking: "#12"` or `rankingPosition` is a place on the list. `b: null` (or `"bye"`) is a bye. Pair order is bracket order: the winner of the first pair meets the winner of the second. The pairs must be exactly the players in that round — everyone except the direct seeds, when there is qualifying, otherwise the whole field. The name is the one on the player list; letter case and Polish diacritics do not matter.
+
+```json
+{
+  "version": 1,
+  "settings": { "name": "Grand Prix Kalisz", "date": "2026-11-21", "mainDrawSize": 32, "directSeeds": 16 },
+  "players": [
+    { "name": "Kowalski Jan", "club": "KU AZS Poznań", "ranking": 1480 },
+    { "name": "Nowak Piotr", "club": "UKS Joker Śrem", "ranking": 1410 }
+  ],
+  "fixedFirstRound": [
+    { "a": "Kowalski Jan", "b": "Nowak Piotr" },
+    { "a": "Zieliński Marek", "b": null }
+  ]
+}
+```
+
+The pairs are the first round that is actually played: qualifying, when the entry is larger than the main draw, and the main draw otherwise. Later rounds, place matches and the classification follow on their own. Paper pairings do not apply to a group event.
 
 ## Develop
 

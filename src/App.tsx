@@ -3,8 +3,8 @@ import { demoTournament } from './demo.ts'
 import { loadLang, saveLang, translate, type Key, type Lang } from './i18n.ts'
 import { createTournament, defaultSettings } from './logic/engine.ts'
 import type { Settings, Tournament } from './logic/types.ts'
-import { loadTournament, saveTournament, tournamentFromJson } from './storage.ts'
-import { Desk, SettingsFields, Welcome } from './ui/desk.tsx'
+import { fetchLive, isLiveSlug, loadTournament, saveTournament, tournamentFromJson } from './storage.ts'
+import { Desk, LivePage, SettingsFields, Welcome } from './ui/desk.tsx'
 
 const ERRORS: Record<string, Key> = {
   'invalid-set': 'invalidSet',
@@ -27,9 +27,16 @@ const ERRORS: Record<string, Key> = {
   'import-bad': 'importBad',
   'no-draw': 'bracketEmpty',
   'bad-slot': 'missing',
+  'fixed-groups': 'fixedGroups',
+  'fixed-name': 'fixedName',
+  'fixed-duplicate': 'fixedDuplicate',
+  'fixed-empty': 'fixedEmpty',
+  'fixed-field': 'fixedField',
+  'fixed-size': 'fixedSize',
 }
 
 function pageKey(route: string): Key {
+  if (route.startsWith('#/live/')) return 'liveTitle'
   if (route.startsWith('#/public')) return 'public'
   if (route.startsWith('#/druk/klasyfikacja')) return 'printClass'
   if (route.startsWith('#/druk/kartki')) return 'printSheets'
@@ -56,6 +63,18 @@ export default function App() {
   const [draft, setDraft] = useState<Settings>(() => defaultSettings())
   const [draftCode, setDraftCode] = useState('')
   const [ask, setAsk] = useState<null | { text: string; run: () => void }>(null)
+  const [openedSlug, setOpenedSlug] = useState<string | null>(() => {
+    try {
+      const raw = sessionStorage.getItem('tt-live-slug')
+      if (!raw) return null
+      const saved = JSON.parse(raw) as { id?: string; slug?: string }
+      const current = loadTournament()
+      if (current && saved.id === current.id && saved.slug && isLiveSlug(saved.slug)) return saved.slug
+    } catch {
+      /* a bad session value just means there is no remembered file name */
+    }
+    return null
+  })
 
   useEffect(() => {
     const onHash = () => setRoute(window.location.hash || '#/')
@@ -71,7 +90,8 @@ export default function App() {
     root.setAttribute('translate', 'no')
     root.classList.add('notranslate')
     const page = translate(lang, pageKey(route))
-    const name = tournament?.settings.name.trim()
+    const live = route.startsWith('#/live/')
+    const name = live ? '' : tournament?.settings.name.trim()
     const app = translate(lang, 'app')
     const tag = translate(lang, 'tag')
     document.title = name ? `${page} · ${name}` : `${app} · ${tag}`
@@ -87,8 +107,33 @@ export default function App() {
   }, [])
 
   const tr = (k: Key) => translate(lang, k)
-  const pub = route.startsWith('#/public')
+  const liveSlug = /^#\/live\/([a-z0-9][a-z0-9-]{0,62})$/.exec(route)?.[1] ?? null
+  const pub = route.startsWith('#/public') || liveSlug != null
   const print = route.startsWith('#/druk')
+
+  function forgetSlug() {
+    setOpenedSlug(null)
+    sessionStorage.removeItem('tt-live-slug')
+  }
+
+  function openPublished(slug: string) {
+    const run = () => {
+      fetchLive(slug).then((res) => {
+        if (!res.ok) {
+          setError(translate(lang, res.error === 'bad' ? 'liveBad' : 'liveMissing'))
+          return
+        }
+        setOpenedSlug(slug)
+        sessionStorage.setItem('tt-live-slug', JSON.stringify({ id: res.tournament.id, slug }))
+        setTournament(res.tournament)
+        setCreating(false)
+        setError(null)
+        go('#/')
+      })
+    }
+    if (tournament) setAsk({ text: tr('replaceConfirm'), run })
+    else run()
+  }
 
   function go(hash: string) {
     if (window.location.hash === hash) setRoute(hash)
@@ -103,6 +148,7 @@ export default function App() {
   function beginNew() {
     const run = () => {
       setTournament(null)
+      forgetSlug()
       setCreating(true)
       setDraft(defaultSettings())
       setDraftCode('')
@@ -113,9 +159,11 @@ export default function App() {
     else run()
   }
 
-  const subtitle = tournament
-    ? [tournament.settings.date, tournament.settings.venue].filter(Boolean).join(' · ')
-    : tr('tag')
+  const subtitle = liveSlug
+    ? tr('tag')
+    : tournament
+      ? [tournament.settings.date, tournament.settings.venue].filter(Boolean).join(' · ')
+      : tr('tag')
 
   return (
     <>
@@ -124,7 +172,7 @@ export default function App() {
           <div className="brand">
             <span className="ball" aria-hidden="true" />
             <div>
-              <h1>{tournament?.settings.name || tr('app')}</h1>
+              <h1>{liveSlug ? tr('liveTitle') : tournament?.settings.name || tr('app')}</h1>
               <p>{subtitle}</p>
             </div>
           </div>
@@ -154,7 +202,9 @@ export default function App() {
             {error} <button className="btn secondary small" onClick={() => setError(null)}>{tr('close')}</button>
           </div>
         )}
-        {tournament ? (
+        {liveSlug ? (
+          <LivePage lang={lang} slug={liveSlug} />
+        ) : tournament ? (
           <Desk
             tournament={tournament}
             lang={lang}
@@ -163,6 +213,8 @@ export default function App() {
             setT={(next) => { setError(null); setTournament(next) }}
             onError={showError}
             onReplace={beginNew}
+            publishedSlug={openedSlug}
+            onOpenPublished={openPublished}
           />
         ) : creating ? (
           <div className="card">
@@ -176,6 +228,7 @@ export default function App() {
             <div className="row">
               <button className="btn" onClick={() => {
                 const settings = { ...draft, name: draft.name.trim() || tr('app') }
+                forgetSlug()
                 setTournament(createTournament(settings, draftCode || undefined))
                 setCreating(false)
                 go('#/zawodnicy')
@@ -187,12 +240,13 @@ export default function App() {
           <Welcome
             tr={tr}
             onCreate={beginNew}
-            onDemo={() => { setError(null); setTournament(demoTournament()); go('#/') }}
+            onDemo={() => { forgetSlug(); setError(null); setTournament(demoTournament()); go('#/') }}
+            onOpenPublished={openPublished}
             onImport={(file) => {
               file.text().then((raw) => {
                 const parsed = tournamentFromJson(raw)
                 if (!parsed) showError('import-bad')
-                else { setError(null); setTournament(parsed); go('#/') }
+                else { forgetSlug(); setError(null); setTournament(parsed); go('#/') }
               }).catch(() => showError('import-bad'))
             }}
           />
