@@ -159,6 +159,8 @@ export interface Tournament {
    * Used for qualifying when the field is larger than the main draw, otherwise for the main draw.
    */
   fixedFirstRound?: { a: string; b: string | null }[] | null
+  /** ISO time of the last save. The live board shows it. */
+  updatedAt?: string
 }
 
 export interface RoundInfo {

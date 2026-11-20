@@ -34,6 +34,21 @@ export function matchWinner(sets: SetScore[], bestOf: 3 | 5): 'A' | 'B' | null {
 
 export type ScoreError = 'invalid-set' | 'no-winner' | 'extra-sets' | 'empty'
 
+/**
+ * A set-count such as 3:1, from the first player's point of view.
+ * The deciding set is last, and every set is a plain 11:5, so the match is a legal score.
+ */
+export function setsFromCount(a: number, b: number): SetScore[] | null {
+  if (!Number.isInteger(a) || !Number.isInteger(b) || a < 0 || b < 0 || a === b) return null
+  const winner = a > b ? 'A' : 'B'
+  const winCount = Math.max(a, b)
+  const loseCount = Math.min(a, b)
+  const order: Array<'A' | 'B'> = []
+  for (let i = 0; i < loseCount; i++) order.push(winner === 'A' ? 'B' : 'A')
+  for (let i = 0; i < winCount; i++) order.push(winner)
+  return order.map((side) => (side === 'A' ? { a: 11, b: 5 } : { a: 5, b: 11 }))
+}
+
 export function explainSets(sets: SetScore[], bestOf: 3 | 5): ScoreError | null {
   if (sets.length === 0) return 'empty'
   const need = setsNeeded(bestOf)

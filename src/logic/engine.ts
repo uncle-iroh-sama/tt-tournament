@@ -9,7 +9,7 @@ import type { Match, Outcome, PlaceFlags, Player, SetScore, Settings, Tournament
 
 export type Action =
   | { ok: true; tournament: Tournament }
-  | { ok: false; error: string }
+  | { ok: false; error: string; detail?: string }
 
 export function defaultPlaces(): PlaceFlags {
   return {
@@ -216,14 +216,20 @@ export function generateQualifying(t: Tournament): Action {
   }
 }
 
-export function generateMainDraw(t: Tournament): Action {
+export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: string | null }[] | null): Action {
   if (qualifyingRequired(t) && !qualifyingComplete(t)) return { ok: false, error: 'qualifying-open' }
   if (hasPlayed(t.matches, (m) => m.stage === 'main' || m.placementOf === 'main')) return { ok: false, error: 'main-started' }
   const drawCode = t.drawCode || makeDrawCode()
   const field = mainCandidates(t)
   if (field.length < 2) return { ok: false, error: 'too-few' }
-  const usePaper = !qualifyingRequired(t)
-  const paper = usePaper ? paperPairs(t) : null
+  const explicit = paperOverride && paperOverride.length > 0 ? paperOverride : null
+  let paper: { ok: false; error: string } | { ok: true; pairs: { a: string | null; b: string | null }[] } | null
+  if (explicit) {
+    if (t.settings.qualifyingMode === 'groups') paper = { ok: false, error: 'fixed-groups' }
+    else paper = resolvePaperPairs(t.players, explicit)
+  } else {
+    paper = !qualifyingRequired(t) ? paperPairs(t) : null
+  }
   if (paper && !paper.ok) return paper
   let laid: ReturnType<typeof layMainDraw>
   if (paper && paper.ok) {
@@ -343,6 +349,42 @@ export function enterScore(t: Tournament, matchId: string, sets: SetScore[]): Ac
   const winnerId = side === 'A' ? match.slotA : side === 'B' ? match.slotB : null
   if (!winnerId) return { ok: false, error: 'no-winner' }
   return applyResult(t, matchId, winnerId, sets, 'score')
+}
+
+function downstreamPlayed(matches: Match[], origin: Match): Match[] {
+  const found: Match[] = []
+  const seen = new Set<string>()
+  const queue = [origin.winnerTo, origin.loserTo].filter((link): link is NonNullable<Match['winnerTo']> => !!link)
+  while (queue.length) {
+    const link = queue.shift()!
+    if (seen.has(link.matchId)) continue
+    seen.add(link.matchId)
+    const next = matches.find((m) => m.id === link.matchId)
+    if (!next) continue
+    if (next.outcome === 'score' || next.outcome === 'walkover' || next.outcome === 'retirement') found.push(next)
+    if (next.winnerTo) queue.push(next.winnerTo)
+    if (next.loserTo) queue.push(next.loserTo)
+  }
+  return found
+}
+
+/** Clear one result. Refuses when a later match has already been played off this one. */
+export function clearResult(t: Tournament, matchId: string): Action {
+  const match = t.matches.find((m) => m.id === matchId)
+  if (!match) return { ok: false, error: 'missing' }
+  if (match.outcome !== 'score' && match.outcome !== 'walkover' && match.outcome !== 'retirement') {
+    return { ok: false, error: 'not-played' }
+  }
+  const blockers = downstreamPlayed(t.matches, match)
+  if (blockers.length > 0) {
+    return { ok: false, error: 'downstream', detail: blockers.map((m) => m.id).join(',') }
+  }
+  let matches = t.matches.map((m) =>
+    m.id === matchId ? { ...m, outcome: 'pending' as const, winnerId: null, sets: [], table: null } : m,
+  )
+  matches = invalidateDownstream(matches, match)
+  matches = settle(matches, withdrawnSet({ ...t, matches }))
+  return { ok: true, tournament: { ...t, matches } }
 }
 
 export function enterWalkover(t: Tournament, matchId: string, winnerId: string): Action {

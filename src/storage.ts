@@ -135,6 +135,7 @@ export function tournamentFromJson(raw: string): Tournament | null {
       qualifierSlots: Array.isArray(data.qualifierSlots) ? data.qualifierSlots : [],
       shared: Array.isArray(data.shared) ? data.shared : [],
       fixedFirstRound: fixed,
+      updatedAt: typeof data.updatedAt === 'string' && data.updatedAt ? data.updatedAt : undefined,
     }
   } catch {
     return null

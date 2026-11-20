@@ -39,6 +39,26 @@ Krótszy plik da się napisać ręcznie ze zdjęć kartek. Wystarczą zawodnicy 
 
 Pary dotyczą pierwszej rundy, która naprawdę się odbywa: eliminacji, gdy zgłoszonych jest więcej niż miejsc w turnieju głównym, a w przeciwnym razie turnieju głównego. Dalsze rundy, mecze o miejsca i klasyfikacja liczą się same. Przy systemie grupowym pary z kartki nie obowiązują.
 
+## Prowadzenie z telefonu
+
+Na hali zostaje telefon. Wynik przychodzi SMS-em (`Kowalski - Nowak 3:1`, albo sety `11:7 9:11 11:5 11:8`, albo zdjęcie kartki). Ten, kto ma repozytorium, wpisuje go w terminalu i wypycha `public/live/<nazwa>.json`. Widok na żywo czyta ten sam plik.
+
+```bash
+npm run tt -- init kalisz kalisz.json
+npm run tt -- status kalisz
+npm run tt -- result kalisz "Kowalski" "Nowak" 3:1
+npm run tt -- result kalisz "Kowalski Jan" "Nowak Piotr" "11:7 9:11 11:5 11:8"
+npm run tt -- result kalisz "Zieliński Marek" "Wójcik Anna" wo
+npm run tt -- undo kalisz "Kowalski" "Nowak"
+npm run tt -- draw-main kalisz
+npm run tt -- draw-main kalisz --fixed pary.json
+npm run tt -- player add kalisz "Lis Robert" "KS Energetyk Poznań" 1100
+npm run tt -- player rename kalisz "Lis Robert" "Lis Robert Jan"
+npm run tt -- player remove kalisz "Lis Robert Jan"
+```
+
+`init` bierze krótki plik, losuje eliminacje (albo zostawia turniej przed losowaniem, gdy eliminacji nie ma) i zapisuje pełny stan. Pierwszy podany zawodnik jest stroną A wyniku: `3:1` i `11:7` liczą się z jego perspektywy. `wo` to walkower, wygrywa pierwszy. Nazwisko wystarczy, gdy jest jedno; kolejność członów i polskie znaki nie przeszkadzają. `undo` cofa wynik tylko wtedy, gdy nikt dalej już na nim nie zagrał. `player` działa przed losowaniem. Miejsce na liście podaj w cudzysłowie (`"#12"`), bo `#` obcina resztę polecenia. Każdy zapis podbija `updatedAt`.
+
 ## Uruchomienie
 
 ```bash
@@ -100,6 +120,26 @@ A shorter file can be written by hand from photographs of the paper. Players are
 ```
 
 The pairs are the first round that is actually played: qualifying, when the entry is larger than the main draw, and the main draw otherwise. Later rounds, place matches and the classification follow on their own. Paper pairings do not apply to a group event.
+
+## Running it from a phone
+
+At the venue there is only a phone. A result arrives as a text (`Kowalski - Nowak 3:1`, or the sets `11:7 9:11 11:5 11:8`, or a photo of the sheet). Whoever has the repository types it in and pushes `public/live/<slug>.json`. The live view reads that file.
+
+```bash
+npm run tt -- init kalisz kalisz.json
+npm run tt -- status kalisz
+npm run tt -- result kalisz "Kowalski" "Nowak" 3:1
+npm run tt -- result kalisz "Kowalski Jan" "Nowak Piotr" "11:7 9:11 11:5 11:8"
+npm run tt -- result kalisz "Zieliński Marek" "Wójcik Anna" wo
+npm run tt -- undo kalisz "Kowalski" "Nowak"
+npm run tt -- draw-main kalisz
+npm run tt -- draw-main kalisz --fixed pary.json
+npm run tt -- player add kalisz "Lis Robert" "KS Energetyk Poznań" 1100
+npm run tt -- player rename kalisz "Lis Robert" "Lis Robert Jan"
+npm run tt -- player remove kalisz "Lis Robert Jan"
+```
+
+`init` reads the short file, draws qualifying (or leaves the event undrawn when qualifying is not needed) and writes the full state. The first player named is side A of the score: `3:1` and `11:7` are from that player's point of view. `wo` is a walkover won by the first name. A surname is enough when only one player has it; token order and Polish diacritics do not matter. `undo` clears a result only when no later match has been played off it. `player` works before the draw. Quote a ranking place (`"#12"`), because `#` cuts off the rest of the command. Every save bumps `updatedAt`.
 
 ## Develop
 
