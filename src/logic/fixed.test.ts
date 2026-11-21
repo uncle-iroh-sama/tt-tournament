@@ -165,7 +165,7 @@ describe('fixed qualifying pairings', () => {
   })
 
   it('refuses paper pairings when the event is played in groups', () => {
-    const t = field(sized(16, { qualifyingMode: 'groups', directSeeds: 0, tables: 4 }), ['Adam', 'Bartek', 'Celina', 'Darek'])
+    const t = field(sized(16, { format: 'groups', directSeeds: 0, tables: 4 }), ['Adam', 'Bartek', 'Celina', 'Darek'])
     const res = generateQualifying({ ...t, fixedFirstRound: [{ a: 'Adam', b: 'Bartek' }, { a: 'Celina', b: 'Darek' }] })
     expect(res.ok).toBe(false)
     if (!res.ok) expect(res.error).toBe('fixed-groups')

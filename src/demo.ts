@@ -77,9 +77,10 @@ export function demoTournament(): Tournament {
       tables: 12,
       bestOf: 5,
       placeMatchBestOf: 3,
+      format: 'knockout',
+      bracket: 'placement',
       mainDrawSize: 32,
       directSeeds: 16,
-      qualifyingMode: 'knockout',
       groupSize: 4,
       advancePerGroup: 2,
       places: {

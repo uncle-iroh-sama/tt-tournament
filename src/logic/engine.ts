@@ -1,4 +1,4 @@
-import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, qualifyingEntrants } from './build.ts'
+import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, playsNonQualifiers, qualifyingEntrants } from './build.ts'
 import { resolveMainPaperPairs, resolvePaperPairs, sameIdList, sameIds } from './fixed.ts'
 import { groupStandings } from './groups.ts'
 import { explainCount, explainSets, matchWinner } from './score.ts'
@@ -30,9 +30,10 @@ export function defaultSettings(): Settings {
     tables: 12,
     bestOf: 5,
     placeMatchBestOf: 3,
+    format: 'knockout',
+    bracket: 'placement',
     mainDrawSize: 32,
     directSeeds: 16,
-    qualifyingMode: 'knockout',
     seeding: 'fixed',
     groupSize: 4,
     advancePerGroup: 2,
@@ -69,7 +70,7 @@ export function createTournament(settings: Settings = defaultSettings(), drawCod
 
 export function qualifyingRequired(t: Tournament): boolean {
   const n = activePlayers(t.players).length
-  if (t.settings.qualifyingMode === 'groups') return n >= 2
+  if (t.settings.format === 'groups') return n >= 2
   return n > t.settings.mainDrawSize
 }
 
@@ -108,7 +109,7 @@ export function removePlayer(t: Tournament, id: string): Action {
 export function qualifyingComplete(t: Tournament): boolean {
   if (!qualifyingRequired(t)) return true
   if (t.phase === 'setup') return false
-  if (t.settings.qualifyingMode === 'groups') {
+  if (t.settings.format === 'groups') {
     if (t.groups.length === 0) return true
     return t.groups.every((g) => {
       const list = t.matches.filter((m) => m.groupId === g.id)
@@ -145,7 +146,7 @@ function mainCandidates(t: Tournament): Player[] {
     const p = byId.get(id)
     if (p && !p.withdrawn) ids.add(id)
   }
-  if (t.settings.qualifyingMode === 'groups') {
+  if (t.settings.format === 'groups') {
     for (const g of t.groups) {
       const rows = groupStandings(
         g.playerIds,
@@ -181,7 +182,7 @@ function paperPairs(
 ): { ok: false; error: string } | { ok: true; pairs: { a: string | null; b: string | null }[] } | null {
   const paper = t.fixedFirstRound
   if (!paper || paper.length === 0) return null
-  if (t.settings.qualifyingMode === 'groups') return { ok: false, error: 'fixed-groups' }
+  if (t.settings.format === 'groups') return { ok: false, error: 'fixed-groups' }
   return resolvePaperPairs(t.players, paper)
 }
 
@@ -235,7 +236,7 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
     | { ok: true; pairs: { a: string | null; b: string | null; waitA?: string; waitB?: string }[] }
     | null
   if (explicit) {
-    if (t.settings.qualifyingMode === 'groups') paper = { ok: false, error: 'fixed-groups' }
+    if (t.settings.format === 'groups') paper = { ok: false, error: 'fixed-groups' }
     else paper = resolveMainPaperPairs(t.players, t.matches, explicit)
   } else {
     paper = !qualifyingRequired(t) ? paperPairs(t) : null
@@ -296,7 +297,7 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
   let shared: Tournament['shared'] = []
   let place = inDraw.size + waitIds.length + 1
   if (cut.length > 0) {
-    const cohort = placeCohort(cut, place, t.settings.places.nonQualifiers, t.settings.placeMatchBestOf, 'group', `cut${place}`)
+    const cohort = placeCohort(cut, place, playsNonQualifiers(t.settings), t.settings.placeMatchBestOf, 'group', `cut${place}`)
     matches = matches.concat(cohort.matches)
     awards = awards.concat(cohort.awards)
     shared = shared.concat(cohort.shared)
@@ -315,7 +316,7 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
       held,
       withdrawnSet(t),
       t.settings.advancePerGroup,
-      t.settings.places,
+      playsNonQualifiers(t.settings),
       t.settings.placeMatchBestOf,
       place,
     )

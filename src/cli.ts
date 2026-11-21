@@ -20,7 +20,8 @@ import type { PaperPair } from './logic/fixed.ts'
 import { findPlayerByName } from './logic/names.ts'
 import { makeDrawCode } from './logic/rng.ts'
 import { explainCount, explainSets } from './logic/score.ts'
-import type { Match, Player, SetScore, Tournament } from './logic/types.ts'
+import { BRACKETS, DRAW_SIZES, FORMATS } from './logic/types.ts'
+import type { Match, Player, SetScore, Settings, Tournament } from './logic/types.ts'
 import { countFinished } from './logic/classify.ts'
 import { isLiveSlug, tournamentFromJson } from './storage.ts'
 import { roundHeading } from './ui/format.ts'
@@ -223,11 +224,53 @@ function showSets(sets: SetScore[], firstIsA: boolean): string {
   return view.map((s) => `${s.a}:${s.b}`).join(' ')
 }
 
-function cmdInit(root: string, slug: string, shortPath: string): string {
+/** Splits `--name value` pairs from the positional arguments. */
+function splitFlags(args: string[]): { positional: string[]; flags: Map<string, string> } {
+  const positional: string[] = []
+  const flags = new Map<string, string>()
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (!arg.startsWith('--')) {
+      positional.push(arg)
+      continue
+    }
+    const value = args[i + 1]
+    if (value == null || value.startsWith('--')) throw new CliError(`${arg} needs a value.`)
+    flags.set(arg.slice(2), value)
+    i++
+  }
+  return { positional, flags }
+}
+
+function oneOf<T extends string | number>(name: string, value: string, options: readonly T[]): T {
+  const hit = options.find((o) => String(o) === value)
+  if (hit == null) throw new CliError(`--${name} must be one of: ${options.join(', ')}.`)
+  return hit
+}
+
+/** --format, --bracket and --draw override the short file. */
+function withStructure(settings: Settings, flags: Map<string, string>): Settings {
+  const next = { ...settings }
+  const format = flags.get('format')
+  const bracket = flags.get('bracket')
+  const draw = flags.get('draw')
+  if (format) next.format = oneOf('format', format, FORMATS)
+  if (bracket) next.bracket = oneOf('bracket', bracket, BRACKETS)
+  if (draw) {
+    next.mainDrawSize = oneOf('draw', draw, DRAW_SIZES)
+    next.directSeeds = Math.min(next.directSeeds, next.mainDrawSize / 2)
+  }
+  return next
+}
+
+function cmdInit(root: string, args: string[]): string {
+  const { positional, flags } = splitFlags(args)
+  const [slug = '', shortPath = ''] = positional
   if (!isLiveSlug(slug)) throw new CliError(`"${slug}" is not a file name. Use lowercase letters, digits and hyphens.`)
-  if (!shortPath) throw new CliError('Usage: npm run tt -- init <slug> <short.json>')
-  const parsed = tournamentFromJson(readText(shortPath))
-  if (!parsed) throw new CliError(`${shortPath} is not a tournament file. It needs version 1, settings and players.`)
+  if (!shortPath) throw new CliError(`Usage: ${USAGE.init}`)
+  const read = tournamentFromJson(readText(shortPath))
+  if (!read) throw new CliError(`${shortPath} is not a tournament file. It needs version 1, settings and players.`)
+  const parsed = { ...read, settings: withStructure(read.settings, flags) }
   const existingPath = livePath(root, slug)
   try {
     const existing = tournamentFromJson(readFileSync(existingPath, 'utf8'))
@@ -247,10 +290,10 @@ function cmdInit(root: string, slug: string, shortPath: string): string {
     const games = round.length - byes
     const direct = t.directIds.length
     saveLive(root, slug, t)
-    return `Wrote public/live/${slug}.json\nQualifying drawn: ${games} matches, ${byes} byes, ${direct} direct to the main draw.\n`
+    return `Wrote public/live/${slug}.json\n${structureLine(t)}\nQualifying drawn: ${games} matches, ${byes} byes, ${direct} direct to the main draw.\n`
   }
   saveLive(root, slug, t)
-  return `Wrote public/live/${slug}.json\nNo qualifying for ${t.players.length} players. Draw the main event with: npm run tt -- draw-main ${slug}\n`
+  return `Wrote public/live/${slug}.json\n${structureLine(t)}\nNo qualifying for ${t.players.length} players. Draw the main event with: npm run tt -- draw-main ${slug}\n`
 }
 
 function cmdResult(root: string, slug: string, aQuery: string, bQuery: string, scoreText: string): string {
@@ -336,11 +379,17 @@ function cmdDrawMain(root: string, slug: string, fixedPath?: string): string {
   return `Main draw made ${how}: ${inDraw} players${open}, ${mainN} main-draw matches + ${placeN} placement matches, code ${t.drawCode}.\n`
 }
 
+function structureLine(t: Tournament): string {
+  const s = t.settings
+  const size = s.format === 'knockout' ? ` · draw of ${s.mainDrawSize}` : ''
+  return `format ${s.format} · bracket ${s.bracket}${size}`
+}
+
 function cmdStatus(root: string, slug: string): string {
   const t = loadLive(root, slug)
   const stage = t.phase === 'main' ? 'main draw' : t.phase === 'qualifying' ? 'qualifying' : 'not drawn'
   const { done, total } = countFinished(t)
-  const lines = [t.settings.name || slug, `${stage} · ${done}/${total} played`]
+  const lines = [t.settings.name || slug, structureLine(t), `${stage} · ${done}/${total} played`]
   if (qualifyingRequired(t) && qualifyingComplete(t) && t.phase !== 'main') {
     lines.push('qualifying done — run draw-main')
   }
@@ -411,10 +460,14 @@ function cmdPlayer(root: string, args: string[]): string {
   throw new CliError('Usage: npm run tt -- player add|rename|remove <slug> ...')
 }
 
+const USAGE = {
+  init: 'npm run tt -- init <slug> <short.json> [--format knockout|groups] [--bracket single|placement] [--draw 8|16|32|64]',
+}
+
 function help(): string {
   return [
     'Usage:',
-    '  npm run tt -- init <slug> <short.json>',
+    `  ${USAGE.init}`,
     '  npm run tt -- result <slug> "<A>" "<B>" <3:1 | 11:7 9:11 11:8 | wo>',
     '  npm run tt -- undo <slug> "<A>" "<B>"',
     '  npm run tt -- draw-main <slug> [--fixed <pairs.json>]',
@@ -432,15 +485,12 @@ export function main(argv: string[], io: CliIO = {}): number {
   const stderr = io.stderr ?? ((text) => process.stderr.write(text))
   try {
     const [cmd, ...rest] = argv
-    if (cmd === 'init') stdout(cmdInit(root, rest[0] ?? '', rest[1] ?? ''))
+    if (cmd === 'init') stdout(cmdInit(root, rest))
     else if (cmd === 'result') stdout(cmdResult(root, rest[0] ?? '', rest[1] ?? '', rest[2] ?? '', rest.slice(3).join(' ')))
     else if (cmd === 'undo') stdout(cmdUndo(root, rest[0] ?? '', rest[1] ?? '', rest[2] ?? ''))
     else if (cmd === 'draw-main') {
-      const flag = rest.indexOf('--fixed')
-      const fixed = flag >= 0 ? rest[flag + 1] : undefined
-      const args = flag < 0 ? rest : rest.filter((_, i) => i !== flag && i !== flag + 1)
-      if (flag >= 0 && !fixed) throw new CliError('Usage: npm run tt -- draw-main <slug> --fixed <pairs.json>')
-      stdout(cmdDrawMain(root, args[0] ?? '', fixed))
+      const { positional, flags } = splitFlags(rest)
+      stdout(cmdDrawMain(root, positional[0] ?? '', flags.get('fixed')))
     } else if (cmd === 'status') stdout(cmdStatus(root, rest[0] ?? ''))
     else if (cmd === 'player') stdout(cmdPlayer(root, rest))
     else {
