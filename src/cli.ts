@@ -123,6 +123,8 @@ function explainEngine(t: Tournament, error: string, detail?: string): string {
       return 'There are more pairs than this draw can hold.'
     case 'fixed-groups':
       return 'Paper pairs are for a knock-out draw, not for groups.'
+    case 'fixed-wait':
+      return 'A "Name / Name" placeholder must be exactly one unfinished qualifying match.'
     case 'main-started':
       return 'The main draw already has a result, so it cannot be redrawn.'
     case 'results-exist':
@@ -328,8 +330,10 @@ function cmdDrawMain(root: string, slug: string, fixedPath?: string): string {
   const mainN = added.filter((m) => m.stage === 'main').length
   const placeN = added.filter((m) => m.stage === 'placement').length
   const inDraw = t.mainSlots?.filter(Boolean).length ?? 0
+  const pending = t.matches.filter((m) => m.stage === 'main' && m.round === 0).reduce((n, m) => n + (m.waitA ? 1 : 0) + (m.waitB ? 1 : 0), 0)
   const how = paper ? 'from the paper pairs' : 'from the ranking'
-  return `Main draw made ${how}: ${inDraw} players, ${mainN} main-draw matches + ${placeN} placement matches, code ${t.drawCode}.\n`
+  const open = pending ? `, ${pending} qualifier slots still open` : ''
+  return `Main draw made ${how}: ${inDraw} players${open}, ${mainN} main-draw matches + ${placeN} placement matches, code ${t.drawCode}.\n`
 }
 
 function cmdStatus(root: string, slug: string): string {
