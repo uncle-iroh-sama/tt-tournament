@@ -270,6 +270,30 @@ describe('handwritten tournament file', () => {
     expect(parsed?.drawCode).toBe('EXP01')
     expect(parsed?.matches).toEqual([])
   })
+
+  it('reads an official final classification and ignores a broken list', () => {
+    const ok = tournamentFromJson(JSON.stringify({
+      version: 1,
+      settings: { name: 'Finał', mainDrawSize: 16, directSeeds: 0 },
+      players: [{ name: 'Kowalski Jan', club: 'KU AZS Poznań', ranking: 1500 }],
+      finalClassification: [
+        { place: '1', name: 'Kowalski Jan', points: 40 },
+        { place: '9-10', name: 'Nowak Piotr', points: 27 },
+      ],
+    }))
+    expect(ok?.finalClassification).toEqual([
+      { place: '1', name: 'Kowalski Jan', points: 40 },
+      { place: '9-10', name: 'Nowak Piotr', points: 27 },
+    ])
+    const bad = tournamentFromJson(JSON.stringify({
+      version: 1,
+      settings: { name: 'Finał', mainDrawSize: 16, directSeeds: 0 },
+      players: [{ name: 'Kowalski Jan', club: 'KU AZS Poznań', ranking: 1500 }],
+      finalClassification: [{ place: '1' }],
+    }))
+    expect(bad).toBeTruthy()
+    expect(bad?.finalClassification).toBeUndefined()
+  })
 })
 
 describe('fixed main draw with pending qualifier slots', () => {

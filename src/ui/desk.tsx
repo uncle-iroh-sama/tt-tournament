@@ -27,6 +27,7 @@ import {
 import { groupPairings, groupStandings } from '../logic/groups.ts'
 import { planGroupSizes, previewQualifying } from '../logic/plan.ts'
 import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
+import { findPlayerByName } from '../logic/names.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import { setCount } from '../logic/score.ts'
 import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
@@ -48,6 +49,21 @@ function placeText(ref: { kind: string; place?: number; from?: number; to?: numb
   if (ref.kind === 'band') return `${ref.from}–${ref.to}`
   if (ref.kind === 'out') return dyskw
   return '…'
+}
+
+function officialLabel(place: string): string {
+  return place.includes('-') ? place.replace('-', '–') : place
+}
+
+function officialRowOf(t: Tournament, name: string) {
+  const rows = t.finalClassification
+  if (!rows?.length) return undefined
+  const hit = findPlayerByName(t.players, name)
+  const key = hit.ok ? hit.player.name : name
+  return rows.find((row) => {
+    const rowHit = findPlayerByName(t.players, row.name)
+    return (rowHit.ok ? rowHit.player.name : row.name) === key || row.name === name
+  })
 }
 
 function demoCanSimulate(t: Tournament): boolean {
@@ -931,8 +947,13 @@ function BracketColumns({
 
 function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; board?: boolean }) {
   const tr = (k: Key) => translate(lang, k)
-  const live = t.matches.filter((m) => m.outcome === 'pending' && m.table != null).sort((a, b) => (a.table ?? 0) - (b.table ?? 0))
-  const next = readyMatches(t).filter((m) => m.table == null).slice(0, 8)
+  const official = t.finalClassification && t.finalClassification.length > 0 ? t.finalClassification : null
+  const open = official
+    ? t.matches.filter((m) => !(m.stage === 'placement' && m.outcome === 'pending'))
+    : t.matches
+  const finished = { ...t, matches: open }
+  const live = open.filter((m) => m.outcome === 'pending' && m.table != null).sort((a, b) => (a.table ?? 0) - (b.table ?? 0))
+  const next = readyMatches(finished).filter((m) => m.table == null).slice(0, 8)
   const rows = classification(t)
   const [roundOn, setRoundOn] = useState(0)
   const [query, setQuery] = useState('')
@@ -954,18 +975,22 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
         {hits.map((p) => {
           const current = live.find((m) => m.slotA === p.id || m.slotB === p.id)
           const upcoming = next.find((m) => m.slotA === p.id || m.slotB === p.id)
-            ?? readyMatches(t).find((m) => m.table == null && (m.slotA === p.id || m.slotB === p.id))
+            ?? readyMatches(finished).find((m) => m.table == null && (m.slotA === p.id || m.slotB === p.id))
           const row = rows.find((r) => r.playerId === p.id)
+          const officialRow = officialRowOf(t, p.name)
           const active = current ?? upcoming
           const foe = active ? pname(findPlayer(t, active.slotA === p.id ? active.slotB : active.slotA), lang) : ''
-          const waiting = !current && !upcoming && (!row || row.ref.kind === 'pending')
+          const waiting = !current && !upcoming && !officialRow && (!row || row.ref.kind === 'pending')
           return (
             <div key={p.id} className="hit">
               <strong>{p.name}</strong>
               <div className="muted">{p.club}</div>
               {current && <div>{matchLine(tr, lang, 'playingNow', current, foe)}</div>}
               {!current && upcoming && <div>{matchLine(tr, lang, 'playingNext', upcoming, foe)}</div>}
-              {!current && !upcoming && row && row.ref.kind !== 'pending' && (
+              {!current && !upcoming && officialRow && (
+                <div>{officialRow.place.includes('-') ? `${tr('placesWord')} ${officialLabel(officialRow.place)}` : `${tr('place')} ${officialRow.place}`}{` · ${officialRow.points} ${tr('pointsShort')}`}</div>
+              )}
+              {!current && !upcoming && !officialRow && row && row.ref.kind !== 'pending' && (
                 <div>{finishedLine(tr, row)}</div>
               )}
               {waiting && <div className="muted">{tr('inProgress')}</div>}
@@ -980,11 +1005,22 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
         </div>
       )}
       <div className="card">
-        <h2>{tr('classTitle')}</h2>
+        <h2>{official ? tr('classOfficial') : tr('classTitle')}</h2>
         <table className="list">
           <thead><tr><th scope="col">{tr('place')}</th><th scope="col">{tr('colPlayer')}</th><th scope="col">{tr('colPoints')}</th><th scope="col">{tr('club')}</th></tr></thead>
           <tbody>
-            {rows.slice(0, 32).map((r) => {
+            {official ? official.map((r, i) => {
+              const hit = findPlayerByName(t.players, r.name)
+              const p = hit.ok ? hit.player : undefined
+              return (
+                <tr key={`${r.place}-${r.name}-${i}`}>
+                  <td>{officialLabel(r.place)}</td>
+                  <td>{p?.name ?? r.name}</td>
+                  <td className="pts">{r.points}</td>
+                  <td className="club-cell">{p?.club ?? ''}</td>
+                </tr>
+              )
+            }) : rows.slice(0, 32).map((r) => {
               const p = findPlayer(t, r.playerId)
               const place = placeText(r.ref, tr('notClassified'))
               return (
