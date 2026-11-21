@@ -100,7 +100,7 @@ export function previewQualifying(
       qualifyingRounds: playerCount - direct >= 2 ? 1 : 0,
     }
   }
-  const directCap = Math.min(Math.max(0, directSeeds), mainDrawSize, playerCount)
+  const directCap = Math.min(Math.max(0, directSeeds), mainDrawSize - 1, playerCount)
   if (playerCount <= mainDrawSize) {
     return {
       players: playerCount,

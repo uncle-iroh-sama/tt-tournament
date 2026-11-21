@@ -14,7 +14,6 @@ import type {
   Match,
   MatchLabel,
   PlaceBand,
-  PlaceFlags,
   Player,
   Settings,
 } from './types.ts'
@@ -170,15 +169,15 @@ function buildPlaceOut(
 function playBand(
   entries: Entry[],
   band: PlaceBand,
-  flags: PlaceFlags,
-  bestOf: 3 | 5,
+  settings: Settings,
   source: Award['source'],
   prefix: string,
   bag: Match[],
   awards: Award[],
   knownLosers?: Match[],
 ): number {
-  const play = bandEnabled(band, flags, source)
+  const play = playsBand(band, settings, source)
+  const bestOf = settings.placeMatchBestOf
   if (entries.length === 1) {
     awardEntry(entries[0]!, band.from, bag, awards, source)
     return band.from + 1
@@ -204,13 +203,20 @@ function playBand(
   return band.from + entries.length
 }
 
-export function bandEnabled(band: PlaceBand, flags: PlaceFlags, source: Award['source']): boolean {
-  if (source !== 'main') return flags.nonQualifiers
+function playsBand(band: PlaceBand, settings: Settings, source: Award['source']): boolean {
+  if (source !== 'main') return playsNonQualifiers(settings)
+  if (settings.bracket === 'single') return false
+  const flags = settings.places
   const { from } = band
   if (from <= 4) return flags.third
   if (from <= 8) return flags.fiveToEight
   if (from <= 16) return flags.nineToSixteen
   return flags.seventeenToThirtyTwo
+}
+
+/** Place matches for players who never reached the main draw. */
+export function playsNonQualifiers(settings: Settings): boolean {
+  return settings.bracket === 'placement' && settings.places.nonQualifiers
 }
 
 interface Tok {
@@ -297,14 +303,11 @@ export function rankPlayers(players: Player[]): Player[] {
   })
 }
 
-/** Direct seeds, and the players who contest the first round. */
+/** Direct seeds, and the players who contest the first round. Qualifying always leaves at least one place. */
 export function qualifyingEntrants(players: Player[], settings: Settings): { direct: Player[]; rest: Player[] } {
   const ranked = rankPlayers(players)
-  if (settings.qualifyingMode === 'groups') {
-    const directCount = Math.min(Math.max(0, settings.directSeeds), ranked.length)
-    return { direct: ranked.slice(0, directCount), rest: ranked.slice(directCount) }
-  }
-  const directCount = Math.min(settings.directSeeds, settings.mainDrawSize, ranked.length)
+  const cap = settings.format === 'groups' ? ranked.length : settings.mainDrawSize - 1
+  const directCount = Math.min(Math.max(0, settings.directSeeds), cap, ranked.length)
   return { direct: ranked.slice(0, directCount), rest: ranked.slice(directCount) }
 }
 
@@ -345,12 +348,11 @@ export function buildQualifying(
   at: string,
   fixed: { a: string | null; b: string | null }[] | null = null,
 ): QualifyingBuild {
-  const ranked = rankPlayers(players)
+  const { direct, rest } = qualifyingEntrants(players, settings)
   const audit: AuditEvent[] = []
   const awards: Award[] = []
-  if (settings.qualifyingMode === 'groups') {
-    const directCount = Math.min(Math.max(0, settings.directSeeds), ranked.length)
-    const built = buildGroupStage(ranked, directCount, settings, at, audit)
+  if (settings.format === 'groups') {
+    const built = buildGroupStage(direct, rest, settings, at, audit)
     return {
       matches: settle(built.matches, new Set()),
       awards,
@@ -360,9 +362,6 @@ export function buildQualifying(
       audit,
     }
   }
-  const directCount = Math.min(settings.directSeeds, settings.mainDrawSize, ranked.length)
-  const direct = ranked.slice(0, directCount)
-  const rest = ranked.slice(directCount)
   const spots = settings.mainDrawSize - direct.length
   const target = Math.min(spots, rest.length)
   const matches: Match[] = []
@@ -446,22 +445,20 @@ function attachQualPlaces(matches: Match[], mainCount: number, settings: Setting
     if (producers.length === 0) continue
     const band = { from: next, to: next + producers.length - 1 }
     const entries: Entry[] = producers.map((m) => ({ playerId: null, fromLoserOf: m.id }))
-    next = playBand(entries, band, settings.places, settings.placeMatchBestOf, 'qualifying', `nq${band.from}`, matches, awards, producers)
+    next = playBand(entries, band, settings, 'qualifying', `nq${band.from}`, matches, awards, producers)
   }
 }
 
 function buildGroupStage(
-  ranked: Player[],
-  directCount: number,
+  direct: Player[],
+  rest: Player[],
   settings: Settings,
   at: string,
   audit: AuditEvent[],
 ): { matches: Match[]; directIds: string[]; groups: Group[] } {
-  const direct = ranked.slice(0, directCount)
-  const rest = ranked.slice(directCount)
   const sizes = planGroupSizes(rest.length, settings.groupSize)
   const groups = snakeGroups(rest.map((p) => p.id), sizes.length)
-  const clubOf = (id: string) => ranked.find((p) => p.id === id)?.club ?? ''
+  const clubOf = (id: string) => rest.find((p) => p.id === id)?.club ?? ''
   separateGroupClubs(groups, clubOf, audit, at)
   const matches: Match[] = []
   const groupModels: Group[] = groups.map((ids, gi) => ({
@@ -608,7 +605,7 @@ export function bracketFromSlots(
     const winners = inRound.filter((m) => m.outcome !== 'bye' || !!m.winnerId).length
     const band = { from: winners + 1, to: winners + producers.length }
     const entries = producers.map((m) => ({ playerId: null, fromLoserOf: m.id }))
-    playBand(entries, band, settings.places, settings.placeMatchBestOf, 'main', `pm${band.from}`, matches, awards, producers)
+    playBand(entries, band, settings, 'main', `pm${band.from}`, matches, awards, producers)
   }
   const seeds: Record<string, number> = {}
   slots.forEach((id, i) => {
@@ -623,7 +620,7 @@ export function groupLeftoverBands(
   fieldIds: Set<string>,
   withdrawn: Set<string>,
   advancePerGroup: number,
-  flags: PlaceFlags,
+  play: boolean,
   bestOf: 3 | 5,
   placeStart: number,
 ): { matches: Match[]; awards: Award[]; shared: { playerIds: string[]; from: number; to: number }[] } {
@@ -643,7 +640,7 @@ export function groupLeftoverBands(
     if (ids.length === 1) {
       awards.push({ playerId: ids[0]!, place, source: 'group' })
       place += 1
-    } else if (flags.nonQualifiers) {
+    } else if (play) {
       buildPlaceOut(
         ids.map((playerId) => ({ playerId })),
         place,

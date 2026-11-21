@@ -30,7 +30,8 @@ import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { findPlayerByName } from '../logic/names.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import { setCount } from '../logic/score.ts'
-import type { Category, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
+import { BRACKETS, DRAW_SIZES, FORMATS } from '../logic/types.ts'
+import type { Bracket, Category, DrawSize, Format, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { isDemoTournament, parsePlayerLines } from '../demo.ts'
 import { fetchLive, isLiveSlug, slugify } from '../storage.ts'
 import { catKey, countForm, findPlayer, matchTitle, placeColumnTitle, pname, ratioText, roundHeading } from './format.ts'
@@ -231,7 +232,7 @@ function Home({
       <div className="banner">
         <strong>{step.title}</strong>
         <p className="muted">
-          {t.settings.qualifyingMode === 'groups' ? tr('modeGroups') : tr('modeKo')}
+          {tr(`format_${t.settings.format}`)} · {tr(`bracket_${t.settings.bracket}`)}
           {' · '}<span className="keep">{tr('directSeeds')} {t.settings.directSeeds}</span>
           {' · '}<span className="keep">{tr('drawSize')} {t.settings.mainDrawSize}</span>
           {' · '}<span className="keep">{t.settings.bestOf === 5 ? tr('bestOf5') : tr('bestOf3')}</span>
@@ -304,11 +305,11 @@ function describePlan(t: Tournament, lang: Lang) {
   const tr = (k: Key) => translate(lang, k)
   const n = t.players.filter((p) => !p.withdrawn).length
   const s = t.settings
-  if (s.qualifyingMode === 'knockout' && n <= s.mainDrawSize) {
+  if (s.format === 'knockout' && n <= s.mainDrawSize) {
     const preview = previewQualifying(n, s.mainDrawSize, s.directSeeds, 'knockout')
     return <p>{tr('planNone')} {tr('planMainByes')}: <b>{preview.byesInMain}</b>.</p>
   }
-  if (s.qualifyingMode === 'groups') {
+  if (s.format === 'groups') {
     const direct = Math.min(s.directSeeds, n)
     const sizes = planGroupSizes(n - direct, s.groupSize)
     const matches = sizes.reduce((sum, size) => sum + groupPairings(size, s.advancePerGroup).length, 0)
@@ -782,17 +783,33 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
           <option value={3}>{tr('bestOf3')}</option>
         </select>
       </label>
-      <label className="field">{tr('placeBestOf')}
-        <select value={settings.placeMatchBestOf} onChange={(e) => set({ placeMatchBestOf: Number(e.target.value) as 3 | 5 })}>
-          <option value={3}>{tr('bestOf3')}</option>
-          <option value={5}>{tr('bestOf5')}</option>
+      {settings.bracket !== 'single' && (
+        <label className="field">{tr('placeBestOf')}
+          <select value={settings.placeMatchBestOf} onChange={(e) => set({ placeMatchBestOf: Number(e.target.value) as 3 | 5 })}>
+            <option value={3}>{tr('bestOf3')}</option>
+            <option value={5}>{tr('bestOf5')}</option>
+          </select>
+        </label>
+      )}
+      <label className="field">{tr('format')}
+        <select value={settings.format} onChange={(e) => {
+          const format = e.target.value as Format
+          set({ format, directSeeds: format === 'groups' ? 0 : settings.mainDrawSize / 2 })
+        }}>
+          {FORMATS.map((f) => <option key={f} value={f}>{tr(`format_${f}`)}</option>)}
+        </select>
+      </label>
+      <label className="field">{tr('bracket')}
+        <select value={settings.bracket} onChange={(e) => set({ bracket: e.target.value as Bracket })}>
+          {BRACKETS.map((b) => <option key={b} value={b}>{tr(`bracket_${b}`)}</option>)}
         </select>
       </label>
       <label className="field">{tr('drawSize')}
-        <select value={settings.mainDrawSize} onChange={(e) => set({ mainDrawSize: Number(e.target.value) as 16 | 32 | 64 })}>
-          <option value={16}>16</option>
-          <option value={32}>32</option>
-          <option value={64}>64</option>
+        <select value={settings.mainDrawSize} onChange={(e) => {
+          const mainDrawSize = Number(e.target.value) as DrawSize
+          set({ mainDrawSize, directSeeds: settings.format === 'groups' ? settings.directSeeds : mainDrawSize / 2 })
+        }}>
+          {DRAW_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
         </select>
       </label>
       <label className="field">{tr('directSeeds')}<input type="number" min={0} max={64} value={settings.directSeeds} onChange={(e) => set({ directSeeds: Number(e.target.value) })} /></label>
@@ -802,29 +819,29 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
           <option value="bands">{tr('seedingBands')}</option>
         </select>
       </label>
-      <label className="field">{tr('mode')}
-        <select value={settings.qualifyingMode} onChange={(e) => set({ qualifyingMode: e.target.value as Settings['qualifyingMode'], directSeeds: e.target.value === 'groups' ? 0 : settings.directSeeds || 16 })}>
-          <option value="knockout">{tr('modeKo')}</option>
-          <option value="groups">{tr('modeGroups')}</option>
-        </select>
-      </label>
-      <label className="field">{tr('groupSize')}
-        <select value={settings.groupSize} onChange={(e) => set({ groupSize: Number(e.target.value) as 3 | 4 | 5 })}>
-          <option value={4}>4</option>
-          <option value={3}>3</option>
-          <option value={5}>5</option>
-        </select>
-      </label>
-      <label className="field">{tr('advance')}<input type="number" min={1} max={3} value={settings.advancePerGroup} onChange={(e) => set({ advancePerGroup: Number(e.target.value) })} /></label>
-      <div>
-        <div className="muted">{tr('places')}</div>
-        <label className="check"><input type="checkbox" checked={settings.places.third} onChange={(e) => places({ third: e.target.checked })} />{tr('place3')}</label>
-        <label className="check"><input type="checkbox" checked={settings.places.fiveToEight} onChange={(e) => places({ fiveToEight: e.target.checked })} />{tr('place58')}</label>
-        <label className="check"><input type="checkbox" checked={settings.places.nineToSixteen} onChange={(e) => places({ nineToSixteen: e.target.checked })} />{tr('place916')}</label>
-        <label className="check"><input type="checkbox" checked={settings.places.seventeenToThirtyTwo} onChange={(e) => places({ seventeenToThirtyTwo: e.target.checked })} />{tr('place1732')}</label>
-        <label className="check"><input type="checkbox" checked={settings.places.nonQualifiers} onChange={(e) => places({ nonQualifiers: e.target.checked })} />{tr('placeNq')}</label>
-        <p className="muted">{tr('placesHint')}</p>
-      </div>
+      {settings.format === 'groups' && (
+        <>
+          <label className="field">{tr('groupSize')}
+            <select value={settings.groupSize} onChange={(e) => set({ groupSize: Number(e.target.value) as 3 | 4 | 5 })}>
+              <option value={4}>4</option>
+              <option value={3}>3</option>
+              <option value={5}>5</option>
+            </select>
+          </label>
+          <label className="field">{tr('advance')}<input type="number" min={1} max={3} value={settings.advancePerGroup} onChange={(e) => set({ advancePerGroup: Number(e.target.value) })} /></label>
+        </>
+      )}
+      {settings.bracket === 'placement' && (
+        <div>
+          <div className="muted">{tr('places')}</div>
+          <label className="check"><input type="checkbox" checked={settings.places.third} onChange={(e) => places({ third: e.target.checked })} />{tr('place3')}</label>
+          <label className="check"><input type="checkbox" checked={settings.places.fiveToEight} onChange={(e) => places({ fiveToEight: e.target.checked })} />{tr('place58')}</label>
+          <label className="check"><input type="checkbox" checked={settings.places.nineToSixteen} onChange={(e) => places({ nineToSixteen: e.target.checked })} />{tr('place916')}</label>
+          <label className="check"><input type="checkbox" checked={settings.places.seventeenToThirtyTwo} onChange={(e) => places({ seventeenToThirtyTwo: e.target.checked })} />{tr('place1732')}</label>
+          <label className="check"><input type="checkbox" checked={settings.places.nonQualifiers} onChange={(e) => places({ nonQualifiers: e.target.checked })} />{tr('placeNq')}</label>
+          <p className="muted">{tr('placesHint')}</p>
+        </div>
+      )}
     </div>
   )
 }

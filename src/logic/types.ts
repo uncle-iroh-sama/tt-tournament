@@ -17,7 +17,16 @@ export type Stage = 'qualifying' | 'group' | 'main' | 'placement'
 
 export type Outcome = 'pending' | 'score' | 'walkover' | 'retirement' | 'bye' | 'cancelled'
 
-export type QualifyingMode = 'knockout' | 'groups'
+/** How the field plays: one knock-out (with qualifying when it is larger than the draw), or groups feeding a knock-out. */
+export const FORMATS = ['knockout', 'groups'] as const
+export type Format = (typeof FORMATS)[number]
+
+/** What a knock-out decides below the final: nothing, or same-round place matches. */
+export const BRACKETS = ['single', 'placement'] as const
+export type Bracket = (typeof BRACKETS)[number]
+
+export const DRAW_SIZES = [8, 16, 32, 64] as const
+export type DrawSize = (typeof DRAW_SIZES)[number]
 
 export interface Player {
   id: string
@@ -114,9 +123,10 @@ export interface Settings {
   tables: number
   bestOf: 3 | 5
   placeMatchBestOf: 3 | 5
-  mainDrawSize: 16 | 32 | 64
+  format: Format
+  bracket: Bracket
+  mainDrawSize: DrawSize
   directSeeds: number
-  qualifyingMode: QualifyingMode
   /** Fixed ranking seeds, or a draw inside each PZTS band. */
   seeding: SeedingMode
   groupSize: 3 | 4 | 5

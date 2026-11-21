@@ -379,7 +379,7 @@ describe('group stage into a main draw', () => {
       ...defaultSettings(),
       mainDrawSize: 16,
       directSeeds: 0,
-      qualifyingMode: 'groups',
+      format: 'groups',
       groupSize: 4,
       advancePerGroup: 2,
       places: { third: true, fiveToEight: false, nineToSixteen: false, seventeenToThirtyTwo: false, nonQualifiers: false },

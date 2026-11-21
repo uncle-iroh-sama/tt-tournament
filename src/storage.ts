@@ -1,5 +1,6 @@
 import { defaultPlaces, defaultSettings } from './logic/engine.ts'
-import type { Category, Match, Player, QualifyingMode, SeedingMode, Settings, Tournament } from './logic/types.ts'
+import { BRACKETS, DRAW_SIZES, FORMATS } from './logic/types.ts'
+import type { Category, DrawSize, Match, Player, SeedingMode, Settings, Tournament } from './logic/types.ts'
 
 const KEY = 'tt-tournament-v1'
 
@@ -71,7 +72,7 @@ function readPairs(value: unknown): Tournament['fixedFirstRound'] | undefined {
 
 function readSettings(raw: unknown): Settings | null {
   if (!raw || typeof raw !== 'object') return null
-  const incoming = raw as Partial<Settings> & { places?: Partial<Settings['places']> }
+  const incoming = raw as Partial<Settings> & { places?: Partial<Settings['places']>; qualifyingMode?: unknown }
   const settings: Settings = {
     ...defaultSettings(),
     ...incoming,
@@ -79,16 +80,17 @@ function readSettings(raw: unknown): Settings | null {
     pointsOverride: incoming.pointsOverride ?? {},
   }
   if (!CATEGORIES.includes(settings.category)) settings.category = 'senior'
-  const size = Number(settings.mainDrawSize)
-  settings.mainDrawSize = size === 16 || size === 64 ? size : 32
-  const direct = Number(settings.directSeeds)
-  settings.directSeeds = Number.isFinite(direct) ? Math.max(0, Math.trunc(direct)) : 16
+  const legacyFormat = incoming.qualifyingMode === 'groups' ? 'groups' : 'knockout'
+  settings.format = FORMATS.find((f) => f === incoming.format) ?? legacyFormat
+  settings.bracket = BRACKETS.find((b) => b === incoming.bracket) ?? 'placement'
+  const size = Number(settings.mainDrawSize) as DrawSize
+  settings.mainDrawSize = DRAW_SIZES.includes(size) ? size : 32
+  const direct = Number(incoming.directSeeds ?? settings.mainDrawSize / 2)
+  settings.directSeeds = Number.isFinite(direct) ? Math.max(0, Math.trunc(direct)) : settings.mainDrawSize / 2
   settings.bestOf = settings.bestOf === 3 ? 3 : 5
   settings.placeMatchBestOf = settings.placeMatchBestOf === 5 ? 5 : 3
   const tables = Number(settings.tables)
   settings.tables = Number.isFinite(tables) && tables >= 1 ? Math.min(64, Math.trunc(tables)) : 12
-  const mode: QualifyingMode = settings.qualifyingMode === 'groups' ? 'groups' : 'knockout'
-  settings.qualifyingMode = mode
   const seeding: SeedingMode = settings.seeding === 'bands' ? 'bands' : 'fixed'
   settings.seeding = seeding
   const points = settings.pointsCategory as string
@@ -99,6 +101,7 @@ function readSettings(raw: unknown): Settings | null {
   settings.name = String(settings.name ?? '').trim()
   settings.date = String(settings.date ?? '')
   settings.venue = String(settings.venue ?? '')
+  delete (settings as { qualifyingMode?: unknown }).qualifyingMode
   return settings
 }
 
