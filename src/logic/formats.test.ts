@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { tournamentFromJson } from '../storage.ts'
 import { classification } from './classify.ts'
-import { addPlayer, createTournament, defaultSettings, enterScore, generateMainDraw, generateQualifying, qualifyingRequired, readyMatches } from './engine.ts'
+import { addPlayer, clearResult, createTournament, defaultSettings, enterScore, generateMainDraw, generateQualifying, qualifyingRequired, readyMatches, skipMatch } from './engine.ts'
 import type { Settings, Tournament } from './types.ts'
 
 function field(settings: Partial<Settings>, count: number): Tournament {
@@ -81,5 +81,66 @@ describe('format setting', () => {
     expect('qualifyingMode' in legacy.settings).toBe(false)
     const unknown = tournamentFromJson(JSON.stringify({ version: 1, settings: { format: 'swiss', bracket: 'double', mainDrawSize: 12 }, players: [] }))!
     expect(unknown.settings).toMatchObject({ format: 'knockout', bracket: 'placement', mainDrawSize: 32 })
+  })
+})
+
+describe('feed-in consolation', () => {
+  function drawn(size: Settings['mainDrawSize'], players: number): Tournament {
+    const res = generateMainDraw(field({ bracket: 'consolation', mainDrawSize: size }, players))
+    if (!res.ok) throw new Error(res.error)
+    return res.tournament
+  }
+
+  it.each([
+    [8, 8, 3],
+    [16, 16, 5],
+    [32, 32, 7],
+    [64, 64, 9],
+  ] as const)('plays a full %i-draw down to every place', (size, players, consRounds) => {
+    const t = drawn(size, players)
+    const cons = t.matches.filter((m) => m.label.k === 'cons')
+    expect(new Set(cons.map((m) => m.round)).size).toBe(consRounds)
+    const done = playOut(t)
+    expect(done.matches.filter((m) => m.outcome === 'pending')).toEqual([])
+    expect(places(done)).toEqual(Array.from({ length: players }, (_, i) => `${i + 1}`))
+  })
+
+  it('drops a later-round loser in and lets them climb to 3rd', () => {
+    let t = drawn(16, 16)
+    const play = (winner: string, loser: string) => {
+      const m = readyMatches(t).find((x) => [x.slotA, x.slotB].sort().join() === [winner, loser].sort().join())!
+      const res = enterScore(t, m.id, Array.from({ length: m.bestOf === 5 ? 3 : 2 }, () => (m.slotA === winner ? { a: 11, b: 3 } : { a: 3, b: 11 })))
+      if (!res.ok) throw new Error(res.error)
+      t = res.tournament
+    }
+    play('p16', 'p1')
+    const r16 = t.matches.find((m) => m.stage === 'main' && m.round === 0 && m.slotA === 'p1')!
+    expect(r16.loserTo?.matchId).toMatch(/^c-r0-/)
+    t = playOut(t)
+    expect(classification(t).find((row) => row.playerId === 'p1')!.ref).toEqual({ kind: 'place', place: 3 })
+  })
+
+  it('gives byes their way through a short field', () => {
+    const done = playOut(drawn(16, 12))
+    expect(done.matches.filter((m) => m.outcome === 'pending')).toEqual([])
+    expect(places(done)).toEqual(Array.from({ length: 12 }, (_, i) => `${i + 1}`))
+  })
+
+  it('shares the places of a match marked as not played, and can take it back', () => {
+    let t = drawn(8, 8)
+    for (let m = readyMatches(t).find((x) => x.label.k !== 'place'); m; m = readyMatches(t).find((x) => x.label.k !== 'place')) {
+      const res = enterScore(t, m.id, Array.from({ length: m.bestOf === 5 ? 3 : 2 }, () => ({ a: 11, b: 3 })))
+      if (!res.ok) throw new Error(res.error)
+      t = res.tournament
+    }
+    const fifth = t.matches.find((m) => m.label.k === 'place' && m.label.place === 5)!
+    const skipped = skipMatch(t, fifth.id)
+    if (!skipped.ok) throw new Error(skipped.error)
+    const shared = classification(skipped.tournament).filter((row) => row.ref.kind === 'band')
+    expect(shared.map((row) => row.ref)).toEqual([{ kind: 'band', from: 5, to: 6 }, { kind: 'band', from: 5, to: 6 }])
+    expect(skipMatch(skipped.tournament, t.matches.find((m) => m.label.k === 'cons')!.id)).toEqual({ ok: false, error: 'not-place' })
+    const back = clearResult(skipped.tournament, fifth.id)
+    if (!back.ok) throw new Error(back.error)
+    expect(back.tournament.matches.find((m) => m.id === fifth.id)!.outcome).toBe('pending')
   })
 })

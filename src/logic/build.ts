@@ -121,6 +121,7 @@ function buildPlaceOut(
       waitB: b.wait,
       placeWin: placeFrom,
       placeLose: placeFrom + 1,
+      placeBand: { from: placeFrom, to: placeFrom + 1 },
     })
     bag.push(match)
     linkEntry(entries[0]!, id, 'A', bag)
@@ -154,6 +155,7 @@ function buildPlaceOut(
         slotB: b.player,
         waitA: a.wait,
         waitB: b.wait,
+        placeBand: { from: placeFrom, to: placeFrom + n - 1 },
       }),
     )
     linkEntry(fr.a, fr.id, 'A', bag)
@@ -205,7 +207,7 @@ function playBand(
 
 function playsBand(band: PlaceBand, settings: Settings, source: Award['source']): boolean {
   if (source !== 'main') return playsNonQualifiers(settings)
-  if (settings.bracket === 'single') return false
+  if (settings.bracket !== 'placement') return settings.bracket === 'consolation'
   const flags = settings.places
   const { from } = band
   if (from <= 4) return flags.third
@@ -216,7 +218,8 @@ function playsBand(band: PlaceBand, settings: Settings, source: Award['source'])
 
 /** Place matches for players who never reached the main draw. */
 export function playsNonQualifiers(settings: Settings): boolean {
-  return settings.bracket === 'placement' && settings.places.nonQualifiers
+  if (settings.bracket === 'placement') return settings.places.nonQualifiers
+  return settings.bracket === 'consolation'
 }
 
 interface Tok {
@@ -545,6 +548,80 @@ export function layMainDraw(
   return { slots, matches: built.matches, awards: built.awards, seeds: built.seeds, audit }
 }
 
+function hasSide(m: Match, side: 'A' | 'B'): boolean {
+  return side === 'A' ? !!m.slotA || m.waitA : !!m.slotB || m.waitB
+}
+
+function loserEntry(m: Match): Entry {
+  return hasSide(m, 'A') && hasSide(m, 'B') ? { playerId: null, fromLoserOf: m.id } : { playerId: null }
+}
+
+function winnerEntry(m: Match): Entry {
+  return hasSide(m, 'A') || hasSide(m, 'B') ? { playerId: null, fromWinnerOf: m.id } : { playerId: null }
+}
+
+/** Reversed, then swapped in pairs, alternately: a dropped-in loser lands away from the part of the draw they came from. */
+function feedOrder(entries: Entry[], feed: number): Entry[] {
+  if (feed % 2 === 0) return entries.slice().reverse()
+  return entries.map((_, i) => entries[i ^ 1]!)
+}
+
+/**
+ * WZTS feed-in consolation. First-round losers pair off. Losers of each later round
+ * except the final drop in against the consolation survivors, who then pair off again.
+ * The last survivor is 3rd. Each consolation round's losers play out their own band.
+ */
+function addConsolation(matches: Match[], mainRounds: number, settings: Settings, awards: Award[]) {
+  const mainRound = (r: number) => matches.filter((m) => m.stage === 'main' && m.round === r).sort((a, b) => a.index - b.index)
+  const rounds: Match[][] = []
+  const play = (pairs: [Entry, Entry][]): Entry[] => {
+    const round = rounds.length
+    const made = pairs.map(([a, b], i) => {
+      const id = `c-r${round}-m${i}`
+      const sa = slotOf(a)
+      const sb = slotOf(b)
+      const match = blank({
+        id,
+        stage: 'placement',
+        placementOf: 'main',
+        round,
+        index: i,
+        label: { k: 'cons', round, n: i + 1, to: 0 },
+        bestOf: settings.placeMatchBestOf,
+        slotA: sa.player,
+        slotB: sb.player,
+        waitA: sa.wait,
+        waitB: sb.wait,
+      })
+      matches.push(match)
+      linkEntry(a, id, 'A', matches)
+      linkEntry(b, id, 'B', matches)
+      return match
+    })
+    rounds.push(made)
+    return made.map(winnerEntry)
+  }
+  const pairUp = (entries: Entry[]): [Entry, Entry][] =>
+    entries.flatMap((e, i) => (i % 2 === 0 ? [[e, entries[i + 1]!] as [Entry, Entry]] : []))
+  if (mainRounds < 2) return
+  let alive = play(pairUp(mainRound(0).map(loserEntry)))
+  for (let r = 1; r < mainRounds - 1; r++) {
+    const dropped = feedOrder(mainRound(r).map(loserEntry), r - 1)
+    alive = play(alive.map((e, i) => [e, dropped[i]!]))
+    if (alive.length > 1) alive = play(pairUp(alive))
+  }
+  let worst = mainRound(0).reduce((n, m) => n + (hasSide(m, 'A') ? 1 : 0) + (hasSide(m, 'B') ? 1 : 0), 0)
+  for (const made of rounds) {
+    const producers = made.filter((m) => hasSide(m, 'A') && hasSide(m, 'B'))
+    for (const m of made) m.label = { k: 'cons', round: m.round, n: m.index + 1, to: worst }
+    const band = { from: worst - producers.length + 1, to: worst }
+    playBand(producers.map(loserEntry), band, settings, 'main', `cp${band.from}`, matches, awards)
+    worst = band.from - 1
+  }
+  const last = rounds[rounds.length - 1]?.[0]
+  if (last) last.placeWin = worst
+}
+
 export function bracketFromSlots(
   slots: (string | null)[],
   settings: Settings,
@@ -598,7 +675,8 @@ export function bracketFromSlots(
   }
   const settled = settle(matches, new Set())
   matches.splice(0, matches.length, ...settled)
-  for (let r = 0; r < rounds - 1; r++) {
+  if (settings.bracket === 'consolation') addConsolation(matches, rounds, settings, awards)
+  for (let r = 0; r < rounds - 1 && settings.bracket !== 'consolation'; r++) {
     const inRound = matches.filter((m) => m.stage === 'main' && m.round === r)
     const producers = inRound.filter((m) => m.outcome !== 'bye')
     if (producers.length === 0) continue

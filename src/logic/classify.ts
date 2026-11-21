@@ -25,6 +25,9 @@ export function classification(t: Tournament): ClassRow[] {
   const bands = new Map<string, { from: number; to: number }>()
   for (const a of t.awards) exact.set(a.playerId, a.place)
   for (const m of t.matches) {
+    if (m.outcome === 'skipped' && m.placeBand) {
+      for (const id of [m.slotA, m.slotB]) if (id) bands.set(id, m.placeBand)
+    }
     if (m.outcome === 'pending' || m.outcome === 'cancelled') continue
     if (m.winnerId && m.placeWin != null) exact.set(m.winnerId, m.placeWin)
     const loser = loserOf(m)

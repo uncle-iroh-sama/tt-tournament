@@ -1,0 +1,916 @@
+{
+ "source": "II Grand Prix Wielkopolski Żaków i Żaczek, Poznań, 21.11.2026 — official brackets and final classification (5 pages). Results in play order: qualifying, main draw, consolation, place matches. Every other place match was marked NIE.",
+ "tournament": {
+  "version": 1,
+  "settings": {
+   "name": "II Grand Prix Wielkopolski Żaków i Żaczek – Żacy",
+   "date": "2026-11-21",
+   "category": "zak",
+   "pointsCategory": "zak",
+   "format": "knockout",
+   "bracket": "consolation",
+   "mainDrawSize": 32,
+   "directSeeds": 16,
+   "bestOf": 5,
+   "placeMatchBestOf": 5
+  },
+  "players": [
+   {
+    "name": "Tomasiak Gabriel",
+    "club": "KS Jerzyki Jerzykowo",
+    "ranking": "#1"
+   },
+   {
+    "name": "Wieczorek Antoni",
+    "club": "LKS Orzeł Wysocko Wielkie",
+    "ranking": "#2"
+   },
+   {
+    "name": "Kuźmar Mateusz",
+    "club": "SKTS Rataje 50 Poznań",
+    "ranking": "#3"
+   },
+   {
+    "name": "Sroczyński Marcel",
+    "club": "MKSTS Warta Oborniki",
+    "ranking": "#4"
+   },
+   {
+    "name": "Glina Igor",
+    "club": "LKTS Luboń",
+    "ranking": "#5"
+   },
+   {
+    "name": "Poloch Lucjan",
+    "club": "KS Dąbcze",
+    "ranking": "#6"
+   },
+   {
+    "name": "Stępień Łukasz",
+    "club": "KS Gildia Tenisa Stołowego Wiry",
+    "ranking": "#7"
+   },
+   {
+    "name": "Michalak Nikodem",
+    "club": "SKTS Rataje 50 Poznań",
+    "ranking": "#8"
+   },
+   {
+    "name": "Słaboszewski Antoni",
+    "club": "UKS Jedynka Czarnków",
+    "ranking": "#9"
+   },
+   {
+    "name": "Kaźmierczak Wojciech",
+    "club": "LKS Tajfun Ostrów Wielkopolski",
+    "ranking": "#10"
+   },
+   {
+    "name": "Gajewski Wojciech",
+    "club": "KTS Wicher Lisiec Wielki",
+    "ranking": "#11"
+   },
+   {
+    "name": "Olszewski Antoni",
+    "club": "LKS Orzeł Wysocko Wielkie",
+    "ranking": "#12"
+   },
+   {
+    "name": "Perczyński Janek",
+    "club": "UKS Przeźmierowo",
+    "ranking": "#13"
+   },
+   {
+    "name": "Niechciał Stanisław",
+    "club": "SKTS Rataje 50 Poznań",
+    "ranking": "#14"
+   },
+   {
+    "name": "Szczepaniak Filip",
+    "club": "KS Dąbcze",
+    "ranking": "#15"
+   },
+   {
+    "name": "Szubert Dawid",
+    "club": "CKS Helios Czempiń",
+    "ranking": "#16"
+   },
+   {
+    "name": "Antkowiak Franciszek",
+    "club": "KS Gildia Tenisa Stołowego Wiry",
+    "ranking": "#17"
+   },
+   {
+    "name": "Granowski Emil",
+    "club": "LKS Orzeł Wysocko Wielkie",
+    "ranking": "#18"
+   },
+   {
+    "name": "Krotecki Tymoteusz",
+    "club": "MKSTS Warta Oborniki",
+    "ranking": "#19"
+   },
+   {
+    "name": "Siciński Franciszek",
+    "club": "MKTS Sparta Złotów",
+    "ranking": "#20"
+   },
+   {
+    "name": "Toczyński Ignacy",
+    "club": "UKS Przeźmierowo",
+    "ranking": "#21"
+   },
+   {
+    "name": "Bednarowski Wojciech",
+    "club": "UKS Słowian Mrowino",
+    "ranking": "#22"
+   },
+   {
+    "name": "Szcześniewski Janek",
+    "club": "KS Dąbcze",
+    "ranking": "#23"
+   },
+   {
+    "name": "Tomczyk Wojciech",
+    "club": "MKTS Sparta Złotów",
+    "ranking": "#24"
+   },
+   {
+    "name": "Kierzek Stanisław",
+    "club": "KS Gildia Tenisa Stołowego Wiry",
+    "ranking": "#25"
+   },
+   {
+    "name": "Kokowski Mikołaj",
+    "club": "MKTS Sparta Złotów",
+    "ranking": "#26"
+   },
+   {
+    "name": "Sokołowski Jędrzej",
+    "club": "LKS Orzeł Wysocko Wielkie",
+    "ranking": "#27"
+   },
+   {
+    "name": "Czech Adam",
+    "club": "LKTS Luboń",
+    "ranking": "#28"
+   },
+   {
+    "name": "Bąk Antoni",
+    "club": "UKS Piast Ostrzeszów",
+    "ranking": "#29"
+   },
+   {
+    "name": "Śledzik Jakub",
+    "club": "LKTS Luboń",
+    "ranking": "#30"
+   },
+   {
+    "name": "Firlej Filip",
+    "club": "UKS Przeźmierowo",
+    "ranking": "#31"
+   },
+   {
+    "name": "Dura Aleksander",
+    "club": "KS Skockie Rakiety Skoki",
+    "ranking": "#32"
+   },
+   {
+    "name": "Felka Alan",
+    "club": "UKS Zduny",
+    "ranking": "#33"
+   },
+   {
+    "name": "Iwasyszyn Nataniel",
+    "club": "UKS Piast Ostrzeszów",
+    "ranking": "#34"
+   },
+   {
+    "name": "Sapotnitskyi Taras",
+    "club": "UKS Przeźmierowo",
+    "ranking": "#35"
+   },
+   {
+    "name": "Łukaszyk Kajetan",
+    "club": "UKS Przeźmierowo",
+    "ranking": "#36"
+   }
+  ],
+  "fixedFirstRound": [
+   {
+    "a": "Antkowiak Franciszek",
+    "b": null
+   },
+   {
+    "a": "Felka Alan",
+    "b": "Dura Aleksander"
+   },
+   {
+    "a": "Kierzek Stanisław",
+    "b": null
+   },
+   {
+    "a": "Tomczyk Wojciech",
+    "b": null
+   },
+   {
+    "a": "Toczyński Ignacy",
+    "b": null
+   },
+   {
+    "a": "Czech Adam",
+    "b": null
+   },
+   {
+    "a": "Bąk Antoni",
+    "b": "Łukaszyk Kajetan"
+   },
+   {
+    "a": "Siciński Franciszek",
+    "b": null
+   },
+   {
+    "a": "Krotecki Tymoteusz",
+    "b": null
+   },
+   {
+    "a": "Sapotnitskyi Taras",
+    "b": "Śledzik Jakub"
+   },
+   {
+    "a": "Sokołowski Jędrzej",
+    "b": null
+   },
+   {
+    "a": "Bednarowski Wojciech",
+    "b": null
+   },
+   {
+    "a": "Szcześniewski Janek",
+    "b": null
+   },
+   {
+    "a": "Kokowski Mikołaj",
+    "b": null
+   },
+   {
+    "a": "Firlej Filip",
+    "b": "Iwasyszyn Nataniel"
+   },
+   {
+    "a": "Granowski Emil",
+    "b": null
+   }
+  ]
+ },
+ "mainDraw": [
+  {
+   "a": "Tomasiak Gabriel",
+   "b": "Dura Aleksander"
+  },
+  {
+   "a": "Antkowiak Franciszek",
+   "b": "Szubert Dawid"
+  },
+  {
+   "a": "Słaboszewski Antoni",
+   "b": "Tomczyk Wojciech"
+  },
+  {
+   "a": "Kierzek Stanisław",
+   "b": "Michalak Nikodem"
+  },
+  {
+   "a": "Glina Igor",
+   "b": "Czech Adam"
+  },
+  {
+   "a": "Toczyński Ignacy",
+   "b": "Olszewski Antoni"
+  },
+  {
+   "a": "Perczyński Janek",
+   "b": "Siciński Franciszek"
+  },
+  {
+   "a": "Bąk Antoni",
+   "b": "Sroczyński Marcel"
+  },
+  {
+   "a": "Kuźmar Mateusz",
+   "b": "Sapotnitskyi Taras"
+  },
+  {
+   "a": "Krotecki Tymoteusz",
+   "b": "Niechciał Stanisław"
+  },
+  {
+   "a": "Gajewski Wojciech",
+   "b": "Bednarowski Wojciech"
+  },
+  {
+   "a": "Sokołowski Jędrzej",
+   "b": "Poloch Lucjan"
+  },
+  {
+   "a": "Stępień Łukasz",
+   "b": "Kokowski Mikołaj"
+  },
+  {
+   "a": "Szcześniewski Janek",
+   "b": "Kaźmierczak Wojciech"
+  },
+  {
+   "a": "Szczepaniak Filip",
+   "b": "Granowski Emil"
+  },
+  {
+   "a": "Firlej Filip",
+   "b": "Wieczorek Antoni"
+  }
+ ],
+ "results": [
+  [
+   "Dura Aleksander",
+   "Felka Alan",
+   "3:0"
+  ],
+  [
+   "Bąk Antoni",
+   "Łukaszyk Kajetan",
+   "3:0"
+  ],
+  [
+   "Sapotnitskyi Taras",
+   "Śledzik Jakub",
+   "3:2"
+  ],
+  [
+   "Firlej Filip",
+   "Iwasyszyn Nataniel",
+   "3:2"
+  ],
+  [
+   "Tomasiak Gabriel",
+   "Dura Aleksander",
+   "3:1"
+  ],
+  [
+   "Szubert Dawid",
+   "Antkowiak Franciszek",
+   "3:0"
+  ],
+  [
+   "Słaboszewski Antoni",
+   "Tomczyk Wojciech",
+   "3:0"
+  ],
+  [
+   "Michalak Nikodem",
+   "Kierzek Stanisław",
+   "3:0"
+  ],
+  [
+   "Glina Igor",
+   "Czech Adam",
+   "3:0"
+  ],
+  [
+   "Olszewski Antoni",
+   "Toczyński Ignacy",
+   "3:0"
+  ],
+  [
+   "Perczyński Janek",
+   "Siciński Franciszek",
+   "3:0"
+  ],
+  [
+   "Sroczyński Marcel",
+   "Bąk Antoni",
+   "3:0"
+  ],
+  [
+   "Kuźmar Mateusz",
+   "Sapotnitskyi Taras",
+   "3:0"
+  ],
+  [
+   "Niechciał Stanisław",
+   "Krotecki Tymoteusz",
+   "3:0"
+  ],
+  [
+   "Gajewski Wojciech",
+   "Bednarowski Wojciech",
+   "3:0"
+  ],
+  [
+   "Poloch Lucjan",
+   "Sokołowski Jędrzej",
+   "3:0"
+  ],
+  [
+   "Stępień Łukasz",
+   "Kokowski Mikołaj",
+   "3:0"
+  ],
+  [
+   "Kaźmierczak Wojciech",
+   "Szcześniewski Janek",
+   "3:0"
+  ],
+  [
+   "Granowski Emil",
+   "Szczepaniak Filip",
+   "3:1"
+  ],
+  [
+   "Wieczorek Antoni",
+   "Firlej Filip",
+   "3:0"
+  ],
+  [
+   "Tomasiak Gabriel",
+   "Szubert Dawid",
+   "3:1"
+  ],
+  [
+   "Słaboszewski Antoni",
+   "Michalak Nikodem",
+   "3:0"
+  ],
+  [
+   "Glina Igor",
+   "Olszewski Antoni",
+   "3:0"
+  ],
+  [
+   "Sroczyński Marcel",
+   "Perczyński Janek",
+   "3:0"
+  ],
+  [
+   "Kuźmar Mateusz",
+   "Niechciał Stanisław",
+   "3:0"
+  ],
+  [
+   "Poloch Lucjan",
+   "Gajewski Wojciech",
+   "3:0"
+  ],
+  [
+   "Stępień Łukasz",
+   "Kaźmierczak Wojciech",
+   "3:0"
+  ],
+  [
+   "Wieczorek Antoni",
+   "Granowski Emil",
+   "3:0"
+  ],
+  [
+   "Tomasiak Gabriel",
+   "Słaboszewski Antoni",
+   "3:0"
+  ],
+  [
+   "Sroczyński Marcel",
+   "Glina Igor",
+   "3:0"
+  ],
+  [
+   "Poloch Lucjan",
+   "Kuźmar Mateusz",
+   "3:1"
+  ],
+  [
+   "Wieczorek Antoni",
+   "Stępień Łukasz",
+   "3:0"
+  ],
+  [
+   "Sroczyński Marcel",
+   "Tomasiak Gabriel",
+   "3:1"
+  ],
+  [
+   "Poloch Lucjan",
+   "Wieczorek Antoni",
+   "3:0"
+  ],
+  [
+   "Sroczyński Marcel",
+   "Poloch Lucjan",
+   "3:0"
+  ],
+  [
+   "Dura Aleksander",
+   "Antkowiak Franciszek",
+   "3:0"
+  ],
+  [
+   "Kierzek Stanisław",
+   "Tomczyk Wojciech",
+   "3:0"
+  ],
+  [
+   "Czech Adam",
+   "Toczyński Ignacy",
+   "3:2"
+  ],
+  [
+   "Bąk Antoni",
+   "Siciński Franciszek",
+   "3:0"
+  ],
+  [
+   "Krotecki Tymoteusz",
+   "Sapotnitskyi Taras",
+   "3:1"
+  ],
+  [
+   "Sokołowski Jędrzej",
+   "Bednarowski Wojciech",
+   "3:2"
+  ],
+  [
+   "Szcześniewski Janek",
+   "Kokowski Mikołaj",
+   "3:0"
+  ],
+  [
+   "Szczepaniak Filip",
+   "Firlej Filip",
+   "3:0"
+  ],
+  [
+   "Granowski Emil",
+   "Dura Aleksander",
+   "3:0"
+  ],
+  [
+   "Kaźmierczak Wojciech",
+   "Kierzek Stanisław",
+   "3:1"
+  ],
+  [
+   "Gajewski Wojciech",
+   "Czech Adam",
+   "3:0"
+  ],
+  [
+   "Niechciał Stanisław",
+   "Bąk Antoni",
+   "3:0"
+  ],
+  [
+   "Perczyński Janek",
+   "Krotecki Tymoteusz",
+   "3:0"
+  ],
+  [
+   "Olszewski Antoni",
+   "Sokołowski Jędrzej",
+   "3:0"
+  ],
+  [
+   "Michalak Nikodem",
+   "Szcześniewski Janek",
+   "3:2"
+  ],
+  [
+   "Szubert Dawid",
+   "Szczepaniak Filip",
+   "3:1"
+  ],
+  [
+   "Kaźmierczak Wojciech",
+   "Granowski Emil",
+   "3:1"
+  ],
+  [
+   "Gajewski Wojciech",
+   "Niechciał Stanisław",
+   "3:0"
+  ],
+  [
+   "Perczyński Janek",
+   "Olszewski Antoni",
+   "3:1"
+  ],
+  [
+   "Szubert Dawid",
+   "Michalak Nikodem",
+   "3:2"
+  ],
+  [
+   "Glina Igor",
+   "Kaźmierczak Wojciech",
+   "3:1"
+  ],
+  [
+   "Gajewski Wojciech",
+   "Słaboszewski Antoni",
+   "3:0"
+  ],
+  [
+   "Perczyński Janek",
+   "Stępień Łukasz",
+   "3:0"
+  ],
+  [
+   "Szubert Dawid",
+   "Kuźmar Mateusz",
+   "3:2"
+  ],
+  [
+   "Glina Igor",
+   "Gajewski Wojciech",
+   "3:1"
+  ],
+  [
+   "Perczyński Janek",
+   "Szubert Dawid",
+   "3:1"
+  ],
+  [
+   "Wieczorek Antoni",
+   "Glina Igor",
+   "3:0"
+  ],
+  [
+   "Perczyński Janek",
+   "Tomasiak Gabriel",
+   "3:1"
+  ],
+  [
+   "Wieczorek Antoni",
+   "Perczyński Janek",
+   "3:2"
+  ],
+  [
+   "Tomasiak Gabriel",
+   "Glina Igor",
+   "3:0"
+  ],
+  [
+   "Szubert Dawid",
+   "Gajewski Wojciech",
+   "3:2"
+  ],
+  [
+   "Kaźmierczak Wojciech",
+   "Słaboszewski Antoni",
+   "3:0"
+  ],
+  [
+   "Stępień Łukasz",
+   "Kuźmar Mateusz",
+   "3:2"
+  ],
+  [
+   "Granowski Emil",
+   "Niechciał Stanisław",
+   "3:1"
+  ],
+  [
+   "Michalak Nikodem",
+   "Olszewski Antoni",
+   "3:1"
+  ],
+  [
+   "Kierzek Stanisław",
+   "Dura Aleksander",
+   "3:0"
+  ],
+  [
+   "Czech Adam",
+   "Bąk Antoni",
+   "3:2"
+  ],
+  [
+   "Krotecki Tymoteusz",
+   "Sokołowski Jędrzej",
+   "3:0"
+  ],
+  [
+   "Szcześniewski Janek",
+   "Szczepaniak Filip",
+   "3:0"
+  ],
+  [
+   "Antkowiak Franciszek",
+   "Tomczyk Wojciech",
+   "3:0"
+  ],
+  [
+   "Siciński Franciszek",
+   "Toczyński Ignacy",
+   "3:0"
+  ],
+  [
+   "Sapotnitskyi Taras",
+   "Bednarowski Wojciech",
+   "3:2"
+  ],
+  [
+   "Firlej Filip",
+   "Kokowski Mikołaj",
+   "3:1"
+  ],
+  [
+   "Felka Alan",
+   "Łukaszyk Kajetan",
+   "3:0"
+  ],
+  [
+   "Śledzik Jakub",
+   "Iwasyszyn Nataniel",
+   "3:0"
+  ]
+ ],
+ "official": [
+  {
+   "place": "1",
+   "name": "Sroczyński Marcel",
+   "points": 40
+  },
+  {
+   "place": "2",
+   "name": "Poloch Lucjan",
+   "points": 37
+  },
+  {
+   "place": "3",
+   "name": "Wieczorek Antoni",
+   "points": 35
+  },
+  {
+   "place": "4",
+   "name": "Perczyński Janek",
+   "points": 33
+  },
+  {
+   "place": "5",
+   "name": "Tomasiak Gabriel",
+   "points": 32
+  },
+  {
+   "place": "6",
+   "name": "Glina Igor",
+   "points": 31
+  },
+  {
+   "place": "7",
+   "name": "Szubert Dawid",
+   "points": 30
+  },
+  {
+   "place": "8",
+   "name": "Gajewski Wojciech",
+   "points": 29
+  },
+  {
+   "place": "9-10",
+   "name": "Kaźmierczak Wojciech",
+   "points": 27
+  },
+  {
+   "place": "9-10",
+   "name": "Stępień Łukasz",
+   "points": 27
+  },
+  {
+   "place": "11-12",
+   "name": "Słaboszewski Antoni",
+   "points": 25
+  },
+  {
+   "place": "11-12",
+   "name": "Kuźmar Mateusz",
+   "points": 25
+  },
+  {
+   "place": "13-14",
+   "name": "Granowski Emil",
+   "points": 23
+  },
+  {
+   "place": "13-14",
+   "name": "Michalak Nikodem",
+   "points": 23
+  },
+  {
+   "place": "15-16",
+   "name": "Niechciał Stanisław",
+   "points": 21
+  },
+  {
+   "place": "15-16",
+   "name": "Olszewski Antoni",
+   "points": 21
+  },
+  {
+   "place": "17-20",
+   "name": "Kierzek Stanisław",
+   "points": 18
+  },
+  {
+   "place": "17-20",
+   "name": "Czech Adam",
+   "points": 18
+  },
+  {
+   "place": "17-20",
+   "name": "Krotecki Tymoteusz",
+   "points": 18
+  },
+  {
+   "place": "17-20",
+   "name": "Szcześniewski Janek",
+   "points": 18
+  },
+  {
+   "place": "21-24",
+   "name": "Dura Aleksander",
+   "points": 13
+  },
+  {
+   "place": "21-24",
+   "name": "Bąk Antoni",
+   "points": 13
+  },
+  {
+   "place": "21-24",
+   "name": "Sokołowski Jędrzej",
+   "points": 13
+  },
+  {
+   "place": "21-24",
+   "name": "Szczepaniak Filip",
+   "points": 13
+  },
+  {
+   "place": "25-28",
+   "name": "Antkowiak Franciszek",
+   "points": 9
+  },
+  {
+   "place": "25-28",
+   "name": "Siciński Franciszek",
+   "points": 9
+  },
+  {
+   "place": "25-28",
+   "name": "Sapotnitskyi Taras",
+   "points": 9
+  },
+  {
+   "place": "25-28",
+   "name": "Firlej Filip",
+   "points": 9
+  },
+  {
+   "place": "29-32",
+   "name": "Tomczyk Wojciech",
+   "points": 7
+  },
+  {
+   "place": "29-32",
+   "name": "Toczyński Ignacy",
+   "points": 7
+  },
+  {
+   "place": "29-32",
+   "name": "Bednarowski Wojciech",
+   "points": 7
+  },
+  {
+   "place": "29-32",
+   "name": "Kokowski Mikołaj",
+   "points": 7
+  },
+  {
+   "place": "33-34",
+   "name": "Felka Alan",
+   "points": 5
+  },
+  {
+   "place": "33-34",
+   "name": "Śledzik Jakub",
+   "points": 5
+  },
+  {
+   "place": "35-36",
+   "name": "Łukaszyk Kajetan",
+   "points": 5
+  },
+  {
+   "place": "35-36",
+   "name": "Iwasyszyn Nataniel",
+   "points": 5
+  }
+ ]
+}
