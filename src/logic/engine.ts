@@ -1,8 +1,8 @@
 import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, qualifyingEntrants } from './build.ts'
-import { resolvePaperPairs, sameIds } from './fixed.ts'
+import { resolveMainPaperPairs, resolvePaperPairs, sameIdList, sameIds } from './fixed.ts'
 import { groupStandings } from './groups.ts'
 import { explainCount, explainSets, matchWinner } from './score.ts'
-import { invalidateDownstream, settle } from './propagate.ts'
+import { cloneMatches, invalidateDownstream, settle } from './propagate.ts'
 import { activePlayers, compareRanking } from './ranking.ts'
 import { makeDrawCode, rngFrom, shuffle } from './rng.ts'
 import type { Match, Outcome, PlaceFlags, Player, SetScore, Settings, Tournament } from './types.ts'
@@ -216,31 +216,63 @@ export function generateQualifying(t: Tournament): Action {
   }
 }
 
+
+function pendingQualifierMatchIds(t: Tournament): string[] {
+  const ids: string[] = []
+  for (const slot of t.qualifierSlots) {
+    if (slot.playerId || !slot.fromMatchId) continue
+    const m = t.matches.find((x) => x.id === slot.fromMatchId)
+    if (m && m.outcome === 'pending') ids.push(m.id)
+  }
+  return ids
+}
+
 export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: string | null }[] | null): Action {
-  if (qualifyingRequired(t) && !qualifyingComplete(t)) return { ok: false, error: 'qualifying-open' }
   if (hasPlayed(t.matches, (m) => m.stage === 'main' || m.placementOf === 'main')) return { ok: false, error: 'main-started' }
-  const drawCode = t.drawCode || makeDrawCode()
-  const field = mainCandidates(t)
-  if (field.length < 2) return { ok: false, error: 'too-few' }
   const explicit = paperOverride && paperOverride.length > 0 ? paperOverride : null
-  let paper: { ok: false; error: string } | { ok: true; pairs: { a: string | null; b: string | null }[] } | null
+  let paper:
+    | { ok: false; error: string }
+    | { ok: true; pairs: { a: string | null; b: string | null; waitA?: string; waitB?: string }[] }
+    | null
   if (explicit) {
     if (t.settings.qualifyingMode === 'groups') paper = { ok: false, error: 'fixed-groups' }
-    else paper = resolvePaperPairs(t.players, explicit)
+    else paper = resolveMainPaperPairs(t.players, t.matches, explicit)
   } else {
     paper = !qualifyingRequired(t) ? paperPairs(t) : null
   }
   if (paper && !paper.ok) return paper
+  const waitIds = paper && paper.ok
+    ? paper.pairs.flatMap((p) => [p.waitA, p.waitB].filter((id): id is string => !!id))
+    : []
+  if (qualifyingRequired(t) && !qualifyingComplete(t) && waitIds.length === 0) return { ok: false, error: 'qualifying-open' }
+  const drawCode = t.drawCode || makeDrawCode()
+  const field = mainCandidates(t)
+  if (field.length < 2 && waitIds.length === 0) return { ok: false, error: 'too-few' }
   let laid: ReturnType<typeof layMainDraw>
+  let waits: (string | null)[] = []
   if (paper && paper.ok) {
-    const ids = paper.pairs.flatMap((p) => [p.a, p.b].filter((id): id is string => !!id))
+    const ids = paper.pairs.flatMap((p) => {
+      const found: string[] = []
+      if (!p.waitA && p.a) found.push(p.a)
+      if (!p.waitB && p.b) found.push(p.b)
+      return found
+    })
     if (!sameIds(ids, field)) return { ok: false, error: 'fixed-field' }
+    if (!sameIdList(waitIds, pendingQualifierMatchIds(t))) return { ok: false, error: 'fixed-field' }
     const slots: (string | null)[] = []
-    for (const pair of paper.pairs) slots.push(pair.a, pair.b)
+    for (const pair of paper.pairs) {
+      slots.push(pair.waitA ? null : pair.a)
+      waits.push(pair.waitA ?? null)
+      slots.push(pair.waitB ? null : pair.b)
+      waits.push(pair.waitB ?? null)
+    }
     if (slots.length > t.settings.mainDrawSize) return { ok: false, error: 'fixed-size' }
-    while (slots.length < t.settings.mainDrawSize) slots.push(null)
-    const built = bracketFromSlots(slots, t.settings)
-    const byeCount = slots.filter((id) => !id).length
+    while (slots.length < t.settings.mainDrawSize) {
+      slots.push(null)
+      waits.push(null)
+    }
+    const built = bracketFromSlots(slots, t.settings, waits.some(Boolean) ? waits : undefined)
+    const byeCount = slots.filter((id, i) => !id && !waits[i]).length
     const at = now()
     laid = {
       slots,
@@ -250,7 +282,7 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
       audit: [
         ...(byeCount > 0 ? [{ at, code: 'bye' as const, detail: String(byeCount) }] : []),
         { at, code: 'fixed-round' as const, detail: `pairs=${paper.pairs.length}` },
-        { at, code: 'main-built' as const, detail: `field=${field.length};code=${drawCode}` },
+        { at, code: 'main-built' as const, detail: `field=${field.length + waitIds.length};code=${drawCode}` },
       ],
     }
   } else {
@@ -259,10 +291,10 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
   }
   const inDraw = new Set(laid.slots.filter((id): id is string => !!id))
   const cut = field.filter((p) => !inDraw.has(p.id)).map((p) => p.id)
-  let matches = t.matches.filter((m) => m.stage !== 'main' && m.placementOf !== 'main' && m.placementOf !== 'group')
+  let matches = cloneMatches(t.matches.filter((m) => m.stage !== 'main' && m.placementOf !== 'main' && m.placementOf !== 'group'))
   let awards = t.awards.filter((a) => a.source === 'qualifying').concat(laid.awards)
   let shared: Tournament['shared'] = []
-  let place = inDraw.size + 1
+  let place = inDraw.size + waitIds.length + 1
   if (cut.length > 0) {
     const cohort = placeCohort(cut, place, t.settings.places.nonQualifiers, t.settings.placeMatchBestOf, 'group', `cut${place}`)
     matches = matches.concat(cohort.matches)
@@ -292,6 +324,16 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
     shared = shared.concat(left.shared)
   }
   matches = matches.concat(laid.matches)
+  if (waitIds.length > 0) {
+    for (let i = 0; i < waits.length; i++) {
+      const srcId = waits[i]
+      if (!srcId) continue
+      const src = matches.find((m) => m.id === srcId)
+      if (!src) return { ok: false, error: 'fixed-wait' }
+      src.winnerTo = { matchId: `m-r0-m${Math.floor(i / 2)}`, slot: i % 2 === 0 ? 'A' : 'B' }
+    }
+    matches = settle(matches, withdrawnSet(t))
+  }
   return {
     ok: true,
     tournament: {

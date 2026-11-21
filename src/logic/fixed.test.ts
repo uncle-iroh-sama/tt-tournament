@@ -271,3 +271,75 @@ describe('handwritten tournament file', () => {
     expect(parsed?.matches).toEqual([])
   })
 })
+
+describe('fixed main draw with pending qualifier slots', () => {
+  it('shows the main draw before qualifying ends, then fills a slot from the result', () => {
+    const names = ['SeedOne', 'SeedTwo', 'SeedThree', 'SeedFour', 'QualA', 'QualB', 'QualC', 'QualD', 'ByeE', 'ByeF']
+    let t = field(sized(8, { directSeeds: 4, tables: 4 }), names)
+    t = {
+      ...t,
+      fixedFirstRound: [
+        { a: 'QualA', b: 'QualB' },
+        { a: 'QualC', b: 'QualD' },
+        { a: 'ByeE', b: null },
+        { a: 'ByeF', b: null },
+      ],
+    }
+    const qual = generateQualifying(t)
+    expect(qual.ok).toBe(true)
+    if (!qual.ok) return
+    t = qual.tournament
+    const main = generateMainDraw(t, [
+      { a: 'SeedOne', b: 'QualA / QualB' },
+      { a: 'ByeE', b: 'SeedFour' },
+      { a: 'SeedThree', b: 'ByeF' },
+      { a: 'QualC / QualD', b: 'SeedTwo' },
+    ])
+    expect(main.ok).toBe(true)
+    if (!main.ok) return
+    t = main.tournament
+    expect(t.phase).toBe('main')
+    const first = t.matches.filter((m) => m.stage === 'main' && m.round === 0).sort((a, b) => a.index - b.index)
+    const nameOf = (id: string | null) => t.players.find((p) => p.id === id)?.name ?? null
+    expect(nameOf(first[0]!.slotA)).toBe('SeedOne')
+    expect(first[0]!.slotB).toBeNull()
+    expect(first[0]!.waitB).toBe(true)
+    expect(nameOf(first[1]!.slotA)).toBe('ByeE')
+    expect(nameOf(first[1]!.slotB)).toBe('SeedFour')
+    expect(first[1]!.waitA || first[1]!.waitB).toBe(false)
+    expect(nameOf(first[3]!.slotB)).toBe('SeedTwo')
+    expect(first[3]!.waitA).toBe(true)
+
+    const q = t.matches.find((m) => m.stage === 'qualifying' && m.outcome === 'pending' && nameOf(m.slotA) === 'QualA')!
+    expect(q.winnerTo).toEqual({ matchId: first[0]!.id, slot: 'B' })
+    const scored = enterScore(t, q.id, sets(true))
+    expect(scored.ok).toBe(true)
+    if (!scored.ok) return
+    t = scored.tournament
+    const filled = t.matches.find((m) => m.id === first[0]!.id)!
+    expect(nameOf(filled.slotB)).toBe('QualA')
+    expect(filled.waitB).toBe(false)
+    expect(readyMatches(t).some((m) => m.id === filled.id)).toBe(true)
+  })
+
+  it('still refuses a main draw without placeholders while qualifying is open', () => {
+    const names = ['SeedOne', 'SeedTwo', 'SeedThree', 'SeedFour', 'QualA', 'QualB', 'QualC', 'QualD', 'ByeE', 'ByeF']
+    let t = field(sized(8, { directSeeds: 4, tables: 4 }), names)
+    t = {
+      ...t,
+      fixedFirstRound: [
+        { a: 'QualA', b: 'QualB' },
+        { a: 'QualC', b: 'QualD' },
+        { a: 'ByeE', b: null },
+        { a: 'ByeF', b: null },
+      ],
+    }
+    const qual = generateQualifying(t)
+    expect(qual.ok).toBe(true)
+    if (!qual.ok) return
+    const res = generateMainDraw(qual.tournament)
+    expect(res.ok).toBe(false)
+    if (!res.ok) expect(res.error).toBe('qualifying-open')
+  })
+})
+

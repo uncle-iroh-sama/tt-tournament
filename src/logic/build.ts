@@ -551,6 +551,7 @@ export function layMainDraw(
 export function bracketFromSlots(
   slots: (string | null)[],
   settings: Settings,
+  waits?: (string | null)[],
 ): { matches: Match[]; awards: Award[]; seeds: Record<string, number> } {
   const matches: Match[] = []
   const awards: Award[] = []
@@ -572,14 +573,18 @@ export function bracketFromSlots(
       if (r === 0) {
         match.slotA = slots[i * 2] ?? null
         match.slotB = slots[i * 2 + 1] ?? null
-        if (match.slotA && !match.slotB) {
-          match.outcome = 'bye'
-          match.winnerId = match.slotA
-        } else if (match.slotB && !match.slotA) {
-          match.outcome = 'bye'
-          match.winnerId = match.slotB
-        } else if (!match.slotA && !match.slotB) {
-          match.outcome = 'bye'
+        match.waitA = Boolean(waits?.[i * 2])
+        match.waitB = Boolean(waits?.[i * 2 + 1])
+        if (!match.waitA && !match.waitB) {
+          if (match.slotA && !match.slotB) {
+            match.outcome = 'bye'
+            match.winnerId = match.slotA
+          } else if (match.slotB && !match.slotA) {
+            match.outcome = 'bye'
+            match.winnerId = match.slotB
+          } else if (!match.slotA && !match.slotB) {
+            match.outcome = 'bye'
+          }
         }
       } else {
         const prevA = matches.find((m) => m.id === `m-r${r - 1}-m${i * 2}`)
