@@ -2936,5 +2936,187 @@
       "b": null
     }
   ],
-  "updatedAt": "2026-11-21T14:32:00.000Z"
+  "updatedAt": "2026-11-21T14:36:31.112Z",
+  "finalClassification": [
+    {
+      "place": "1",
+      "name": "Sroczyński Marcel",
+      "points": 40
+    },
+    {
+      "place": "2",
+      "name": "Poloch Lucjan",
+      "points": 37
+    },
+    {
+      "place": "3",
+      "name": "Wieczorek Antoni",
+      "points": 35
+    },
+    {
+      "place": "4",
+      "name": "Perczyński Janek",
+      "points": 33
+    },
+    {
+      "place": "5",
+      "name": "Tomasiak Gabriel",
+      "points": 32
+    },
+    {
+      "place": "6",
+      "name": "Glina Igor",
+      "points": 31
+    },
+    {
+      "place": "7",
+      "name": "Szubert Dawid",
+      "points": 30
+    },
+    {
+      "place": "8",
+      "name": "Gajewski Wojciech",
+      "points": 29
+    },
+    {
+      "place": "9-10",
+      "name": "Kaźmierczak Wojciech",
+      "points": 27
+    },
+    {
+      "place": "9-10",
+      "name": "Stępień Łukasz",
+      "points": 27
+    },
+    {
+      "place": "11-12",
+      "name": "Słaboszewski Antoni",
+      "points": 25
+    },
+    {
+      "place": "11-12",
+      "name": "Kuźmar Mateusz",
+      "points": 25
+    },
+    {
+      "place": "13-14",
+      "name": "Granowski Emil",
+      "points": 23
+    },
+    {
+      "place": "13-14",
+      "name": "Michalak Nikodem",
+      "points": 23
+    },
+    {
+      "place": "15-16",
+      "name": "Niechciał Stanisław",
+      "points": 21
+    },
+    {
+      "place": "15-16",
+      "name": "Olszewski Antoni",
+      "points": 21
+    },
+    {
+      "place": "17-20",
+      "name": "Kierzek Stanisław",
+      "points": 18
+    },
+    {
+      "place": "17-20",
+      "name": "Czech Adam",
+      "points": 18
+    },
+    {
+      "place": "17-20",
+      "name": "Krotecki Tymoteusz",
+      "points": 18
+    },
+    {
+      "place": "17-20",
+      "name": "Szcześniewski Janek",
+      "points": 18
+    },
+    {
+      "place": "21-24",
+      "name": "Dura Aleksander",
+      "points": 13
+    },
+    {
+      "place": "21-24",
+      "name": "Bąk Antoni",
+      "points": 13
+    },
+    {
+      "place": "21-24",
+      "name": "Sokołowski Jędrzej",
+      "points": 13
+    },
+    {
+      "place": "21-24",
+      "name": "Szczepaniak Filip",
+      "points": 13
+    },
+    {
+      "place": "25-28",
+      "name": "Antkowiak Franciszek",
+      "points": 9
+    },
+    {
+      "place": "25-28",
+      "name": "Siciński Franciszek",
+      "points": 9
+    },
+    {
+      "place": "25-28",
+      "name": "Sapotnitskyi Taras",
+      "points": 9
+    },
+    {
+      "place": "25-28",
+      "name": "Firlej Filip",
+      "points": 9
+    },
+    {
+      "place": "29-32",
+      "name": "Tomczyk Wojciech",
+      "points": 7
+    },
+    {
+      "place": "29-32",
+      "name": "Toczyński Ignacy",
+      "points": 7
+    },
+    {
+      "place": "29-32",
+      "name": "Bednarowski Wojciech",
+      "points": 7
+    },
+    {
+      "place": "29-32",
+      "name": "Kokowski Mikołaj",
+      "points": 7
+    },
+    {
+      "place": "33-34",
+      "name": "Felka Alan",
+      "points": 5
+    },
+    {
+      "place": "33-34",
+      "name": "Śledzik Jakub",
+      "points": 5
+    },
+    {
+      "place": "35-36",
+      "name": "Łukaszyk Kajetan",
+      "points": 5
+    },
+    {
+      "place": "35-36",
+      "name": "Iwasyszyn Nataniel",
+      "points": 5
+    }
+  ]
 }
