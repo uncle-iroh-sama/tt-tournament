@@ -113,6 +113,22 @@ function withQualRounds(matches: Match[]): Match[] {
   })
 }
 
+function readFinalClassification(value: unknown): Tournament['finalClassification'] | undefined {
+  if (value == null) return undefined
+  if (!Array.isArray(value) || value.length === 0) return undefined
+  const rows: NonNullable<Tournament['finalClassification']> = []
+  for (const item of value) {
+    if (!item || typeof item !== 'object') return undefined
+    const row = item as Record<string, unknown>
+    const place = String(row.place ?? '').trim()
+    const name = String(row.name ?? '').trim()
+    const points = finite(row.points)
+    if (!place || !name || points == null) return undefined
+    rows.push({ place, name, points })
+  }
+  return rows
+}
+
 /** Accepts a full export, or a short file written by hand: players, and optional fixed pairings. */
 export function tournamentFromJson(raw: string): Tournament | null {
   try {
@@ -147,6 +163,7 @@ export function tournamentFromJson(raw: string): Tournament | null {
       shared: Array.isArray(data.shared) ? data.shared : [],
       fixedFirstRound: fixed,
       updatedAt: typeof data.updatedAt === 'string' && data.updatedAt ? data.updatedAt : undefined,
+      finalClassification: readFinalClassification(data.finalClassification),
     }
   } catch {
     return null

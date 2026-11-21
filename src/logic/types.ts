@@ -163,6 +163,11 @@ export interface Tournament {
   fixedFirstRound?: { a: string; b: string | null }[] | null
   /** ISO time of the last save. The live board shows it. */
   updatedAt?: string
+  /**
+   * Official final list, as published by the referee. When present, the live board
+   * shows this instead of the computed classification.
+   */
+  finalClassification?: { place: string; name: string; points: number }[]
 }
 
 export interface RoundInfo {
