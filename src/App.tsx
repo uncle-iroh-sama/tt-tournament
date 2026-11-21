@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { demoTournament } from './demo.ts'
 import { loadLang, saveLang, translate, type Key, type Lang } from './i18n.ts'
-import { createTournament, defaultSettings } from './logic/engine.ts'
+import { createTournament, defaultSettings, hasKnockout } from './logic/engine.ts'
 import type { Settings, Tournament } from './logic/types.ts'
 import { fetchLive, isLiveSlug, loadTournament, saveTournament, tournamentFromJson } from './storage.ts'
 import { Desk, LivePage, SettingsFields, Welcome } from './ui/desk.tsx'
@@ -34,6 +34,7 @@ const ERRORS: Record<string, Key> = {
   'fixed-field': 'fixedField',
   'fixed-size': 'fixedSize',
   'not-place': 'notPlace',
+  'no-knockout': 'noKnockout',
 }
 
 function pageKey(route: string): Key {
@@ -54,6 +55,12 @@ const NAV: [string, Key][] = [
   ['#/klasyfikacja', 'navClass'],
   ['#/ustawienia', 'navSettings'],
 ]
+
+/** A round robin has a table instead of qualifying and no bracket. */
+function navFor(t: Tournament): [string, Key][] {
+  if (hasKnockout(t.settings)) return NAV
+  return NAV.filter(([hash]) => hash !== '#/drabinka').map(([hash, key]) => [hash, hash === '#/eliminacje' ? 'navTable' : key])
+}
 
 export default function App() {
   const [lang, setLang] = useState<Lang>(() => loadLang())
@@ -192,7 +199,7 @@ export default function App() {
       </header>
       {!pub && !print && tournament && (
         <nav className="nav">
-          {NAV.map(([hash, key]) => (
+          {navFor(tournament).map(([hash, key]) => (
             <a key={hash} className={route === hash || (hash === '#/' && route === '') ? 'on' : ''} href={hash}>{tr(key)}</a>
           ))}
         </nav>

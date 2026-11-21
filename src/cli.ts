@@ -10,6 +10,7 @@ import {
   enterWalkover,
   generateMainDraw,
   generateQualifying,
+  hasKnockout,
   qualifyingComplete,
   qualifyingRequired,
   readyMatches,
@@ -18,11 +19,12 @@ import {
   updatePlayer,
 } from './logic/engine.ts'
 import type { PaperPair } from './logic/fixed.ts'
+import { groupStandings } from './logic/groups.ts'
 import { findPlayerByName } from './logic/names.ts'
 import { makeDrawCode } from './logic/rng.ts'
 import { explainCount, explainSets } from './logic/score.ts'
 import { BRACKETS, DRAW_SIZES, FORMATS } from './logic/types.ts'
-import type { Match, Player, SetScore, Settings, Tournament } from './logic/types.ts'
+import type { Group, Match, Player, SetScore, Settings, Tournament } from './logic/types.ts'
 import { countFinished } from './logic/classify.ts'
 import { isLiveSlug, tournamentFromJson } from './storage.ts'
 import { roundHeading } from './ui/format.ts'
@@ -149,6 +151,8 @@ function explainEngine(t: Tournament, error: string, detail?: string): string {
       return 'The score is empty.'
     case 'not-place':
       return 'Only a place match can be marked as not played.'
+    case 'no-knockout':
+      return 'A round robin has no knock-out. The table is the classification.'
     default:
       return error
   }
@@ -288,6 +292,11 @@ function cmdInit(root: string, args: string[]): string {
   if (!t.settings.name.trim()) t = { ...t, settings: { ...t.settings, name: slug } }
   if (qualifyingRequired(t)) {
     t = must(t, generateQualifying(t))
+    if (!hasKnockout(t.settings)) {
+      saveLive(root, slug, t)
+      const rounds = Math.max(...t.matches.map((m) => m.round)) + 1
+      return `Wrote public/live/${slug}.json\n${structureLine(t)}\nRound robin: ${t.players.length} players, ${t.matches.length} matches in ${rounds} rounds.\n`
+    }
     const round = t.matches.filter((m) => m.stage === 'qualifying' && m.round === 0)
     const byes = round.filter((m) => m.outcome === 'bye').length
     const games = round.length - byes
@@ -398,16 +407,22 @@ function cmdDrawMain(root: string, slug: string, fixedPath?: string): string {
 
 function structureLine(t: Tournament): string {
   const s = t.settings
+  if (!hasKnockout(s)) return `format ${s.format}`
   const size = s.format === 'knockout' ? ` · draw of ${s.mainDrawSize}` : ''
   return `format ${s.format} · bracket ${s.bracket}${size}`
 }
 
+function tableLines(t: Tournament, g: Group): string[] {
+  const rows = groupStandings(g.playerIds, t.matches.filter((m) => m.groupId === g.id), `${t.drawCode}:${g.id}`)
+  return rows.map((r) => `  ${r.place}. ${playerName(t, r.playerId)}  ${r.points} pts · ${r.wins}/${r.played} won · sets ${r.setsWon}:${r.setsLost} · points ${r.ballsWon}:${r.ballsLost}`)
+}
+
 function cmdStatus(root: string, slug: string): string {
   const t = loadLive(root, slug)
-  const stage = t.phase === 'main' ? 'main draw' : t.phase === 'qualifying' ? 'qualifying' : 'not drawn'
+  const stage = t.phase === 'main' ? 'main draw' : t.phase === 'qualifying' ? (hasKnockout(t.settings) ? 'qualifying' : 'round robin') : 'not drawn'
   const { done, total } = countFinished(t)
   const lines = [t.settings.name || slug, structureLine(t), `${stage} · ${done}/${total} played`]
-  if (qualifyingRequired(t) && qualifyingComplete(t) && t.phase !== 'main') {
+  if (hasKnockout(t.settings) && qualifyingRequired(t) && qualifyingComplete(t) && t.phase !== 'main') {
     lines.push('qualifying done — run draw-main')
   }
   if (t.updatedAt) {
@@ -426,7 +441,9 @@ function cmdStatus(root: string, slug: string): string {
   lines.push('next:')
   if (next.length === 0) lines.push('  —')
   for (const m of next) lines.push(`  ${playerName(t, m.slotA)} – ${playerName(t, m.slotB)}  (${roundHeading(m, 'en')})`)
-  if (t.phase === 'qualifying') {
+  if (!hasKnockout(t.settings)) {
+    for (const g of t.groups) lines.push('table:', ...tableLines(t, g))
+  } else if (t.phase === 'qualifying') {
     const { direct, rest } = qualifyingEntrants(t.players, t.settings)
     lines.push(`qualifying ${rest.length}, direct ${direct.length}`)
   }

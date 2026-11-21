@@ -18,8 +18,11 @@ export type Stage = 'qualifying' | 'group' | 'main' | 'placement'
 /** `skipped` is a place match the referee marked as not played (NIE): its players share the places it would have decided. */
 export type Outcome = 'pending' | 'score' | 'walkover' | 'retirement' | 'bye' | 'cancelled' | 'skipped'
 
-/** How the field plays: one knock-out (with qualifying when it is larger than the draw), or groups feeding a knock-out. */
-export const FORMATS = ['knockout', 'groups'] as const
+/**
+ * How the field plays: one knock-out (with qualifying when it is larger than the draw),
+ * groups feeding a knock-out, or one round-robin group whose table is the final classification.
+ */
+export const FORMATS = ['knockout', 'groups', 'roundRobin'] as const
 export type Format = (typeof FORMATS)[number]
 
 /**

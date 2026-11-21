@@ -217,9 +217,6 @@ function accumulate(ids: string[], matches: Match[], onlyAmong: Set<string> | nu
   const map = new Map<string, Stats>()
   for (const id of ids) map.set(id, blankStats())
   for (const m of matches) {
-    if (!m.groupId && onlyAmong) {
-      /* group matches are tagged; callers pass the group's matches */
-    }
     if (m.outcome === 'pending' || m.outcome === 'bye' || m.outcome === 'cancelled') continue
     if (!m.slotA || !m.slotB || !m.winnerId) continue
     if (!map.has(m.slotA) || !map.has(m.slotB)) continue
@@ -236,7 +233,8 @@ function accumulate(ids: string[], matches: Match[], onlyAmong: Set<string> | nu
     }
     map.get(m.winnerId)!.points += 2
     map.get(m.winnerId)!.wins += 1
-    map.get(loserId)!.points += 1
+    /* ITTF: 1 match point for a loss in a played match, none for an uncompleted one. */
+    if (m.outcome !== 'retirement') map.get(loserId)!.points += 1
     a.played++
     b.played++
     if (m.sets.length > 0) {

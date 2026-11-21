@@ -321,3 +321,5 @@ details.audit summary { cursor: pointer; font-weight: 600; }
   .sheet-two .championship { order: 0; flex: 1; min-width: 0; }
   .sheet-two .consolation { order: 0; flex: 0 0 220px; }
 }
+.kolejka { margin: 12px 0 6px; font-size: 0.9rem; color: var(--muted); }
+.slip-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 10px; }
