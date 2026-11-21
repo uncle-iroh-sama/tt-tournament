@@ -1,4 +1,4 @@
-import { defaultPlaces, defaultSettings } from './logic/engine.ts'
+import { defaultDirectSeeds, defaultPlaces, defaultSettings } from './logic/engine.ts'
 import { BRACKETS, DRAW_SIZES, FORMATS } from './logic/types.ts'
 import type { Category, DrawSize, Match, Player, SeedingMode, Settings, Tournament } from './logic/types.ts'
 
@@ -85,8 +85,8 @@ function readSettings(raw: unknown): Settings | null {
   settings.bracket = BRACKETS.find((b) => b === incoming.bracket) ?? 'placement'
   const size = Number(settings.mainDrawSize) as DrawSize
   settings.mainDrawSize = DRAW_SIZES.includes(size) ? size : 32
-  const direct = Number(incoming.directSeeds ?? settings.mainDrawSize / 2)
-  settings.directSeeds = Number.isFinite(direct) ? Math.max(0, Math.trunc(direct)) : settings.mainDrawSize / 2
+  const direct = Number(incoming.directSeeds ?? defaultDirectSeeds(settings))
+  settings.directSeeds = Number.isFinite(direct) ? Math.max(0, Math.trunc(direct)) : defaultDirectSeeds(settings)
   settings.bestOf = settings.bestOf === 3 ? 3 : 5
   settings.placeMatchBestOf = settings.placeMatchBestOf === 5 ? 5 : 3
   const tables = Number(settings.tables)

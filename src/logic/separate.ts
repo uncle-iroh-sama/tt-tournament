@@ -71,7 +71,6 @@ export function separateFirstRoundClubs(
   slots: (string | null)[],
   seedAtSlot: number[],
   clubOf: (id: string) => string,
-  groupOf: (id: string) => string | null,
   audit: AuditEvent[],
   at: string,
 ): void {
@@ -99,7 +98,6 @@ export function separateFirstRoundClubs(
       const stayClub = clubAt(stay)
       const moveId = slots[move]!
       const moveClub = norm(clubOf(moveId))
-      const moveGroup = groupOf(moveId)
       let best: number | null = null
       let bestScore = Number.POSITIVE_INFINITY
       for (let k = 0; k < n; k++) {
@@ -114,12 +112,7 @@ export function separateFirstRoundClubs(
         const sameBand = bandName(seedAtSlot[k]!) === bandName(seedAtSlot[move]!) ? 0 : 1
         const protect = seedAtSlot[k]! <= 4 ? 1 : 0
         const dist = Math.abs(seedAtSlot[k]! - seedAtSlot[move]!)
-        const kGroup = groupOf(slots[k]!)
-        const stayGroup = groupOf(slots[stay]!)
-        const groupClash = stayGroup && kGroup && stayGroup === kGroup ? 1 : 0
-        const partnerGroup = partnerId ? groupOf(partnerId) : null
-        const moveGroupClash = moveGroup && partnerGroup && moveGroup === partnerGroup ? 1 : 0
-        const score = sameBand * 1000 + protect * 200 + groupClash * 50 + moveGroupClash * 50 + dist
+        const score = sameBand * 1000 + protect * 200 + dist
         if (score < bestScore) {
           bestScore = score
           best = k

@@ -148,7 +148,7 @@ describe('draw', () => {
     const seeds = seedOrder(8)
     const clubs: Record<string, string> = { a1: 'AZS', a2: 'AZS', b1: 'B', c1: 'C', d1: 'D', e1: 'E', f1: 'F', g1: 'G' }
     const audit: AuditEvent[] = []
-    separateFirstRoundClubs(slots, seeds, (id) => clubs[id] ?? '', () => null, audit, 't')
+    separateFirstRoundClubs(slots, seeds, (id) => clubs[id] ?? '', audit, 't')
     for (let i = 0; i < slots.length; i += 2) {
       const x = slots[i]
       const y = slots[i + 1]

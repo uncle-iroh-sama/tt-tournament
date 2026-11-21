@@ -4,8 +4,7 @@ import { planGroupSizes, planKnockout } from './plan.ts'
 import { settle } from './propagate.ts'
 import { activePlayers } from './ranking.ts'
 import { rngFrom, shuffle } from './rng.ts'
-import { seedOrder } from './seeds.ts'
-import { bandName } from './seeds.ts'
+import { bandName, nextPow2, seedOrder } from './seeds.ts'
 import { separateFirstRoundClubs, separateTopSeeds } from './separate.ts'
 import type {
   AuditEvent,
@@ -507,7 +506,6 @@ export function layMainDraw(
   field: Player[],
   settings: Settings,
   drawCode: string,
-  groupOf: (id: string) => string | null,
   at: string,
 ): { slots: (string | null)[]; matches: Match[]; awards: Award[]; seeds: Record<string, number>; audit: AuditEvent[] } {
   const audit: AuditEvent[] = []
@@ -541,11 +539,52 @@ export function layMainDraw(
   }
   const clubOf = (id: string) => field.find((p) => p.id === id)?.club ?? ''
   separateTopSeeds(slots, seedAtSlot, clubOf, audit, at)
-  separateFirstRoundClubs(slots, seedAtSlot, clubOf, groupOf, audit, at)
+  separateFirstRoundClubs(slots, seedAtSlot, clubOf, audit, at)
   const built = bracketFromSlots(slots, settings)
   const byeCount = slots.filter((id) => !id).length
   if (byeCount > 0) audit.push(stamp('bye', String(byeCount), at))
   audit.push(stamp('main-built', `field=${capped.length};code=${drawCode}`, at))
+  return { slots, matches: built.matches, awards: built.awards, seeds: built.seeds, audit }
+}
+
+/**
+ * Knock-out after groups. `field` comes in order: direct seeds, group winners, then each next finishing place.
+ * The draw is the smallest that fits, up to the main draw size. Each player takes the open seed position
+ * farthest from players of the same group already placed, preferring the better seeding band, then by lot.
+ * Group winners therefore take the top seeds, and runners-up land in the other half.
+ */
+export function layGroupDraw(
+  field: Player[],
+  groupOf: (id: string) => string | null,
+  settings: Settings,
+  drawCode: string,
+  at: string,
+): { slots: (string | null)[]; matches: Match[]; awards: Award[]; seeds: Record<string, number>; audit: AuditEvent[] } {
+  const drawSize = Math.min(settings.mainDrawSize, nextPow2(Math.max(2, field.length)))
+  const entrants = field.slice(0, drawSize)
+  const order = seedOrder(drawSize)
+  const slots: (string | null)[] = Array(drawSize).fill(null)
+  const rng = rngFrom(drawCode, 'groups')
+  const bandStart = (slot: number) => parseInt(bandName(order[slot]!), 10)
+  /** 0 when the two slots meet in the first round, 1 in the second, and so on. */
+  const meets = (a: number, b: number) => Math.floor(Math.log2(a ^ b))
+  for (const p of entrants) {
+    const group = groupOf(p.id)
+    const mates = group ? slots.flatMap((id, i) => (id && groupOf(id) === group ? [i] : [])) : []
+    const open = order.flatMap((seed, slot) => (seed <= entrants.length && !slots[slot] ? [slot] : []))
+    const apart = (slot: number) => (mates.length ? Math.min(...mates.map((m) => meets(slot, m))) : Infinity)
+    const far = Math.max(...open.map(apart))
+    const best = open.filter((slot) => apart(slot) === far)
+    const band = Math.min(...best.map(bandStart))
+    const choice = best.filter((slot) => bandStart(slot) === band).sort((x, y) => order[x]! - order[y]!)
+    const lot = mates.length || settings.seeding === 'bands' ? shuffle(choice, rng) : choice
+    slots[lot[0]!] = p.id
+  }
+  const built = bracketFromSlots(slots, settings)
+  const audit: AuditEvent[] = []
+  const byeCount = slots.filter((id) => !id).length
+  if (byeCount > 0) audit.push(stamp('bye', String(byeCount), at))
+  audit.push(stamp('main-built', `field=${entrants.length};groups;code=${drawCode}`, at))
   return { slots, matches: built.matches, awards: built.awards, seeds: built.seeds, audit }
 }
 

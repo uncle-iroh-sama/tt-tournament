@@ -1,4 +1,4 @@
-import { bracketFromSlots, buildQualifying, groupLeftoverBands, layMainDraw, placeCohort, playsNonQualifiers, qualifyingEntrants } from './build.ts'
+import { bracketFromSlots, buildQualifying, groupLeftoverBands, layGroupDraw, layMainDraw, placeCohort, playsNonQualifiers, qualifyingEntrants } from './build.ts'
 import { resolveMainPaperPairs, resolvePaperPairs, sameIdList, sameIds } from './fixed.ts'
 import { groupStandings } from './groups.ts'
 import { explainCount, explainSets, matchWinner } from './score.ts'
@@ -66,6 +66,11 @@ export function createTournament(settings: Settings = defaultSettings(), drawCod
     qualifierSlots: [],
     shared: [],
   }
+}
+
+/** Half the draw goes straight in for a knock-out; groups and round robins start everyone in a group. */
+export function defaultDirectSeeds(s: Pick<Settings, 'format' | 'mainDrawSize'>): number {
+  return s.format === 'knockout' ? s.mainDrawSize / 2 : 0
 }
 
 /** A round robin ends with its table; the other formats finish with a knock-out. */
@@ -152,20 +157,14 @@ function mainCandidates(t: Tournament): Player[] {
     if (p && !p.withdrawn) ids.add(id)
   }
   if (t.settings.format === 'groups') {
-    for (const g of t.groups) {
-      const rows = groupStandings(
-        g.playerIds,
-        t.matches.filter((m) => m.groupId === g.id),
-        `${t.drawCode}:${g.id}`,
-      )
-      let taken = 0
-      for (const row of rows) {
-        const p = byId.get(row.playerId)
-        if (!p || p.withdrawn) continue
-        if (taken >= t.settings.advancePerGroup) break
-        ids.add(p.id)
-        taken++
-      }
+    const advancing = t.groups.map((g) =>
+      groupStandings(g.playerIds, t.matches.filter((m) => m.groupId === g.id), `${t.drawCode}:${g.id}`)
+        .map((row) => row.playerId)
+        .filter((id) => !byId.get(id)?.withdrawn)
+        .slice(0, t.settings.advancePerGroup),
+    )
+    for (let place = 0; place < t.settings.advancePerGroup; place++) {
+      for (const top of advancing) if (top[place]) ids.add(top[place]!)
     }
   } else {
     for (const slot of t.qualifierSlots) {
@@ -292,9 +291,11 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
         { at, code: 'main-built' as const, detail: `field=${field.length + waitIds.length};code=${drawCode}` },
       ],
     }
-  } else {
+  } else if (t.settings.format === 'groups') {
     const groupOf = (id: string) => t.groups.find((g) => g.playerIds.includes(id))?.id ?? null
-    laid = layMainDraw(field, t.settings, drawCode, groupOf, now())
+    laid = layGroupDraw(field, groupOf, t.settings, drawCode, now())
+  } else {
+    laid = layMainDraw(field, t.settings, drawCode, now())
   }
   const inDraw = new Set(laid.slots.filter((id): id is string => !!id))
   const cut = field.filter((p) => !inDraw.has(p.id)).map((p) => p.id)
