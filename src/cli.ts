@@ -14,6 +14,7 @@ import {
   qualifyingRequired,
   readyMatches,
   removePlayer,
+  skipMatch,
   updatePlayer,
 } from './logic/engine.ts'
 import type { PaperPair } from './logic/fixed.ts'
@@ -146,6 +147,8 @@ function explainEngine(t: Tournament, error: string, detail?: string): string {
       return 'The score has sets after the match was already won.'
     case 'empty':
       return 'The score is empty.'
+    case 'not-place':
+      return 'Only a place match can be marked as not played.'
     default:
       return error
   }
@@ -350,12 +353,26 @@ function cmdUndo(root: string, slug: string, aQuery: string, bQuery: string): st
   let t = loadLive(root, slug)
   const a = requireName(t.players, aQuery)
   const b = requireName(t.players, bQuery)
-  const hits = findBetween(t, a.id, b.id).filter(played)
+  const hits = findBetween(t, a.id, b.id).filter((m) => played(m) || m.outcome === 'skipped')
   if (hits.length === 0) throw new CliError(`No result between ${a.name} and ${b.name}.`)
   if (hits.length > 1) throw new CliError(`${a.name} and ${b.name} have more than one result.`)
   t = must(t, clearResult(t, hits[0]!.id))
   saveLive(root, slug, t)
   return `Cleared ${a.name} – ${b.name}.\n`
+}
+
+function cmdSkip(root: string, slug: string, aQuery: string, bQuery: string): string {
+  if (!aQuery || !bQuery) throw new CliError(`Usage: ${USAGE.skip}`)
+  let t = loadLive(root, slug)
+  const a = requireName(t.players, aQuery)
+  const b = requireName(t.players, bQuery)
+  const ready = findBetween(t, a.id, b.id).filter((m) => playable(m) && m.label.k === 'place')
+  if (ready.length !== 1) throw new CliError(`No place match between ${a.name} and ${b.name} is waiting to be played.`)
+  const match = ready[0]!
+  t = must(t, skipMatch(t, match.id))
+  saveLive(root, slug, t)
+  const band = match.placeBand!
+  return `Not played: ${a.name} – ${b.name}. Both share places ${band.from}–${band.to}.\n`
 }
 
 function cmdDrawMain(root: string, slug: string, fixedPath?: string): string {
@@ -461,7 +478,8 @@ function cmdPlayer(root: string, args: string[]): string {
 }
 
 const USAGE = {
-  init: 'npm run tt -- init <slug> <short.json> [--format knockout|groups] [--bracket single|placement] [--draw 8|16|32|64]',
+  init: `npm run tt -- init <slug> <short.json> [--format ${FORMATS.join('|')}] [--bracket ${BRACKETS.join('|')}] [--draw ${DRAW_SIZES.join('|')}]`,
+  skip: 'npm run tt -- skip <slug> "<A>" "<B>"',
 }
 
 function help(): string {
@@ -470,6 +488,7 @@ function help(): string {
     `  ${USAGE.init}`,
     '  npm run tt -- result <slug> "<A>" "<B>" <3:1 | 11:7 9:11 11:8 | wo>',
     '  npm run tt -- undo <slug> "<A>" "<B>"',
+    `  ${USAGE.skip}`,
     '  npm run tt -- draw-main <slug> [--fixed <pairs.json>]',
     '  npm run tt -- status <slug>',
     '  npm run tt -- player add <slug> "<name>" "<club>" [ranking]',
@@ -487,6 +506,7 @@ export function main(argv: string[], io: CliIO = {}): number {
     const [cmd, ...rest] = argv
     if (cmd === 'init') stdout(cmdInit(root, rest))
     else if (cmd === 'result') stdout(cmdResult(root, rest[0] ?? '', rest[1] ?? '', rest[2] ?? '', rest.slice(3).join(' ')))
+    else if (cmd === 'skip') stdout(cmdSkip(root, rest[0] ?? '', rest[1] ?? '', rest[2] ?? ''))
     else if (cmd === 'undo') stdout(cmdUndo(root, rest[0] ?? '', rest[1] ?? '', rest[2] ?? ''))
     else if (cmd === 'draw-main') {
       const { positional, flags } = splitFlags(rest)

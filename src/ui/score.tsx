@@ -34,6 +34,7 @@ export function ScoreDialog({
   onScore,
   onWalkover,
   onRetire,
+  onSkip,
 }: {
   tournament: Tournament
   match: Match
@@ -42,6 +43,7 @@ export function ScoreDialog({
   onScore: (sets: SetScore[]) => void
   onWalkover: (winnerId: string) => void
   onRetire: (winnerId: string, sets: SetScore[]) => void
+  onSkip?: () => void
 }) {
   const t = (k: Key) => translate(lang, k)
   const a = findPlayer(tournament, match.slotA)
@@ -50,7 +52,7 @@ export function ScoreDialog({
     match.sets.length > 0 ? match.sets.map((s) => ({ a: String(s.a), b: String(s.b) })) : [{ a: '', b: '' }],
   )
   const [focusAt, setFocusAt] = useState<{ i: number; side: Side } | null>({ i: 0, side: 'a' })
-  const [pending, setPending] = useState<null | { kind: 'wo' | 'retire'; id: string }>(null)
+  const [pending, setPending] = useState<null | { kind: 'wo' | 'retire'; id: string } | { kind: 'skip' }>(null)
   const root = useRef<HTMLDivElement>(null)
   const viewed = read(rows, match.bestOf)
   const finished = viewed.winner != null
@@ -134,7 +136,7 @@ export function ScoreDialog({
   }
 
   const winnerName = viewed.winner === 'A' ? pname(a, lang) : viewed.winner === 'B' ? pname(b, lang) : ''
-  const pendingName = pending ? pname(findPlayer(tournament, pending.id), lang) : ''
+  const pendingName = pending && pending.kind !== 'skip' ? pname(findPlayer(tournament, pending.id), lang) : ''
 
   return (
     <div className="dialog-back" onMouseDown={onClose}>
@@ -197,13 +199,17 @@ export function ScoreDialog({
               {match.slotB && <button className="btn secondary small" onClick={() => setPending({ kind: 'wo', id: match.slotB! })}>{t('walkover')}: {pname(b, lang)}</button>}
               {match.slotA && <button className="btn secondary small" onClick={() => setPending({ kind: 'retire', id: match.slotA! })}>{t('retirement')}: {pname(a, lang)}</button>}
               {match.slotB && <button className="btn secondary small" onClick={() => setPending({ kind: 'retire', id: match.slotB! })}>{t('retirement')}: {pname(b, lang)}</button>}
+              {onSkip && <button className="btn secondary small" onClick={() => setPending({ kind: 'skip' })}>{t('notPlayed')}</button>}
             </div>
           ) : (
             <div style={{ marginTop: 8 }}>
-              <p>{pending.kind === 'wo' ? t('walkover') : t('retirement')}: <b>{pendingName}</b>?</p>
+              {pending.kind === 'skip'
+                ? <p>{t('notPlayed')}: <b>{pname(a, lang)} – {pname(b, lang)}</b>?</p>
+                : <p>{pending.kind === 'wo' ? t('walkover') : t('retirement')}: <b>{pendingName}</b>?</p>}
               <div className="row">
                 <button className="btn" onClick={() => {
-                  if (pending.kind === 'wo') onWalkover(pending.id)
+                  if (pending.kind === 'skip') onSkip?.()
+                  else if (pending.kind === 'wo') onWalkover(pending.id)
                   else onRetire(pending.id, viewed.sets)
                 }}>{t('yes')}</button>
                 <button className="btn secondary" onClick={() => setPending(null)}>{t('no')}</button>

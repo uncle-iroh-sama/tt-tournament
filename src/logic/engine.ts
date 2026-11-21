@@ -429,11 +429,11 @@ function downstreamPlayed(matches: Match[], origin: Match): Match[] {
   return found
 }
 
-/** Clear one result. Refuses when a later match has already been played off this one. */
+/** Clear one result or skip. Refuses when a later match has already been played off this one. */
 export function clearResult(t: Tournament, matchId: string): Action {
   const match = t.matches.find((m) => m.id === matchId)
   if (!match) return { ok: false, error: 'missing' }
-  if (match.outcome !== 'score' && match.outcome !== 'walkover' && match.outcome !== 'retirement') {
+  if (match.outcome !== 'score' && match.outcome !== 'walkover' && match.outcome !== 'retirement' && match.outcome !== 'skipped') {
     return { ok: false, error: 'not-played' }
   }
   const blockers = downstreamPlayed(t.matches, match)
@@ -444,6 +444,17 @@ export function clearResult(t: Tournament, matchId: string): Action {
     m.id === matchId ? { ...m, outcome: 'pending' as const, winnerId: null, sets: [], games: null, table: null } : m,
   )
   matches = invalidateDownstream(matches, match)
+  matches = settle(matches, withdrawnSet({ ...t, matches }))
+  return { ok: true, tournament: { ...t, matches } }
+}
+
+/** Marks a place match as not played (NIE). Its players, and those of the place matches after it, share its places. */
+export function skipMatch(t: Tournament, matchId: string): Action {
+  const match = t.matches.find((m) => m.id === matchId)
+  if (!match) return { ok: false, error: 'missing' }
+  if (match.label.k !== 'place' || !match.placeBand) return { ok: false, error: 'not-place' }
+  if (match.outcome !== 'pending') return { ok: false, error: 'locked' }
+  let matches = replaceOrigin(t.matches, matchId, { outcome: 'skipped', winnerId: null, sets: [], games: null, table: null })
   matches = settle(matches, withdrawnSet({ ...t, matches }))
   return { ok: true, tournament: { ...t, matches } }
 }

@@ -79,7 +79,7 @@ function finish(m: Match, winnerId: string, outcome: Outcome) {
   }
 }
 
-/** Resolve byes, push winners and losers, and award walkovers to withdrawn players. */
+/** Resolve byes, push winners and losers, award walkovers to withdrawn players, and pass a skip on to the matches it feeds. */
 export function settle(matches: Match[], withdrawn: Set<string>): Match[] {
   const list = cloneMatches(matches)
   const limit = list.length * 4 + 8
@@ -121,6 +121,15 @@ export function settle(matches: Match[], withdrawn: Set<string>): Match[] {
       }
     }
     for (const m of list) {
+      if (m.outcome === 'skipped') {
+        for (const link of [m.winnerTo, m.loserTo]) {
+          const next = link && list.find((x) => x.id === link.matchId)
+          if (next?.outcome !== 'pending') continue
+          next.outcome = 'skipped'
+          next.table = null
+          changed = true
+        }
+      }
       if (m.outcome === 'pending' || m.outcome === 'cancelled' || !m.winnerId) continue
       if (m.winnerTo && writeSlot(list, m.winnerTo, m.winnerId)) changed = true
       const loser = loserOf(m)

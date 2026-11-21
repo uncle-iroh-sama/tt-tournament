@@ -32,9 +32,18 @@ export function matchTitle(m: Match, lang: Lang): string {
       : `Group ${l.group} · round ${l.kolejka} · match ${l.n}`
   }
   if (l.k === 'place') {
+    const band = m.placeBand
+    if (band && band.to > band.from + 1) return lang === 'pl' ? `O miejsca ${band.from}–${band.to}` : `Places ${band.from}–${band.to}`
     return lang === 'pl' ? `Mecz o ${l.place}. miejsce` : `Match for place ${l.place}`
   }
+  if (l.k === 'cons') return consolationTitle(l.to, lang)
   return roundName(2 ** (l.rounds - l.round), lang)
+}
+
+/** A consolation round whose players still play for places 3 to `to`. */
+export function consolationTitle(to: number, lang: Lang): string {
+  if (to <= 4) return lang === 'pl' ? 'Mecz o 3. miejsce' : 'Match for 3rd place'
+  return lang === 'pl' ? `Pocieszenie · o miejsca 3–${to}` : `Consolation · places 3–${to}`
 }
 
 export function placeColumnTitle(matches: Match[], lang: Lang): string {
@@ -64,6 +73,11 @@ export function roundHeading(m: Match, lang: Lang): string {
     return qualifyingHeading(round, rounds, lang)
   }
   if (m.stage === 'group') return `${translate(lang, 'group')} · ${translate(lang, 'kolejka')} ${m.round + 1}`
+  if (m.label.k === 'cons') {
+    const to = m.label.to
+    if (to <= 4) return consolationTitle(to, lang)
+    return lang === 'pl' ? `Miejsca 3–${to}` : `Places 3–${to}`
+  }
   if (m.stage === 'placement') return placeColumnTitle([m], lang)
   const label = m.label
   if (label.k !== 'main') return translate(lang, 'main')

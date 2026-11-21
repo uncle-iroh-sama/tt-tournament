@@ -33,6 +33,7 @@ const ERRORS: Record<string, Key> = {
   'fixed-empty': 'fixedEmpty',
   'fixed-field': 'fixedField',
   'fixed-size': 'fixedSize',
+  'not-place': 'notPlace',
 }
 
 function pageKey(route: string): Key {

@@ -337,7 +337,8 @@ describe('scores, places, points', () => {
     expect(pointsFor('mlodzik', { from: 9, to: 12 })).toBe(33)
     expect(pointsFor('zak', 1)).toBe(40)
     expect(pointsFor('custom', 1)).toBeNull()
-    expect(pointsFor('senior', 18)).toBeNull()
+    expect(pointsFor('senior', 18)).toBe(44)
+    expect(pointsFor('zak', { from: 33, to: 34 })).toBe(5)
     expect(pointsFor('senior', 1, { '1': 100 })).toBe(100)
   })
 

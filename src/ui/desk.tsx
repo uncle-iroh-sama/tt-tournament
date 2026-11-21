@@ -17,6 +17,7 @@ import {
   readyMatches,
   removePlayer,
   simulateRemaining,
+  skipMatch,
   suggestAssignments,
   swapMainSlots,
   undoAll,
@@ -190,6 +191,13 @@ export function Desk({
             else onError(res.error)
             setScoreId(null)
           }}
+          onSkip={scoreMatch.label.k === 'place' && scoreMatch.placeBand && scoreMatch.outcome === 'pending' ? () => {
+            const table = scoreMatch.table
+            const res = skipMatch(t, scoreMatch.id)
+            if (res.ok) setT(fillFreedTable(res.tournament, table))
+            else onError(res.error)
+            setScoreId(null)
+          } : undefined}
         />
       )}
       {ask && (
@@ -514,7 +522,8 @@ function Bracket({
   openScore: (id: string) => void
 }) {
   const main = t.matches.filter((m) => m.stage === 'main')
-  const places = t.matches.filter((m) => m.stage === 'placement' && (m.outcome !== 'pending' || m.slotA != null || m.slotB != null))
+  const cons = t.matches.filter((m) => m.label.k === 'cons')
+  const places = t.matches.filter((m) => m.label.k === 'place' && (m.outcome !== 'pending' || m.slotA != null || m.slotB != null))
   return (
     <>
       <div className="card no-print">
@@ -559,6 +568,7 @@ function Bracket({
           )}
         </div>
       )}
+      {cons.length > 0 && <BracketColumns t={t} lang={lang} matches={cons} title={tr('consolation')} onOpen={openScore} />}
       <details className="audit card">
         <summary>{tr('audit')}</summary>
         <ul>
@@ -649,7 +659,7 @@ function Matches({
 }
 
 function Finished({ t, lang, tr, openScore, ask }: { t: Tournament; lang: Lang; tr: (k: Key) => string; openScore: (id: string) => void; ask: (q: { text: string; run: () => void } | null) => void }) {
-  const done = t.matches.filter((m) => m.outcome === 'score' || m.outcome === 'walkover' || m.outcome === 'retirement').slice(-12).reverse()
+  const done = t.matches.filter((m) => m.outcome === 'score' || m.outcome === 'walkover' || m.outcome === 'retirement' || m.outcome === 'skipped').slice(-12).reverse()
   if (done.length === 0) return null
   return (
     <div className="card">
@@ -852,7 +862,7 @@ function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: 
   const wonA = count?.a
   const wonB = count?.b
   const hasSets = m.sets.length > 0
-  const hideRound = bare && (m.label.k === 'main' || m.label.k === 'qual')
+  const hideRound = bare && (m.label.k === 'main' || m.label.k === 'qual' || m.label.k === 'cons')
   const title = hideRound ? '' : matchTitle(m, lang)
   const table = m.table != null ? `${translate(lang, 'suggest')} ${m.table}` : ''
   const status = m.outcome === 'bye'
@@ -861,7 +871,9 @@ function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: 
       ? translate(lang, 'status_walkover')
       : m.outcome === 'retirement'
         ? translate(lang, 'status_retirement')
-        : ''
+        : m.outcome === 'skipped'
+          ? translate(lang, 'status_skipped')
+          : ''
   const meta = [title, table, m.outcome === 'retirement' || !count ? status : ''].filter(Boolean).join(' · ')
   const playable = !!onOpen && !!m.slotA && !!m.slotB && m.outcome !== 'bye' && m.outcome !== 'cancelled'
   const winA = m.winnerId != null && m.winnerId === m.slotA
@@ -904,12 +916,12 @@ function Side({ t, id, win, lose, lang, seed, bye, onPick, marked, games }: { t:
 function columnHeading(matches: Match[], lang: Lang): string {
   const sample = matches[0]
   if (!sample) return ''
-  if (sample.stage === 'placement') return placeColumnTitle(matches, lang)
+  if (sample.label.k === 'place') return placeColumnTitle(matches, lang)
   return roundHeading(sample, lang)
 }
 
 function BracketColumns({
-  t, lang, matches, title, roundOn = 0, setRoundOn, onSlot, highlight, onOpen,
+  t, lang, matches, title, roundOn, setRoundOn, onSlot, highlight, onOpen,
 }: {
   t: Tournament
   lang: Lang
@@ -921,6 +933,9 @@ function BracketColumns({
   highlight?: number | null
   onOpen?: (id: string) => void
 }) {
+  const [ownRound, setOwnRound] = useState(0)
+  const on = roundOn ?? ownRound
+  const setOn = setRoundOn ?? setOwnRound
   const rounds = [...new Set(matches.map((m) => m.round))].sort((a, b) => a - b)
   const multi = rounds.length > 1
   return (
@@ -931,7 +946,7 @@ function BracketColumns({
           {rounds.map((r) => {
             const inRound = matches.filter((m) => m.round === r)
             return (
-              <button key={r} className={r === roundOn ? 'on' : ''} onClick={() => setRoundOn?.(r)}>{columnHeading(inRound, lang)}</button>
+              <button key={r} className={r === on ? 'on' : ''} onClick={() => setOn(r)}>{columnHeading(inRound, lang)}</button>
             )
           })}
         </div>
@@ -940,7 +955,7 @@ function BracketColumns({
         {rounds.map((r) => {
           const inRound = matches.filter((m) => m.round === r).sort((a, b) => a.index - b.index)
           return (
-            <div className={`round ${r === roundOn ? 'on' : ''}`} key={r}>
+            <div className={`round ${r === on ? 'on' : ''}`} key={r}>
               {multi && <h3>{columnHeading(inRound, lang)}</h3>}
               {inRound.map((m) => (
                 <Slip
@@ -972,6 +987,8 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
   const live = open.filter((m) => m.outcome === 'pending' && m.table != null).sort((a, b) => (a.table ?? 0) - (b.table ?? 0))
   const next = readyMatches(finished).filter((m) => m.table == null).slice(0, 8)
   const rows = classification(t)
+  const cons = t.matches.filter((m) => m.label.k === 'cons')
+  const places = t.matches.filter((m) => m.label.k === 'place' && (m.slotA != null || m.slotB != null))
   const [roundOn, setRoundOn] = useState(0)
   const [query, setQuery] = useState('')
   const q = query.trim().toLocaleLowerCase('pl')
@@ -1056,6 +1073,8 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
       {t.matches.some((m) => m.stage === 'main') && (
         <BracketColumns t={t} lang={lang} matches={t.matches.filter((m) => m.stage === 'main')} title={tr('main')} roundOn={roundOn} setRoundOn={setRoundOn} />
       )}
+      {cons.length > 0 && <BracketColumns t={t} lang={lang} matches={cons} title={tr('consolation')} />}
+      {cons.length > 0 && places.length > 0 && <BracketColumns t={t} lang={lang} matches={places} title={tr('placement')} />}
       {board && !t.matches.some((m) => m.stage === 'main') && t.matches.some((m) => m.stage === 'qualifying') && (
         <BracketColumns t={t} lang={lang} matches={t.matches.filter((m) => m.stage === 'qualifying')} title={tr('qualBracket')} roundOn={roundOn} setRoundOn={setRoundOn} />
       )}

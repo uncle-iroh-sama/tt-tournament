@@ -15,14 +15,18 @@ export type SeedingMode = 'fixed' | 'bands'
 
 export type Stage = 'qualifying' | 'group' | 'main' | 'placement'
 
-export type Outcome = 'pending' | 'score' | 'walkover' | 'retirement' | 'bye' | 'cancelled'
+/** `skipped` is a place match the referee marked as not played (NIE): its players share the places it would have decided. */
+export type Outcome = 'pending' | 'score' | 'walkover' | 'retirement' | 'bye' | 'cancelled' | 'skipped'
 
 /** How the field plays: one knock-out (with qualifying when it is larger than the draw), or groups feeding a knock-out. */
 export const FORMATS = ['knockout', 'groups'] as const
 export type Format = (typeof FORMATS)[number]
 
-/** What a knock-out decides below the final: nothing, or same-round place matches. */
-export const BRACKETS = ['single', 'placement'] as const
+/**
+ * What a knock-out decides below the final: nothing, same-round place matches,
+ * or a WZTS feed-in consolation where losers of later rounds drop in and can still finish 3rd.
+ */
+export const BRACKETS = ['single', 'placement', 'consolation'] as const
 export type Bracket = (typeof BRACKETS)[number]
 
 export const DRAW_SIZES = [8, 16, 32, 64] as const
@@ -56,6 +60,8 @@ export type MatchLabel =
   | { k: 'qual'; round: number; n: number; draw?: number; rounds?: number }
   | { k: 'main'; round: number; rounds: number; n: number }
   | { k: 'place'; place: number; n: number }
+  /** Consolation round; its players still play for places 3 to `to`. */
+  | { k: 'cons'; round: number; n: number; to: number }
   | { k: 'group'; group: string; n: number; kolejka: number }
 
 export interface Match {
@@ -81,6 +87,7 @@ export interface Match {
   loserTo?: Link
   placeWin?: number
   placeLose?: number
+  /** On a place match, the places it decides. Elsewhere, the band the loser shares when no place match follows. */
   placeBand?: PlaceBand
   qualifies?: boolean
 }

@@ -103,7 +103,18 @@ export function pointsFor(
   const key = typeof place === 'number' ? String(place) : place.from === place.to ? String(place.from) : `${place.from}-${place.to}`
   if (override && override[key] != null && Number.isFinite(override[key])) return override[key]!
   if (category === 'custom') return null
-  const row = KWGPP[key]
+  const row = KWGPP[key] ?? enclosingRow(typeof place === 'number' ? { from: place, to: place } : place)
   if (!row) return null
   return row[COL[category]] ?? null
+}
+
+/** A band the table does not list (33–34, or place 18) scores as the narrowest listed band around it. */
+function enclosingRow(band: { from: number; to: number }): (typeof KWGPP)[string] | undefined {
+  let best: { size: number; key: string } | null = null
+  for (const key of Object.keys(KWGPP)) {
+    const [from, to = from] = key.split('-').map(Number) as [number, number?]
+    if (from > band.from || to < band.to) continue
+    if (!best || to - from < best.size) best = { size: to - from, key }
+  }
+  return best ? KWGPP[best.key] : undefined
 }
