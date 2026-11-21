@@ -77,7 +77,7 @@ describe('format setting', () => {
     const short = tournamentFromJson(JSON.stringify({ version: 1, settings: { format: 'knockout', bracket: 'single', mainDrawSize: 8 }, players: [] }))!
     expect(short.settings).toMatchObject({ format: 'knockout', bracket: 'single', mainDrawSize: 8, directSeeds: 4 })
     const legacy = tournamentFromJson(JSON.stringify({ version: 1, settings: { qualifyingMode: 'groups' }, players: [] }))!
-    expect(legacy.settings).toMatchObject({ format: 'groups', bracket: 'placement', mainDrawSize: 32, directSeeds: 16 })
+    expect(legacy.settings).toMatchObject({ format: 'groups', bracket: 'placement', mainDrawSize: 32, directSeeds: 0 })
     expect('qualifyingMode' in legacy.settings).toBe(false)
     const unknown = tournamentFromJson(JSON.stringify({ version: 1, settings: { format: 'swiss', bracket: 'double', mainDrawSize: 12 }, players: [] }))!
     expect(unknown.settings).toMatchObject({ format: 'knockout', bracket: 'placement', mainDrawSize: 32 })

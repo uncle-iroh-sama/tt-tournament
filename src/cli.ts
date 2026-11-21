@@ -5,6 +5,7 @@ import { qualifyingEntrants } from './logic/build.ts'
 import {
   addPlayer,
   clearResult,
+  defaultDirectSeeds,
   enterScore,
   enterSetCount,
   enterWalkover,
@@ -261,7 +262,10 @@ function withStructure(settings: Settings, flags: Map<string, string>): Settings
   const format = flags.get('format')
   const bracket = flags.get('bracket')
   const draw = flags.get('draw')
-  if (format) next.format = oneOf('format', format, FORMATS)
+  if (format && format !== settings.format) {
+    next.format = oneOf('format', format, FORMATS)
+    next.directSeeds = defaultDirectSeeds(next)
+  }
   if (bracket) next.bracket = oneOf('bracket', bracket, BRACKETS)
   if (draw) {
     next.mainDrawSize = oneOf('draw', draw, DRAW_SIZES)
@@ -441,9 +445,10 @@ function cmdStatus(root: string, slug: string): string {
   lines.push('next:')
   if (next.length === 0) lines.push('  —')
   for (const m of next) lines.push(`  ${playerName(t, m.slotA)} – ${playerName(t, m.slotB)}  (${roundHeading(m, 'en')})`)
-  if (!hasKnockout(t.settings)) {
-    for (const g of t.groups) lines.push('table:', ...tableLines(t, g))
-  } else if (t.phase === 'qualifying') {
+  if (t.phase !== 'main') {
+    for (const g of t.groups) lines.push(`group ${g.name}:`, ...tableLines(t, g))
+  }
+  if (hasKnockout(t.settings) && t.phase === 'qualifying') {
     const { direct, rest } = qualifyingEntrants(t.players, t.settings)
     lines.push(`qualifying ${rest.length}, direct ${direct.length}`)
   }

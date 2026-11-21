@@ -6,6 +6,7 @@ import {
   addPlayer,
   applySuggestions,
   assignTable,
+  defaultDirectSeeds,
   enterRetirement,
   enterScore,
   enterWalkover,
@@ -32,6 +33,7 @@ import { EDITABLE_POINT_KEYS, pointsFor } from '../logic/points.ts'
 import { findPlayerByName } from '../logic/names.ts'
 import { compareRanking } from '../logic/ranking.ts'
 import { setCount } from '../logic/score.ts'
+import { nextPow2 } from '../logic/seeds.ts'
 import { BRACKETS, DRAW_SIZES, FORMATS } from '../logic/types.ts'
 import type { Bracket, Category, DrawSize, Format, Match, PlaceFlags, PointsCategory, Settings, Tournament } from '../logic/types.ts'
 import { isDemoTournament, parsePlayerLines } from '../demo.ts'
@@ -350,6 +352,7 @@ function describePlan(t: Tournament, lang: Lang) {
         <div className="stat"><b>{kolejki}</b><span>{tr('planKolejki')}</span></div>
         <div className="stat"><b>{matches}</b><span>{tr('planGroupMatches')}</span></div>
         <div className="stat"><b>{Math.min(adv, s.mainDrawSize)}</b><span>{tr('planIntoMain')}</span></div>
+        <div className="stat"><b>{Math.min(s.mainDrawSize, nextPow2(adv))}</b><span>{tr('drawSize')}</span></div>
         {adv > s.mainDrawSize && <p className="muted">{tr('planCut')}</p>}
       </div>
     )
@@ -508,7 +511,7 @@ function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tou
             return (
               <div className="card" key={g.id}>
                 <h3>{tr('group')} {g.name}</h3>
-                <table className="list">
+                <table className="list group-table">
                   <thead><tr><th></th><th></th><th>{tr('played')}</th><th>{tr('matchPoints')}</th><th>{tr('setRatio')}</th><th>{tr('ballRatio')}</th></tr></thead>
                   <tbody>
                     {rows.map((r) => {
@@ -517,7 +520,7 @@ function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tou
                       return (
                         <tr key={r.playerId}>
                           <td>{r.place}</td>
-                          <td>{pname(p, lang)} <span className="muted">{p?.club}</span> {advances && <span className="adv">{tr('advanceMark')}</span>}</td>
+                          <td>{pname(p, lang)} {advances && <span className="adv">{tr('advanceMark')}</span>}<span className="muted club-line">{p?.club}</span></td>
                           <td>{r.played}</td>
                           <td>{r.points}</td>
                           <td>{ratioText(r.setsWon, r.setsLost)}</td>
@@ -841,7 +844,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
       <label className="field">{tr('format')}
         <select value={settings.format} onChange={(e) => {
           const format = e.target.value as Format
-          set({ format, directSeeds: format === 'knockout' ? settings.mainDrawSize / 2 : 0 })
+          set({ format, directSeeds: defaultDirectSeeds({ format, mainDrawSize: settings.mainDrawSize }) })
         }}>
           {FORMATS.map((f) => <option key={f} value={f}>{tr(`format_${f}`)}</option>)}
         </select>
@@ -856,7 +859,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
           <label className="field">{tr('drawSize')}
             <select value={settings.mainDrawSize} onChange={(e) => {
               const mainDrawSize = Number(e.target.value) as DrawSize
-              set({ mainDrawSize, directSeeds: settings.format === 'groups' ? settings.directSeeds : mainDrawSize / 2 })
+              set({ mainDrawSize, directSeeds: settings.format === 'knockout' ? mainDrawSize / 2 : settings.directSeeds })
             }}>
               {DRAW_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
             </select>
@@ -1030,7 +1033,7 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
   const rows = classification(t)
   const cons = t.matches.filter((m) => m.label.k === 'cons')
   const places = t.matches.filter((m) => m.label.k === 'place' && (m.slotA != null || m.slotB != null))
-  const tableFirst = !hasKnockout(t.settings)
+  const tableFirst = !hasKnockout(t.settings) || t.phase !== 'main'
   const groupTables = <Qualifying quiet t={t} lang={lang} tr={tr} act={() => undefined} go={() => undefined} />
   const [roundOn, setRoundOn] = useState(0)
   const [query, setQuery] = useState('')

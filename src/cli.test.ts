@@ -310,4 +310,30 @@ describe('operator CLI', () => {
     expect(draw.code).toBe(1)
     expect(draw.err).toContain('no knock-out')
   })
+
+  it('plays groups into a knock-out that keeps group partners apart', () => {
+    const root = rootDir()
+    const short = join(root, 'short.json')
+    const players = Array.from({ length: 12 }, (_, i) => ({ name: `Gracz ${String.fromCharCode(65 + i)}`, club: `KS ${i % 3}`, ranking: 100 - i }))
+    writeFileSync(short, JSON.stringify({ version: 1, settings: { name: 'Grupy', groupSize: 3, advancePerGroup: 2 }, players }))
+    const init = run(root, ['init', 'grupy', short, '--format', 'groups', '--bracket', 'consolation'])
+    expect(init.code, init.err).toBe(0)
+    expect(init.out).toContain('format groups · bracket consolation')
+    const nameOf = (t: Tournament, id: string | null) => t.players.find((p) => p.id === id)!.name
+    for (let t = load(root, 'grupy'), m = readyMatches(t)[0]; m; t = load(root, 'grupy'), m = readyMatches(t)[0]) {
+      const res = run(root, ['result', 'grupy', nameOf(t, m.slotA), nameOf(t, m.slotB), '3:1'])
+      expect(res.code, res.err).toBe(0)
+    }
+    expect(run(root, ['status', 'grupy']).out).toContain('group D:\n  1. ')
+    const draw = run(root, ['draw-main', 'grupy'])
+    expect(draw.code, draw.err).toBe(0)
+    const t = load(root, 'grupy')
+    expect(t.mainSlots).toHaveLength(8)
+    for (const g of t.groups) {
+      const at = t.mainSlots!.flatMap((id, i) => (id && g.playerIds.includes(id) ? [i] : []))
+      expect(at).toHaveLength(2)
+      expect(Math.floor(at[0]! / 4)).not.toBe(Math.floor(at[1]! / 4))
+    }
+    expect(t.matches.some((m) => m.label.k === 'cons')).toBe(true)
+  })
 })
