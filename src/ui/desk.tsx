@@ -12,6 +12,7 @@ import {
   fillFreedTable,
   generateMainDraw,
   generateQualifying,
+  hasKnockout,
   qualifyingComplete,
   qualifyingRequired,
   readyMatches,
@@ -231,7 +232,7 @@ function Home({
 }) {
   const active = t.players.filter((p) => !p.withdrawn)
   const prog = countFinished(t)
-  const final = t.matches.find((m) => m.stage === 'main' && m.placeWin === 1 && m.winnerId && m.outcome !== 'pending' && m.outcome !== 'bye' && m.outcome !== 'cancelled')
+  const champion = classification(t).find((r) => r.ref.kind === 'place' && r.ref.place === 1)
   const step = nextStep(t, lang)
   const plan = useMemo(() => describePlan(t, lang), [t, lang])
   const live = t.matches.filter((m) => m.outcome === 'pending' && m.table != null)
@@ -240,14 +241,19 @@ function Home({
       <div className="banner">
         <strong>{step.title}</strong>
         <p className="muted">
-          {tr(`format_${t.settings.format}`)} · {tr(`bracket_${t.settings.bracket}`)}
-          {' · '}<span className="keep">{tr('directSeeds')} {t.settings.directSeeds}</span>
-          {' · '}<span className="keep">{tr('drawSize')} {t.settings.mainDrawSize}</span>
+          {tr(`format_${t.settings.format}`)}
+          {hasKnockout(t.settings) && (
+            <>
+              {' · '}{tr(`bracket_${t.settings.bracket}`)}
+              {' · '}<span className="keep">{tr('directSeeds')} {t.settings.directSeeds}</span>
+              {' · '}<span className="keep">{tr('drawSize')} {t.settings.mainDrawSize}</span>
+            </>
+          )}
           {' · '}<span className="keep">{t.settings.bestOf === 5 ? tr('bestOf5') : tr('bestOf3')}</span>
-          {' · '}<span className="keep">{tr('placeBestOf')}: {t.settings.placeMatchBestOf === 3 ? tr('bestOf3') : tr('bestOf5')}</span>
+          {hasKnockout(t.settings) && <>{' · '}<span className="keep">{tr('placeBestOf')}: {t.settings.placeMatchBestOf === 3 ? tr('bestOf3') : tr('bestOf5')}</span></>}
         </p>
         <div className="row" style={{ marginTop: 8 }}>
-          {step.kind === 'qual' && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr('generateQual')}</button>}
+          {step.kind === 'qual' && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr(hasKnockout(t.settings) ? 'generateQual' : 'generateSchedule')}</button>}
           {step.kind === 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
           {step.kind === 'play' && <button className="btn" onClick={() => go('#/mecze')}>{tr('navMatches')}</button>}
           {step.kind === 'players' && <button className="btn" onClick={() => go('#/zawodnicy')}>{tr('navPlayers')}</button>}
@@ -261,7 +267,7 @@ function Home({
         <div className="stat"><b>{active.length}</b><span>{tr('players')}</span></div>
         <div className="stat"><b>{t.settings.tables}</b><span>{tr('tables')}</span></div>
         <div className="stat"><b>{prog.done}/{prog.total}</b><span>{tr('progress')}</span></div>
-        <div className="stat"><b>{final ? pname(findPlayer(t, final.winnerId), lang) : '—'}</b><span>{tr('champion')}</span></div>
+        <div className="stat"><b>{champion ? pname(findPlayer(t, champion.playerId), lang) : '—'}</b><span>{tr('champion')}</span></div>
       </div>
       <div className="card" style={{ marginTop: 14 }}>
         <h2>{tr('planTitle')}</h2>
@@ -276,7 +282,7 @@ function Home({
         <div className="row">
           <button className="btn secondary" onClick={() => download(t)}>{tr('export')}</button>
           <button className="btn secondary" onClick={() => go('#/druk/kartki')}>{tr('printSheets')}</button>
-          <button className="btn secondary" onClick={() => go('#/druk/drabinka')}>{tr('printBracket')}</button>
+          {hasKnockout(t.settings) && <button className="btn secondary" onClick={() => go('#/druk/drabinka')}>{tr('printBracket')}</button>}
         </div>
         <div className="row" style={{ marginTop: 10 }}>
           {t.matches.length > 0 && (
@@ -302,6 +308,11 @@ function nextStep(t: Tournament, lang: Lang): { title: string; kind: 'players' |
   if (n < 2) return { title: translate(lang, 'nextQual'), kind: 'players' }
   const final = t.matches.find((m) => m.stage === 'main' && m.placeWin === 1 && (m.outcome === 'score' || m.outcome === 'walkover' || m.outcome === 'retirement'))
   if (final) return { title: translate(lang, 'nextDone'), kind: 'done' }
+  if (!hasKnockout(t.settings)) {
+    if (t.phase === 'setup') return { title: translate(lang, 'nextSchedule'), kind: 'qual' }
+    if (!qualifyingComplete(t)) return { title: translate(lang, 'nextPlayTable'), kind: 'play' }
+    return { title: translate(lang, 'nextDoneTable'), kind: 'done' }
+  }
   if (t.phase === 'main') return { title: translate(lang, 'nextPlay'), kind: 'play' }
   if (!qualifyingRequired(t)) return { title: translate(lang, 'nextMainNow'), kind: 'main' }
   if (t.phase === 'setup') return { title: translate(lang, 'nextDrawQual'), kind: 'qual' }
@@ -316,6 +327,16 @@ function describePlan(t: Tournament, lang: Lang) {
   if (s.format === 'knockout' && n <= s.mainDrawSize) {
     const preview = previewQualifying(n, s.mainDrawSize, s.directSeeds, 'knockout')
     return <p>{tr('planNone')} {tr('planMainByes')}: <b>{preview.byesInMain}</b>.</p>
+  }
+  if (s.format === 'roundRobin') {
+    const pairs = groupPairings(n, 1)
+    return (
+      <div className="stats">
+        <div className="stat"><b>{n}</b><span>{tr('players')}</span></div>
+        <div className="stat"><b>{pairs.reduce((m, p) => Math.max(m, p.kolejka + 1), 0)}</b><span>{tr('planKolejki')}</span></div>
+        <div className="stat"><b>{pairs.length}</b><span>{tr('planGroupMatches')}</span></div>
+      </div>
+    )
   }
   if (s.format === 'groups') {
     const direct = Math.min(s.directSeeds, n)
@@ -453,19 +474,29 @@ function Players({
   )
 }
 
+function byKolejka(matches: Match[]): [number, Match[]][] {
+  const out = new Map<number, Match[]>()
+  for (const m of matches) {
+    const k = m.label.k === 'group' ? m.label.kolejka : m.round + 1
+    out.set(k, [...(out.get(k) ?? []), m])
+  }
+  return [...out].sort((a, b) => a[0] - b[0])
+}
+
 function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tournament; lang: Lang; tr: (k: Key) => string; act: DeskAct; go: (h: string) => void; openScore?: (id: string) => void; quiet?: boolean }) {
   const groups = t.groups
   const qual = t.matches.filter((m) => m.stage === 'qualifying')
+  const knockout = hasKnockout(t.settings)
   return (
     <>
       <div className="card">
-        <h2>{tr('navQual')}</h2>
+        <h2>{tr(knockout ? 'navQual' : 'navTable')}</h2>
         {describePlan(t, lang)}
         {!quiet && (
           <div className="row" style={{ marginTop: 10 }}>
-            {t.phase === 'setup' && qualifyingRequired(t) && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr('generateQual')}</button>}
-            {qualifyingComplete(t) && t.phase !== 'main' && qualifyingRequired(t) && <strong data-testid="qual-done">{tr('nextMain')}</strong>}
-            {qualifyingComplete(t) && t.phase !== 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
+            {t.phase === 'setup' && qualifyingRequired(t) && <button className="btn" data-testid="generate-qualifying" onClick={() => act(generateQualifying(t))}>{tr(knockout ? 'generateQual' : 'generateSchedule')}</button>}
+            {knockout && qualifyingComplete(t) && t.phase !== 'main' && qualifyingRequired(t) && <strong data-testid="qual-done">{tr('nextMain')}</strong>}
+            {knockout && qualifyingComplete(t) && t.phase !== 'main' && <button className="btn" data-testid="generate-main" onClick={() => act(generateMainDraw(t))}>{tr('generateMain')}</button>}
             {t.phase === 'main' && <button className="btn secondary" onClick={() => go('#/drabinka')}>{tr('navBracket')}</button>}
           </div>
         )}
@@ -478,11 +509,11 @@ function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tou
               <div className="card" key={g.id}>
                 <h3>{tr('group')} {g.name}</h3>
                 <table className="list">
-                  <thead><tr><th></th><th></th><th>{tr('played')}</th><th>Pkt</th><th>{tr('setRatio')}</th><th>{tr('ballRatio')}</th></tr></thead>
+                  <thead><tr><th></th><th></th><th>{tr('played')}</th><th>{tr('matchPoints')}</th><th>{tr('setRatio')}</th><th>{tr('ballRatio')}</th></tr></thead>
                   <tbody>
                     {rows.map((r) => {
                       const p = findPlayer(t, r.playerId)
-                      const advances = r.place <= t.settings.advancePerGroup && !p?.withdrawn
+                      const advances = knockout && r.place <= t.settings.advancePerGroup && !p?.withdrawn
                       return (
                         <tr key={r.playerId}>
                           <td>{r.place}</td>
@@ -496,7 +527,12 @@ function Qualifying({ t, lang, tr, act, go, openScore, quiet = false }: { t: Tou
                     })}
                   </tbody>
                 </table>
-                {t.matches.filter((m) => m.groupId === g.id).map((m) => <Slip key={m.id} t={t} m={m} lang={lang} />)}
+                {byKolejka(t.matches.filter((m) => m.groupId === g.id)).map(([k, list]) => (
+                  <div key={k}>
+                    <h4 className="kolejka">{tr('kolejka')} {k}</h4>
+                    <div className="slip-grid">{list.map((m) => <Slip key={m.id} t={t} m={m} lang={lang} bare />)}</div>
+                  </div>
+                ))}
               </div>
             )
           })}
@@ -596,7 +632,7 @@ function Matches({
   ask: (q: { text: string; run: () => void } | null) => void
 }) {
   const ready = readyMatches(t)
-  const canDrawMain = qualifyingComplete(t) && t.phase !== 'main'
+  const canDrawMain = hasKnockout(t.settings) && qualifyingComplete(t) && t.phase !== 'main'
   const suggestions = suggestAssignments(t)
   const suggestOf = new Map(suggestions.map((s) => [s.matchId, s.table]))
   const byTable = new Map<number, Match>()
@@ -772,6 +808,7 @@ function SettingsEdit({ t, tr, setT }: { t: Tournament; tr: (k: Key) => string; 
 export function SettingsFields({ settings, tr, onChange }: { settings: Settings; tr: (k: Key) => string; onChange: (s: Settings) => void }) {
   const set = (patch: Partial<Settings>) => onChange({ ...settings, ...patch })
   const places = (patch: Partial<PlaceFlags>) => set({ places: { ...settings.places, ...patch } })
+  const knockout = hasKnockout(settings)
   return (
     <div className="grid grid-2">
       <label className="field">{tr('name')}<input value={settings.name} onChange={(e) => set({ name: e.target.value })} /></label>
@@ -793,7 +830,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
           <option value={3}>{tr('bestOf3')}</option>
         </select>
       </label>
-      {settings.bracket !== 'single' && (
+      {knockout && settings.bracket !== 'single' && (
         <label className="field">{tr('placeBestOf')}
           <select value={settings.placeMatchBestOf} onChange={(e) => set({ placeMatchBestOf: Number(e.target.value) as 3 | 5 })}>
             <option value={3}>{tr('bestOf3')}</option>
@@ -804,31 +841,35 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
       <label className="field">{tr('format')}
         <select value={settings.format} onChange={(e) => {
           const format = e.target.value as Format
-          set({ format, directSeeds: format === 'groups' ? 0 : settings.mainDrawSize / 2 })
+          set({ format, directSeeds: format === 'knockout' ? settings.mainDrawSize / 2 : 0 })
         }}>
           {FORMATS.map((f) => <option key={f} value={f}>{tr(`format_${f}`)}</option>)}
         </select>
       </label>
-      <label className="field">{tr('bracket')}
-        <select value={settings.bracket} onChange={(e) => set({ bracket: e.target.value as Bracket })}>
-          {BRACKETS.map((b) => <option key={b} value={b}>{tr(`bracket_${b}`)}</option>)}
-        </select>
-      </label>
-      <label className="field">{tr('drawSize')}
-        <select value={settings.mainDrawSize} onChange={(e) => {
-          const mainDrawSize = Number(e.target.value) as DrawSize
-          set({ mainDrawSize, directSeeds: settings.format === 'groups' ? settings.directSeeds : mainDrawSize / 2 })
-        }}>
-          {DRAW_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
-        </select>
-      </label>
-      <label className="field">{tr('directSeeds')}<input type="number" min={0} max={64} value={settings.directSeeds} onChange={(e) => set({ directSeeds: Number(e.target.value) })} /></label>
-      <label className="field">{tr('seeding')}
-        <select value={settings.seeding} onChange={(e) => set({ seeding: e.target.value as Settings['seeding'] })}>
-          <option value="fixed">{tr('seedingFixed')}</option>
-          <option value="bands">{tr('seedingBands')}</option>
-        </select>
-      </label>
+      {knockout && (
+        <>
+          <label className="field">{tr('bracket')}
+            <select value={settings.bracket} onChange={(e) => set({ bracket: e.target.value as Bracket })}>
+              {BRACKETS.map((b) => <option key={b} value={b}>{tr(`bracket_${b}`)}</option>)}
+            </select>
+          </label>
+          <label className="field">{tr('drawSize')}
+            <select value={settings.mainDrawSize} onChange={(e) => {
+              const mainDrawSize = Number(e.target.value) as DrawSize
+              set({ mainDrawSize, directSeeds: settings.format === 'groups' ? settings.directSeeds : mainDrawSize / 2 })
+            }}>
+              {DRAW_SIZES.map((n) => <option key={n} value={n}>{n}</option>)}
+            </select>
+          </label>
+          <label className="field">{tr('directSeeds')}<input type="number" min={0} max={64} value={settings.directSeeds} onChange={(e) => set({ directSeeds: Number(e.target.value) })} /></label>
+          <label className="field">{tr('seeding')}
+            <select value={settings.seeding} onChange={(e) => set({ seeding: e.target.value as Settings['seeding'] })}>
+              <option value="fixed">{tr('seedingFixed')}</option>
+              <option value="bands">{tr('seedingBands')}</option>
+            </select>
+          </label>
+        </>
+      )}
       {settings.format === 'groups' && (
         <>
           <label className="field">{tr('groupSize')}
@@ -841,7 +882,7 @@ export function SettingsFields({ settings, tr, onChange }: { settings: Settings;
           <label className="field">{tr('advance')}<input type="number" min={1} max={3} value={settings.advancePerGroup} onChange={(e) => set({ advancePerGroup: Number(e.target.value) })} /></label>
         </>
       )}
-      {settings.bracket === 'placement' && (
+      {knockout && settings.bracket === 'placement' && (
         <div>
           <div className="muted">{tr('places')}</div>
           <label className="check"><input type="checkbox" checked={settings.places.third} onChange={(e) => places({ third: e.target.checked })} />{tr('place3')}</label>
@@ -862,7 +903,7 @@ function Slip({ t, m, lang, onOpen, onPick, picked, bare }: { t: Tournament; m: 
   const wonA = count?.a
   const wonB = count?.b
   const hasSets = m.sets.length > 0
-  const hideRound = bare && (m.label.k === 'main' || m.label.k === 'qual' || m.label.k === 'cons')
+  const hideRound = bare && m.label.k !== 'place'
   const title = hideRound ? '' : matchTitle(m, lang)
   const table = m.table != null ? `${translate(lang, 'suggest')} ${m.table}` : ''
   const status = m.outcome === 'bye'
@@ -989,6 +1030,8 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
   const rows = classification(t)
   const cons = t.matches.filter((m) => m.label.k === 'cons')
   const places = t.matches.filter((m) => m.label.k === 'place' && (m.slotA != null || m.slotB != null))
+  const tableFirst = !hasKnockout(t.settings)
+  const groupTables = <Qualifying quiet t={t} lang={lang} tr={tr} act={() => undefined} go={() => undefined} />
   const [roundOn, setRoundOn] = useState(0)
   const [query, setQuery] = useState('')
   const q = query.trim().toLocaleLowerCase('pl')
@@ -1038,6 +1081,7 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
           {next.map((m) => <Slip key={m.id} t={t} m={m} lang={lang} />)}
         </div>
       )}
+      {tableFirst && groupTables}
       <div className="card">
         <h2>{official ? tr('classOfficial') : tr('classTitle')}</h2>
         <table className="list">
@@ -1078,7 +1122,7 @@ function PublicView({ t, lang, board = false }: { t: Tournament; lang: Lang; boa
       {board && !t.matches.some((m) => m.stage === 'main') && t.matches.some((m) => m.stage === 'qualifying') && (
         <BracketColumns t={t} lang={lang} matches={t.matches.filter((m) => m.stage === 'qualifying')} title={tr('qualBracket')} roundOn={roundOn} setRoundOn={setRoundOn} />
       )}
-      {t.groups.length > 0 && <Qualifying quiet t={t} lang={lang} tr={tr} act={() => undefined} go={() => undefined} />}
+      {!tableFirst && t.groups.length > 0 && groupTables}
     </>
   )
 }

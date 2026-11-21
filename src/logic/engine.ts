@@ -68,9 +68,14 @@ export function createTournament(settings: Settings = defaultSettings(), drawCod
   }
 }
 
+/** A round robin ends with its table; the other formats finish with a knock-out. */
+export function hasKnockout(s: Settings): boolean {
+  return s.format !== 'roundRobin'
+}
+
 export function qualifyingRequired(t: Tournament): boolean {
   const n = activePlayers(t.players).length
-  if (t.settings.format === 'groups') return n >= 2
+  if (t.settings.format !== 'knockout') return n >= 2
   return n > t.settings.mainDrawSize
 }
 
@@ -109,7 +114,7 @@ export function removePlayer(t: Tournament, id: string): Action {
 export function qualifyingComplete(t: Tournament): boolean {
   if (!qualifyingRequired(t)) return true
   if (t.phase === 'setup') return false
-  if (t.settings.format === 'groups') {
+  if (t.settings.format !== 'knockout') {
     if (t.groups.length === 0) return true
     return t.groups.every((g) => {
       const list = t.matches.filter((m) => m.groupId === g.id)
@@ -182,7 +187,7 @@ function paperPairs(
 ): { ok: false; error: string } | { ok: true; pairs: { a: string | null; b: string | null }[] } | null {
   const paper = t.fixedFirstRound
   if (!paper || paper.length === 0) return null
-  if (t.settings.format === 'groups') return { ok: false, error: 'fixed-groups' }
+  if (t.settings.format !== 'knockout') return { ok: false, error: 'fixed-groups' }
   return resolvePaperPairs(t.players, paper)
 }
 
@@ -229,6 +234,7 @@ function pendingQualifierMatchIds(t: Tournament): string[] {
 }
 
 export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: string | null }[] | null): Action {
+  if (!hasKnockout(t.settings)) return { ok: false, error: 'no-knockout' }
   if (hasPlayed(t.matches, (m) => m.stage === 'main' || m.placementOf === 'main')) return { ok: false, error: 'main-started' }
   const explicit = paperOverride && paperOverride.length > 0 ? paperOverride : null
   let paper:
@@ -236,7 +242,7 @@ export function generateMainDraw(t: Tournament, paperOverride?: { a: string; b: 
     | { ok: true; pairs: { a: string | null; b: string | null; waitA?: string; waitB?: string }[] }
     | null
   if (explicit) {
-    if (t.settings.format === 'groups') paper = { ok: false, error: 'fixed-groups' }
+    if (t.settings.format !== 'knockout') paper = { ok: false, error: 'fixed-groups' }
     else paper = resolveMainPaperPairs(t.players, t.matches, explicit)
   } else {
     paper = !qualifyingRequired(t) ? paperPairs(t) : null

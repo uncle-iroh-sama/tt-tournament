@@ -309,7 +309,7 @@ export function rankPlayers(players: Player[]): Player[] {
 /** Direct seeds, and the players who contest the first round. Qualifying always leaves at least one place. */
 export function qualifyingEntrants(players: Player[], settings: Settings): { direct: Player[]; rest: Player[] } {
   const ranked = rankPlayers(players)
-  const cap = settings.format === 'groups' ? ranked.length : settings.mainDrawSize - 1
+  const cap = { knockout: settings.mainDrawSize - 1, groups: ranked.length, roundRobin: 0 }[settings.format]
   const directCount = Math.min(Math.max(0, settings.directSeeds), cap, ranked.length)
   return { direct: ranked.slice(0, directCount), rest: ranked.slice(directCount) }
 }
@@ -354,7 +354,7 @@ export function buildQualifying(
   const { direct, rest } = qualifyingEntrants(players, settings)
   const audit: AuditEvent[] = []
   const awards: Award[] = []
-  if (settings.format === 'groups') {
+  if (settings.format !== 'knockout') {
     const built = buildGroupStage(direct, rest, settings, at, audit)
     return {
       matches: settle(built.matches, new Set()),
@@ -459,10 +459,11 @@ function buildGroupStage(
   at: string,
   audit: AuditEvent[],
 ): { matches: Match[]; directIds: string[]; groups: Group[] } {
-  const sizes = planGroupSizes(rest.length, settings.groupSize)
-  const groups = snakeGroups(rest.map((p) => p.id), sizes.length)
+  const ids = rest.map((p) => p.id)
+  const roundRobin = settings.format === 'roundRobin'
+  const groups = roundRobin ? [ids] : snakeGroups(ids, planGroupSizes(ids.length, settings.groupSize).length)
   const clubOf = (id: string) => rest.find((p) => p.id === id)?.club ?? ''
-  separateGroupClubs(groups, clubOf, audit, at)
+  if (!roundRobin) separateGroupClubs(groups, clubOf, audit, at)
   const matches: Match[] = []
   const groupModels: Group[] = groups.map((ids, gi) => ({
     id: `g${gi + 1}`,
@@ -470,7 +471,7 @@ function buildGroupStage(
     playerIds: ids.slice(),
   }))
   groupModels.forEach((group) => {
-    const pairs = groupPairings(group.playerIds.length, settings.advancePerGroup)
+    const pairs = groupPairings(group.playerIds.length, roundRobin ? 1 : settings.advancePerGroup)
     pairs.forEach((pair, mi) => {
       const label: MatchLabel = { k: 'group', group: group.name, n: mi + 1, kolejka: pair.kolejka + 1 }
       matches.push(

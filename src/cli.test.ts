@@ -288,4 +288,26 @@ describe('operator CLI', () => {
     expect(bad.code).toBe(1)
     expect(bad.err).toContain('--bracket must be one of: single, placement')
   })
+
+  it('runs a round robin: schedule, results, table and no knock-out', () => {
+    const root = rootDir()
+    const short = join(root, 'short.json')
+    const players = ['Adam', 'Bartek', 'Czarek', 'Darek'].map((name, i) => ({ name, club: 'KS', ranking: 100 - i }))
+    writeFileSync(short, JSON.stringify({ version: 1, settings: { name: 'Liga' }, players }))
+    const init = run(root, ['init', 'liga', short, '--format', 'roundRobin'])
+    expect(init.code, init.err).toBe(0)
+    expect(init.out).toContain('format roundRobin\nRound robin: 4 players, 6 matches in 3 rounds.')
+    for (const [a, b] of [['Adam', 'Bartek'], ['Adam', 'Czarek'], ['Adam', 'Darek'], ['Bartek', 'Czarek'], ['Bartek', 'Darek']]) {
+      expect(run(root, ['result', 'liga', a!, b!, '3:0']).code).toBe(0)
+    }
+    expect(run(root, ['result', 'liga', 'Darek', 'Czarek', 'wo']).code).toBe(0)
+    const status = run(root, ['status', 'liga']).out
+    expect(status).toContain('round robin · 6/6 played')
+    expect(status).toContain('  1. Adam  6 pts · 3/3 won · sets 9:0')
+    expect(status).toContain('  3. Darek  4 pts · 1/3 won')
+    expect(status).toContain('  4. Czarek  2 pts · 0/3 won')
+    const draw = run(root, ['draw-main', 'liga'])
+    expect(draw.code).toBe(1)
+    expect(draw.err).toContain('no knock-out')
+  })
 })

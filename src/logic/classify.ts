@@ -1,3 +1,4 @@
+import { groupMatchesDone, rankGroup } from './groups.ts'
 import { pointsFor } from './points.ts'
 import { compareRanking } from './ranking.ts'
 import type { Match, Player, Tournament } from './types.ts'
@@ -24,6 +25,7 @@ export function classification(t: Tournament): ClassRow[] {
   const exact = new Map<string, number>()
   const bands = new Map<string, { from: number; to: number }>()
   for (const a of t.awards) exact.set(a.playerId, a.place)
+  if (t.settings.format === 'roundRobin') roundRobinPlaces(t, exact)
   for (const m of t.matches) {
     if (m.outcome === 'skipped' && m.placeBand) {
       for (const id of [m.slotA, m.slotB]) if (id) bands.set(id, m.placeBand)
@@ -86,6 +88,16 @@ export function classification(t: Tournament): ClassRow[] {
   const byId = new Map(t.players.map((p) => [p.id, p]))
   rows.sort((a, b) => rank(a) - rank(b) || bandOrder(t, a, b, byId) || a.playerId.localeCompare(b.playerId))
   return rows
+}
+
+/** A finished round robin: the table is the classification. */
+function roundRobinPlaces(t: Tournament, exact: Map<string, number>) {
+  const out = new Set(t.players.filter((p) => p.withdrawn).map((p) => p.id))
+  for (const g of t.groups) {
+    if (!groupMatchesDone(t.matches, g.id)) continue
+    const order = rankGroup(g.playerIds, t.matches.filter((m) => m.groupId === g.id), `${t.drawCode}:${g.id}`)
+    order.filter((id) => !out.has(id)).forEach((id, i) => exact.set(id, i + 1))
+  }
 }
 
 /** Inside one shared band, the better seed (then the better ranking) comes first. */
